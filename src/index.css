@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+/* Clutch visual language: brand red, near-black text, light canvas, bordered white cards, pill controls. */
+@theme {
+  --font-sans: 'Circular', 'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  --color-brand: #FF464C;
+  --color-brand-start: #FF6258;
+  --color-brand-hover: #FF686D;
+  --color-brand-dark: #B23135;
+  --color-ink: #191919;
+  --color-body: #272727;
+  --color-muted: #606060;
+  --color-subtle: #ABABAB;
+  --color-line: #DDDDDD;
+  --color-line-light: #EEEEEE;
+  --color-canvas: #FAFAFA;
+  --color-burgundy: #550E30;
+  --color-burgundy-deep: #460B28;
+  --color-success: #60BE02;
+  --color-warning: #FBBB00;
+  --color-error: #CE2929;
+  --color-teal: #00817B;
+
+  --radius-badge: 6px;
+  --radius-card: 8px;
+  --radius-panel: 16px;
+  --radius-pill: 32px;
+
+  --shadow-header: 0 4px 4px 0 rgba(0, 0, 0, 0.02);
+  --shadow-overlay: 0 6px 16px -4px rgba(0, 0, 0, 0.12);
+  --shadow-raised: 2px 2px 16px 0 rgba(0, 0, 0, 0.1);
+}
+
+@utility bg-cta {
+  background-image: linear-gradient(90deg, #FF6258 0%, #FF464C 100%);
+}
+
+body {
+  @apply bg-canvas text-body font-sans antialiased;
+}
