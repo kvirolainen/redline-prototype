@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 *.backup
 .convex/
+
+*storybook.log
+storybook-static
