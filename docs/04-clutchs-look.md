@@ -42,6 +42,6 @@ Redline should feel like a Clutch product, so a dealer who has seen clutch.ca re
 
 - **Stepper, option cards, honesty nudges** → Trade-in (Maria)
 - **Firm-offer card, same-day follow-up** → Trade-in result, and the re-price card in Back office (Dave)
-- **Inspection report rows** → Inspector checklist (Sam, phone)
-- **Black pills, borders over shadows, Figtree, red accents** → every screen, including the Ops board (Jordan)
-- **Status colours** (green done, yellow needs attention) → Ops board exceptions and Back office notices
+- **Inspection report rows** → Clutch inspector checklist (Sam, phone)
+- **Black pills, borders over shadows, Figtree, red accents** → every screen, including Clutch ops (Jordan)
+- **Status colours** (green done, yellow needs attention) → Clutch ops exceptions and Back office notices

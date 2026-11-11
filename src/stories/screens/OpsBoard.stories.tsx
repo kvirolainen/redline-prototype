@@ -3,10 +3,10 @@ import { VariantA } from '../../modules/ops-board/VariantA';
 import { VariantB } from '../../modules/ops-board/VariantB';
 import { VariantC } from '../../modules/ops-board/VariantC';
 
-// Ops board · Jordan, Clutch ops, on a desktop. Shown on a pickup day (Thu Nov 12, 11:40) while the runs are out.
+// Clutch ops · Jordan, Clutch ops, on a desktop. Shown on a pickup day (Thu Nov 12, 11:40) while the runs are out.
 
 const meta = {
-  title: 'Screens/Ops board',
+  title: 'Screens/Clutch ops',
   parameters: {
     layout: 'fullscreen',
     viewport: {

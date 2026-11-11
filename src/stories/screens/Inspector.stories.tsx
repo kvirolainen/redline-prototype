@@ -7,7 +7,7 @@ import { InspectorVariantC } from '../../modules/inspector/VariantC';
 // The 2019 Honda Civic EX is the mismatch (cracked windshield + repainted rear bumper → $16,950);
 // any car can be marked "Not ready" and rolls to next Thursday.
 const meta = {
-  title: 'Screens/Inspector',
+  title: 'Screens/Clutch inspector',
   parameters: {
     layout: 'fullscreen',
     viewport: {

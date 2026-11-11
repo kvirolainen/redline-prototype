@@ -38,8 +38,8 @@ export const PERSONAS: Persona[] = [
 export const MODULES: Record<ModuleId, { label: string; summary: string; device: 'desktop' | 'phone' }> = {
   'trade-in': { label: 'Trade-in', summary: 'Car details → Clutch offer next to the auction estimate', device: 'desktop' },
   'back-office': { label: 'Back office', summary: "The dealer's cars, re-price approvals and a value strip", device: 'desktop' },
-  inspector: { label: 'Inspector', summary: "Today's run → cars → checklist vs declared → confirm or re-price", device: 'phone' },
-  'ops-board': { label: 'Ops board', summary: 'Pickup runs by day × dealer, and exceptions', device: 'desktop' },
+  inspector: { label: 'Clutch inspector', summary: "Today's run → cars → checklist vs declared → confirm or re-price", device: 'phone' },
+  'ops-board': { label: 'Clutch ops', summary: 'Pickup runs by day × dealer, and exceptions', device: 'desktop' },
 };
 
 export const persona = (id: PersonaId) => PERSONAS.find((p) => p.id === id)!;

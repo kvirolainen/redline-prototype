@@ -18,7 +18,7 @@ All three handle the hard case the same way: a car that needs a closer look gets
 
 **Picked:** _pending_
 
-## 2. Ops board · Jordan, Clutch ops, desktop
+## 2. Clutch ops · Jordan, Clutch ops, desktop
 
 **Job:** every dealer's pickup runs in one place, and the exceptions that need a person.
 
@@ -30,7 +30,7 @@ All three handle the hard case the same way: a car that needs a closer look gets
 
 **Picked:** _pending_
 
-## 3. Inspector · Sam, phone, in a parking lot
+## 3. Clutch inspector · Sam, phone, in a parking lot
 
 **Job:** check each car against what the dealer declared, in about 15 minutes with one hand, then confirm, re-price or mark not ready.
 
