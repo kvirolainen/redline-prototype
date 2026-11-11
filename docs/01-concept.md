@@ -20,7 +20,6 @@ From the whiteboard session with Clutch:
 - **Two people decide at the dealer.** The sales manager prices the trade-in. The sales director approves it, decides retail vs wholesale, and would sign a Redline contract.
 - **Clutch already has most of the parts:** the instant offer individuals get, the same 15-minute inspection at pickup, and a team that already sells wholesale cars to dealers.
 - **Tesla is the closest example.** Clutch already makes offers on Tesla trade-ins, and Tesla passes them to the customer.
-- **Feedback on the first sketches:** keep the summary bar slim, and open the car table on *awaiting pickup*.
 
 ## The idea in one line
 

@@ -2,37 +2,57 @@
 
 How the prototype was made, from the whiteboard to a live app. The first versions of each screen, and the foundations they share, are in [Storybook](https://redline-storybook.vercel.app).
 
-## 1. Start from the room
+## 1. The whiteboard
 
-The whiteboard session became the Concept: the problem, what was learned in the room, and the idea in one line. One question that came up while building, whether the trade-in happens at the desk or online, got its own page instead of being settled quietly in a screen.
+The in-person session with Clutch: the problem, who decides at a dealership, and which parts Clutch already has.
 
-## 2. Study Clutch's product before designing
+## 2. Clutch's look and feel
 
-Clutch's public site, its sell flow walked through on a tablet with a real car, and press images of the firm-offer card and the inspection report. Colours, type, pill controls, black selected states and the pale-yellow honesty notes became the shared foundation every screen uses ([Storybook → Foundations](https://redline-storybook.vercel.app/?path=/story/foundations-brand--colours)).
+Clutch's public site, its sell flow, its firm-offer card and its inspection report. Colours, type, pill controls, black selected states and the pale-yellow honesty notes became the shared foundation every screen uses ([Storybook → Foundations](https://redline-storybook.vercel.app/?path=/story/foundations-brand--colours)).
 
-![Clutch's sell flow, Condition step: option cards, black selected state, honesty note](img/look-sell-flow-condition.jpg)
-
-![Clutch's firm-offer card (press image), reused for the trade-in confirmation](img/look-offer-card.jpg)
+![Clutch's firm-offer card, reused for the trade-in confirmation](img/look-offer-card.jpg)
 
 ![Clutch's inspection report rows, which became the inspector's checklist](img/look-inspection-report.png)
 
-## 3. Three different versions of every module
+## 3. First concept, split into modules
 
-Each module was first built as three deliberately different ideas, clickable on sample data and side by side in Storybook. Three versions force the trade-offs into view; one version only invites polish. Trade-in, for example:
+The whiteboard became the **Concept**: one car's whole path, split into four modules, one per person who touches the car.
+
+## 4. Desk or online?
+
+The first open question: does the trade-in happen at the sales desk or online? It got its own page, **Desk or online?**, instead of being settled quietly inside a screen.
+
+## 5. A closer look at the people
+
+For each module: who uses it, how often, what's hard and what matters to them. That set the main design call for every screen, written up in **The modules**.
+
+## 6. Prototypes: versions, then iterations
+
+Each module was first built as three deliberately different versions, clickable on sample data and side by side in Storybook. Three versions bring the trade-offs into view; one version only invites polish. Trade-in, for example:
 
 ::screens[trade-in]
 
-## 4. Pick by person, then refine
+The best version of each then went through rounds of review: Trade-in took six. Clutch ops and Clutch inspector ended up as a new version that combines the best parts of the first round.
 
-Each pick came from who uses the screen and how, written up in The modules. Then each pick went through rounds of review: Trade-in took six. Clutch ops and Clutch inspector ended as a new version that combines the best parts of the first round.
+## 7. Architecture
 
-## 5. Wire it to one live backend
+One live backend, one data model for the car and its status, one query feeding every module, and every change as a single transaction that records who did what and why. Details in **Architecture**.
 
-The backend went in once the shell and the first picks were solid. Wiring changes the data, not the screens, so refining a screen later stayed a Storybook edit. One live query feeds every module, and every change is one transaction that also records who did what and why.
+## 8. Wiring it up
 
-## 6. Click through it like a reviewer
+The picked screens were connected to the live backend. Wiring changes the data, not the screens, so later refinements stayed Storybook edits.
 
-A scripted browser click-through of the whole demo path, plus screen-fit checks at common laptop sizes and on a phone. Details are in Architecture.
+## 9. QA and fixes
+
+A code review of the whole build, then a scripted browser click-through of the full path and screen-fit checks at common laptop sizes and on a phone. Everything found was fixed before the demo.
+
+## 10. The demo path
+
+One car, start to finish, person by person: **Demo**.
+
+## Extra: dealer research
+
+Alongside the build: who should be the first Redline dealer, and how much public data can tell. In **Dealer research**.
 
 ## Tools
 
