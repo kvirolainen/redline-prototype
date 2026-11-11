@@ -25,16 +25,3 @@ From the whiteboard session with Clutch:
 ## The idea in one line
 
 At the desk, the sales manager gets Clutch's offer instead of haggling. Clutch picks the car up on the dealer's regular pickup day, checks it against what was declared and pays. If the check finds a difference, the car is re-priced and the director decides.
-
-## What's in this prototype
-
-One car, followed across four people:
-
-| Who | Screen |
-|---|---|
-| Maria, Sales Manager | **Trade-in**: car details → offer |
-| Jordan, Clutch ops | **Ops board**: pickup runs and what's stuck |
-| Sam, Clutch inspector | **Inspector** (phone): check vs declared → confirm, re-price or not ready |
-| Dave, Sales Director | **Back office**: the dealer's cars, re-price decisions, value vs auction |
-
-**Faked on purpose:** pricing (a stub where Clutch's calculator plugs in), sign-in (a person switcher), payments and notifications.
