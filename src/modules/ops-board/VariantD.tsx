@@ -2,9 +2,8 @@ import { useState } from 'react';
 import { StatusChip } from '../../components/ui/StatusChip';
 import { Button } from '../../components/ui/Button';
 import { money } from '../../domain/format';
-import { DAYS, DEALERS, TODAY_DATE, type OpsCar } from './fixtures';
-import { day } from './useOpsBoard';
-import { dayLabel, readiness, useDealerBoard, type DealerBoard, type DealerFlag, type DealerRow, type LiveReprice, type Readiness } from './useDealerBoard';
+import type { OpsCar } from './fixtures';
+import { useDealerBoard, type DealerBoard, type DealerFlag, type DealerRow, type LiveReprice, type Readiness } from './useDealerBoard';
 import { Check, ModuleHeader, Toast } from './parts';
 
 // D · Dealers: only what changes when the seller is a dealer. Dispatch (trucks, routes, rosters)
@@ -125,11 +124,11 @@ function LiveRow({ board, l }: { board: DealerBoard; l: LiveReprice }) {
             <Check /> Reminded {sent}
           </span>
         ) : (
-          <Button variant="dark-small" onClick={() => board.remind(key, l.director, l.dealer.name)}>
+          <Button variant="dark-small" onClick={() => board.remind(key, l.director, l.dealer, l.car.id)}>
             Remind {l.director}
           </Button>
         )}
-        <OutlinePill onClick={() => board.call(l.director, l.dealer.name)}>Call</OutlinePill>
+        <OutlinePill onClick={() => board.call(l.director, l.dealer, l.car.id)}>Call</OutlinePill>
       </div>
     </div>
   );
@@ -238,7 +237,7 @@ function DealerRowView({ board, row, open, onToggle }: { board: DealerBoard; row
           {row.dispatchNote && (
             <li className="flex flex-wrap items-center gap-x-2 text-caption text-muted">
               <span>{row.dispatchNote}</span>
-              <button type="button" onClick={() => board.openInDispatch(row.dispatchNote!)} className="font-medium text-ink underline underline-offset-2">
+              <button type="button" onClick={() => board.openInDispatch(row.dispatchNote!, row.dealer)} className="font-medium text-ink underline underline-offset-2">
                 Open in dispatch
               </button>
             </li>
@@ -251,7 +250,7 @@ function DealerRowView({ board, row, open, onToggle }: { board: DealerBoard; row
           {row.cars.length ? (
             <ul className="overflow-hidden rounded-card border border-line bg-white">
               {row.cars.map((c) => (
-                <CarRow key={c.id} car={c} flagged={flaggedCars.has(c.id)} />
+                <CarRow key={c.id} board={board} car={c} flagged={flaggedCars.has(c.id)} />
               ))}
             </ul>
           ) : (
@@ -330,13 +329,13 @@ function FlagLine({ board, row, f }: { board: DealerBoard; row: DealerRow; f: De
   const sent = board.reminded[f.key];
   const action =
     f.kind === 'health' ? (
-      <OutlinePill onClick={() => board.call(f.who, row.dealer.name)}>{`Call ${f.who}`}</OutlinePill>
+      <OutlinePill onClick={() => board.call(f.who, row.dealer, f.carId)}>{`Call ${f.who}`}</OutlinePill>
     ) : sent ? (
       <span className="inline-flex h-8 items-center gap-1.5 text-caption font-medium text-body">
         <Check /> Reminded {sent}
       </span>
     ) : (
-      <OutlinePill onClick={() => board.remind(f.key, f.who, row.dealer.name)}>
+      <OutlinePill onClick={() => board.remind(f.key, f.who, row.dealer, f.carId)}>
         {f.kind === 'rolls' ? `Confirm date with ${f.who}` : `Remind ${f.who}`}
       </OutlinePill>
     );
@@ -358,9 +357,10 @@ function FlagLine({ board, row, f }: { board: DealerBoard; row: DealerRow; f: De
   );
 }
 
-function CarRow({ car, flagged }: { car: OpsCar; flagged: boolean }) {
-  const r = readiness(car);
-  const lot = car.onLotFrom && car.onLotFrom > TODAY_DATE ? `On the lot from ${dayLabel(car.onLotFrom)}` : null;
+function CarRow({ board, car, flagged }: { board: DealerBoard; car: OpsCar; flagged: boolean }) {
+  const { day, dayLabel } = board;
+  const r = board.readiness(car);
+  const lot = car.onLotFrom && car.onLotFrom > board.today ? `On the lot from ${dayLabel(car.onLotFrom)}` : null;
   return (
     <li className={`grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 border-b border-line-light px-4 py-3 last:border-b-0 md:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)_150px] ${flagged ? 'bg-nudge/40' : ''}`}>
       <div className="min-w-0">
@@ -419,7 +419,7 @@ function Planning({ board }: { board: DealerBoard }) {
       <div className="mt-4 overflow-hidden rounded-panel border border-line bg-white">
         <div className="grid grid-cols-[minmax(120px,1.1fr)_repeat(4,minmax(0,1fr))]">
           <div className="border-b border-line px-4 py-3 text-caption font-medium text-muted">Dealer</div>
-          {DAYS.map((d) => (
+          {board.days.map((d) => (
             <div key={d.id} className={`border-b border-l border-line px-3 py-3 sm:px-4 ${d.state === 'today' ? 'bg-ink text-white' : ''}`}>
               <p className="text-sm font-bold">{d.label}</p>
               <p className={`text-caption ${d.state === 'today' ? 'text-white/70' : 'text-muted'}`}>
@@ -427,7 +427,7 @@ function Planning({ board }: { board: DealerBoard }) {
               </p>
             </div>
           ))}
-          {DEALERS.map((dl) => (
+          {board.dealers.map((dl) => (
             <PlanRow key={dl.id} board={board} dealerId={dl.id} />
           ))}
         </div>
@@ -437,14 +437,15 @@ function Planning({ board }: { board: DealerBoard }) {
 }
 
 function PlanRow({ board, dealerId }: { board: DealerBoard; dealerId: string }) {
-  const dl = DEALERS.find((d) => d.id === dealerId)!;
+  const dl = board.dealers.find((d) => d.id === dealerId)!;
+  const { dayLabel } = board;
   return (
     <>
       <div className="border-b border-line px-4 py-4">
         <p className="text-sm font-bold text-ink">{dl.name}</p>
         <p className="text-caption text-muted">{dl.runDay === 'Thu' ? 'Thursdays' : 'Tuesdays'}</p>
       </div>
-      {DAYS.map((d) => {
+      {board.days.map((d) => {
         const cars = board.carsAt(dealerId, d.id);
         const today = d.state === 'today' ? 'bg-canvas' : '';
         if (!cars.length) {
@@ -454,7 +455,7 @@ function PlanRow({ board, dealerId }: { board: DealerBoard; dealerId: string }) 
             </div>
           );
         }
-        const rs = cars.map(readiness);
+        const rs = cars.map(board.readiness);
         const notOnLot = rs.filter((r) => r === 'not_on_lot').length;
         const needs = rs.filter((r) => r === 'expiring' || r === 'not_ready').length;
         return (

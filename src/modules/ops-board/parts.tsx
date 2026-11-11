@@ -3,16 +3,18 @@ import { StatusChip } from '../../components/ui/StatusChip';
 import { Button } from '../../components/ui/Button';
 import { money } from '../../domain/format';
 import { STATUS, type StatusTone } from '../../domain/statuses';
-import { DAYS, INSPECTORS, NOW_LABEL, type OpsCar, type Route } from './fixtures';
+import { DAYS, INSPECTORS, type OpsCar, type Route } from './fixtures';
+import { useOpsEnv } from './env';
 import { day, dealer, futureDays, inspectorName, type OpsBoard, type OpsException } from './useOpsBoard';
 
 // Parts shared by the three ops board variants.
 
 export function ModuleHeader({ title, right }: { title: string; right?: ReactNode }) {
+  const { nowLabel } = useOpsEnv();
   return (
     <header className="flex flex-wrap items-end justify-between gap-4">
       <div>
-        <p className="text-sm text-muted">{NOW_LABEL}</p>
+        <p className="text-sm text-muted">{nowLabel}</p>
         <h1 className="mt-1 text-h4 font-bold text-ink">{title}</h1>
       </div>
       {right}

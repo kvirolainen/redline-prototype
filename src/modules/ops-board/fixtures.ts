@@ -3,7 +3,8 @@ import type { CarStatus } from '../../domain/statuses';
 // Ops board fixtures. The board is shown on a pickup day: Thursday Nov 12, 11:40, while the
 // Thursday runs are out. Sam is at Yorkdale Honda and has just re-priced the Civic.
 
-export type DayId = 'tue-10' | 'thu-12' | 'tue-17' | 'thu-19';
+/** A run day id: 'thu-12' in the fixtures, the ISO date ('2026-11-12') in the live app. */
+export type DayId = string;
 
 export interface Day {
   id: DayId;

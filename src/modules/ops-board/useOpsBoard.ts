@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { useOpsEnv } from './env';
 import { money } from '../../domain/format';
-import { CARS, DAYS, DEALERS, INSPECTORS, ROUTES, TRUCK_CAPACITY, type DayId, type OpsCar, type Route } from './fixtures';
+import { DAYS, DEALERS, INSPECTORS, TRUCK_CAPACITY, type DayId, type OpsCar, type Route } from './fixtures';
 
 // Local state for the ops board prototype: cars, routes and what Jordan has dealt with.
 // The three variants share it, so the same click does the same thing everywhere.
@@ -36,8 +37,17 @@ export const isInspected = (c: OpsCar) => INSPECTED.has(c.status);
 export const onTruck = (c: OpsCar) => c.status !== 'declined' && c.status !== 'offered' && c.status !== 'not_ready';
 
 export function useOpsBoard() {
-  const [cars, setCars] = useState<OpsCar[]>(CARS);
-  const [routes, setRoutes] = useState<Route[]>(ROUTES);
+  const env = useOpsEnv();
+  // Lookups follow the env, so the live board reads live days and dealers; the exports above stay on the fixtures.
+  const day = env.day;
+  const dealer = (id: string) => env.dealers.find((d) => d.id === id)!;
+  const inspectorName = (id: string | null) => (id ? (env.inspectors.find((i) => i.id === id)?.name ?? id) : null);
+  // Local state stands in for the backend in Storybook. In the app, cars and routes are read live and these
+  // local moves only touch the copy that isn't shown.
+  const [localCars, setCars] = useState<OpsCar[]>(env.cars);
+  const [localRoutes, setRoutes] = useState<Route[]>(env.routes);
+  const cars = env.live ? env.cars : localCars;
+  const routes = env.live ? env.routes : localRoutes;
   const [handled, setHandled] = useState<Record<string, string>>({}); // key -> what was done
   const [nudged, setNudged] = useState<Record<string, true>>({});
   const [log, setLog] = useState<string[]>([]);
@@ -166,7 +176,7 @@ export function useOpsBoard() {
   };
 
   return {
-    cars, routes, exceptions, handledList, log, TRUCK_CAPACITY,
+    cars, routes, exceptions, handledList, log, TRUCK_CAPACITY, day, dealer, inspectorName,
     carsAt, rolledOut, routesOn, routeFor, routeCars, routeLoad, busyInspector,
     moveCar, moveRun, moveStop, assignInspector, nudge, keepAsIs,
   };
