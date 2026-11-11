@@ -3,7 +3,7 @@ import { Button } from '../../components/ui/Button';
 import { PAGE, PageHeader, SegmentedTabs } from '../../components/ui/Page';
 import { ATTENTION_EDGE, Tag } from '../../components/ui/Tag';
 import { money } from '../../domain/format';
-import { STATUS } from '../../domain/statuses';
+import { StatusChip } from '../../components/ui/StatusChip';
 import type { BackOfficeTab } from '../../shell/views';
 import { checksOf, MONTHS, READY_CHECKS, type BackOfficeCar, type ReadyCheck as ReadyCheckId } from './fixtures';
 import { km } from './format';
@@ -179,21 +179,6 @@ function rowDetail(car: BackOfficeCar, mode: RowMode): ReactNode {
   return car.note ?? '';
 }
 
-/** Plain status text for the right column; a green check once it's paid. */
-function StatusText({ car }: { car: BackOfficeCar }) {
-  const s = STATUS[car.status];
-  return (
-    <span className={`flex items-center gap-2 text-sm ${s.tone === 'closed' ? 'text-muted' : 'text-body'}`}>
-      {s.tone === 'done' && (
-        <span aria-hidden className="font-bold text-success">
-          ✓
-        </span>
-      )}
-      {s.label}
-    </span>
-  );
-}
-
 function RowAction({ car, office, mode, onOpen }: { car: BackOfficeCar; office: BackOffice; mode: RowMode; onOpen: () => void }) {
   if (car.status === 'reprice_pending')
     return (
@@ -224,7 +209,7 @@ function RowAction({ car, office, mode, onOpen }: { car: BackOfficeCar; office: 
         </button>
       );
   }
-  return <StatusText car={car} />;
+  return <StatusChip status={car.status} />;
 }
 
 function CarRow({ car, office, onOpen, mode, urgent }: { car: BackOfficeCar; office: BackOffice; onOpen: () => void; mode: RowMode; urgent: boolean }) {
@@ -287,7 +272,7 @@ function Pickups({ office, onOpen }: { office: BackOffice; onOpen: (vin: string)
     { title: 'Stayed with you', aside: '', cars: office.cars.filter((c) => c.status === 'declined' || (c.status === 'kept' && c.pickup !== NEXT_PICKUP)), mode: 'status' },
   ];
   return (
-    <div className="mt-6 grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-start gap-4 xl:grid-cols-[minmax(0,7fr)_minmax(0,6fr)]">
+    <div className="mt-6 grid items-start gap-4 min-[1100px]:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-[minmax(0,7fr)_minmax(0,6fr)]">
       <div className="space-y-4">
         {left.map((g) => (
           <GroupPanel key={g.title} g={g} office={office} onOpen={onOpen} />

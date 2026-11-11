@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { PAGE, SectionHeading, SegmentedTabs } from '../../components/ui/Page';
+import { PAGE, SegmentedTabs } from '../../components/ui/Page';
 import { ATTENTION_EDGE, Tag } from '../../components/ui/Tag';
 import { StatusChip } from '../../components/ui/StatusChip';
-import { Button } from '../../components/ui/Button';
 import { money } from '../../domain/format';
 import type { OpsCar } from './fixtures';
 import { useDealerBoard, type DealerBoard, type DealerFlag, type DealerRow, type LiveReprice, type Readiness } from './useDealerBoard';
@@ -54,16 +53,16 @@ function Tabs({ tab, onChange }: { tab: Tab; onChange: (t: Tab) => void }) {
 function OnTheLot({ board }: { board: DealerBoard }) {
   if (!board.live.length) {
     return (
-      <p className="mt-6 flex items-center gap-2 rounded-card border border-line bg-white px-4 py-3 text-sm text-body">
+      <p className="mt-6 flex items-center gap-2 rounded-panel border border-line bg-white px-6 py-4 text-base text-body">
         <Check /> Nothing waiting on a dealer's lot right now.
       </p>
     );
   }
   return (
     <section className="mt-6 overflow-hidden rounded-panel border border-line bg-white">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-line px-5 py-3">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-line-light px-5 pt-5 pb-3">
         <h2 className="text-title font-bold text-ink">On the lot now</h2>
-        <p className="text-caption text-muted">Inspector on site, re-price waiting on the dealer's director</p>
+        <p className="text-sm text-muted">Inspector on site, re-price waiting on the dealer's director</p>
       </div>
       {board.live.map((l) => (
         <LiveRow key={l.car.id} board={board} l={l} />
@@ -116,9 +115,7 @@ function LiveRow({ board, l }: { board: DealerBoard; l: LiveReprice }) {
             <Check /> Reminded {sent}
           </span>
         ) : (
-          <Button variant="dark-small" onClick={() => board.remind(key, l.director, l.dealer, l.car.id)}>
-            Remind {l.director}
-          </Button>
+          <OutlinePill onClick={() => board.remind(key, l.director, l.dealer, l.car.id)}>{`Remind ${l.director}`}</OutlinePill>
         )}
         <OutlinePill onClick={() => board.call(l.director, l.dealer, l.car.id)}>Call</OutlinePill>
       </div>
@@ -131,7 +128,7 @@ function OutlinePill({ onClick, children }: { onClick: () => void; children: str
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex h-8 items-center rounded-pill border border-line bg-white px-3 text-caption font-medium whitespace-nowrap text-ink hover:border-ink"
+      className="inline-flex h-10 items-center rounded-pill border border-line bg-white px-5 text-sm font-medium whitespace-nowrap text-ink hover:border-ink"
     >
       {children}
     </button>
@@ -146,12 +143,15 @@ function DealerTable({ board }: { board: DealerBoard }) {
   const [open, setOpen] = useState<string | null>(null);
   const attention = board.rows.filter((r) => r.flags.length).length;
   return (
-    <section className="mt-6">
-      <SectionHeading aside={`${attention ? `${attention} of ${board.rows.length} dealers need a nudge · listed first` : 'Every dealer is on track'} · health over 90 days`}>
-        This week
-      </SectionHeading>
-      <div className="mt-3 overflow-hidden rounded-panel border border-line bg-white">
-        <div className={`hidden border-b border-line px-5 py-3 text-caption font-medium text-muted lg:grid lg:gap-4 ${COLS}`}>
+    <section className="mt-4">
+      <div className="overflow-hidden rounded-panel border border-line bg-white">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-5 pt-5 pb-3">
+          <h2 className="text-title font-bold text-ink">This week</h2>
+          <p className="text-sm text-muted">
+            {attention ? `${attention} of ${board.rows.length} dealers need a nudge · listed first` : 'Every dealer is on track'} · health over 90 days
+          </p>
+        </div>
+        <div className={`hidden border-y border-line-light px-5 py-3 text-caption font-medium text-muted lg:grid lg:gap-4 ${COLS}`}>
           <span>Dealer</span>
           <span>Next run</span>
           <span>Cars on the way</span>
@@ -271,7 +271,7 @@ function Metric({ label, value, flag }: { label: string; value: string; flag?: b
 }
 
 const readinessDot: Record<Readiness, string> = {
-  ready: 'bg-ink',
+  ready: 'bg-success',
   not_on_lot: 'bg-white border-[1.5px] border-dashed border-ink',
   expiring: 'bg-warning',
   not_ready: 'bg-warning',
