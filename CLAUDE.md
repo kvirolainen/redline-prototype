@@ -6,9 +6,8 @@ director approval → payment, plus the dealer's Back office and Clutch ops.
 
 ## Read first
 - `docs/01-concept.md` — what we're building and why
-- `docs/07-build-plan.md` — data model, statuses, milestones (once written)
 - Docs can embed live screens and diagrams with block directives on their own line: `::screen[trade-in/B]`,
-  `::screens[inspector]`, `::diagram[architecture]`, `::milestones`; images go in `docs/img/` as `![alt](img/file.png)`.
+  `::screens[inspector]`, `::diagram[architecture]`; images go in `docs/img/` as `![alt](img/file.png)`.
 - `docs/decisions.md` — log every non-obvious product or technical decision here as you go
 
 ## Stack & commands

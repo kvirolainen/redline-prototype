@@ -4,7 +4,7 @@ import { StatusChip } from '../../components/ui/StatusChip';
 import { money } from '../../domain/format';
 import { AUCTION_HOURS_PER_CAR, MONTHS, type BackOfficeCar } from './fixtures';
 import { km } from './format';
-import { CarDetail, DecidedNote, Drawer, ExpiringOffer, ExpiryTag, RepriceDecision } from './parts';
+import { CarDetail, DecidedNote, Drawer, ExpiringOffer, ExpiryTag, RepriceDecision, useExpiryLabel } from './parts';
 import { AUCTION_DAYS_TO_CASH, computeStats, useBackOffice, useBackOfficeEnv, type BackOffice } from './useBackOffice';
 
 // Back office B2: one page for the dealership, two people.
@@ -118,8 +118,13 @@ function KeepOrSend({ office, onOpen }: { office: BackOffice; onOpen: (vin: stri
 }
 
 function NeedsYou({ office, onOpen }: { office: BackOffice; onOpen: (vin: string) => void }) {
-  // Cards stay after a decision, showing what happened, until the page is left.
-  const [inbox] = useState(() => office.needsYou.map((c) => c.vin));
+  // Cards stay after a decision, showing what happened, until the page is left. New ones (a re-price sent from the
+  // lot while the page is open) join at the top.
+  const expiryLabel = useExpiryLabel();
+  const [seen, setSeen] = useState(() => office.needsYou.map((c) => c.vin));
+  const fresh = office.needsYou.map((c) => c.vin).filter((v) => !seen.includes(v));
+  if (fresh.length) setSeen([...fresh, ...seen]);
+  const inbox = (fresh.length ? [...fresh, ...seen] : seen).filter((vin) => office.cars.some((c) => c.vin === vin));
   const pending = office.needsYou.length;
   const anyReprice = office.needsYou.some((c) => c.status === 'reprice_pending');
   return (
@@ -137,7 +142,7 @@ function NeedsYou({ office, onOpen }: { office: BackOffice; onOpen: (vin: string
           return (
             <Card
               key={vin}
-              label={isReprice ? `Re-price at pickup · ${car.reprice!.waiting}` : 'Offer expires tomorrow'}
+              label={isReprice ? `Re-price at pickup · ${car.reprice!.waiting}` : expiryLabel(car)}
               title={car.car}
               onTimeline={() => onOpen(vin)}
               done={done}
@@ -202,6 +207,11 @@ function CarRow({ car, office, onOpen, mode }: { car: BackOfficeCar; office: Bac
           </Button>
         )}
         {mode === 'offer' && car.status === 'offered' && !car.fromReview && <ExpiryTag car={car} />}
+        {mode === 'offer' && car.status === 'expired' && (
+          <Button variant="dark-small" onClick={() => office.refreshOffer(car.vin)}>
+            Refresh offer
+          </Button>
+        )}
         {mode === 'status' && <StatusChip status={car.status} />}
       </span>
       <span className="text-subtle" aria-hidden>
@@ -219,7 +229,7 @@ function CarGroups({ office, onOpen }: { office: BackOffice; onOpen: (vin: strin
   const groups: { title: string; hint?: string; cars: BackOfficeCar[]; mode: 'ready' | 'offer' | 'status' }[] = [
     { title: `Next pickup · ${NEXT_PICKUP}`, hint: `${readyCount} of ${going} ready`, cars: next, mode: 'ready' },
     { title: `Today’s pickup · ${TODAY}`, cars: office.cars.filter((c) => c.pickup === TODAY && c.status !== 'declined'), mode: 'status' },
-    { title: 'Open offers', hint: 'not accepted yet', cars: office.cars.filter((c) => c.status === 'offered' || c.status === 'appraising'), mode: 'offer' },
+    { title: 'Open offers', hint: 'not accepted yet', cars: office.cars.filter((c) => c.status === 'offered' || c.status === 'appraising' || c.status === 'expired'), mode: 'offer' },
     { title: 'Paid', cars: office.cars.filter((c) => c.status === 'paid'), mode: 'status' },
     { title: 'Stayed with you', cars: office.cars.filter((c) => c.status === 'declined' || (c.status === 'kept' && c.pickup !== NEXT_PICKUP)), mode: 'status' },
   ];

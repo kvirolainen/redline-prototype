@@ -1,4 +1,4 @@
-// Block directives in the docs' markdown: a line of its own like `::screen[trade-in/B]` or `::milestones`.
+// Block directives in the docs' markdown: a line of its own like `::screen[trade-in/B]` or `::diagram[architecture]`.
 
 export type Segment = { kind: 'md'; text: string } | { kind: 'embed'; name: string; arg: string; raw: string };
 

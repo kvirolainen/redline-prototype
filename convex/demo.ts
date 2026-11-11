@@ -1,5 +1,5 @@
 import { mutation, type MutationCtx } from './_generated/server';
-import { addDays, nextWeekday, shortDate, weekday } from '../src/domain/calendar';
+import { addDays, nextWeekday, shortDate, weekday, type Weekday } from '../src/domain/calendar';
 import { CARS, DEALERS, SEED_START_MIN, SEED_TODAY, seedEvents } from './seed';
 import { getMeta } from './world';
 
@@ -48,13 +48,23 @@ export const skipToPickup = mutation({
   handler: async (ctx) => {
     const meta = await getMeta(ctx);
     const today = nextWeekday(meta.today, 'Thu', true);
-    const names = new Map((await ctx.db.query('dealers').collect()).map((d) => [d.key, d.name]));
+    const dealers = await ctx.db.query('dealers').collect();
+    const names = new Map(dealers.map((d) => [d.key, d.name]));
+    const runDay = new Map<string, Weekday>(dealers.map((d) => [d.key, d.runDay]));
     const event = (car: { key: string; dealer: string }, at: string, who: string, text: string, kind: 'money' | 'alert' | 'offer' | 'pickup') =>
       ctx.db.insert('events', { car: car.key, dealer: car.dealer, at, who, text, kind });
 
     for (const c of await ctx.db.query('cars').collect()) {
       const passed = c.runDate !== undefined && c.runDate < today;
-      if (passed && ['awaiting_pickup', 'confirmed', 'picked_up'].includes(c.status)) {
+      if (passed && c.status === 'awaiting_pickup' && c.onLotFrom && c.onLotFrom > c.runDate!) {
+        // It wasn't on the lot on its run day: it rolled to the first run after it arrived.
+        const next = nextWeekday(c.onLotFrom, runDay.get(c.dealer)!);
+        await ctx.db.patch(c._id, { runDate: next, rolledFrom: c.runDate });
+        await event(c, `${c.runDate}T11:00`, 'Redline', `Not on the lot yet. Moved to the pickup on ${shortDate(next)}`, 'alert');
+      } else if (passed && c.status === 'reprice_pending') {
+        await ctx.db.patch(c._id, { status: 'declined', note: 'No decision before the truck left. Stays with the dealer' });
+        await event(c, `${c.runDate}T17:00`, 'Redline', `No decision on the re-price before the truck left. Car stays with ${names.get(c.dealer)}`, 'alert');
+      } else if (passed && ['awaiting_pickup', 'confirmed', 'picked_up'].includes(c.status)) {
         const paidOn = paidOnFor(c.runDate!);
         if (c.status === 'awaiting_pickup')
           await event(c, `${c.runDate}T11:00`, 'Clutch', 'Inspected. Matches what was declared. Picked up', 'pickup');
@@ -64,11 +74,12 @@ export const skipToPickup = mutation({
         await ctx.db.patch(c._id, { status: 'expired' });
         await event(c, `${addDays(c.expiresOn, 1)}T00:00`, 'Redline', 'Offer expired. One click refreshes it', 'alert');
       } else if (c.status === 'appraising') {
-        const expiresOn = addDays(meta.today, 7);
-        await ctx.db.patch(c._id, { status: 'offered', offer: Math.max(c.offer, Math.round(c.auction * 1.12 / 50) * 50), expiresOn });
+        const expiresOn = addDays(meta.today, 7) > today ? addDays(meta.today, 7) : addDays(today, 7);
+        const offer = c.pendingOffer ?? Math.round((c.auction * 1.1) / 50) * 50;
+        await ctx.db.patch(c._id, { status: 'offered', offer, expiresOn, pendingOffer: undefined });
         await event(c, `${meta.today}T14:30`, 'Clutch', `Offer ready. Holds until ${shortDate(expiresOn)}`, 'offer');
       } else if (c.status === 'not_ready' && c.runDate === today) {
-        await ctx.db.patch(c._id, { status: 'awaiting_pickup', ready: true, note: undefined });
+        await ctx.db.patch(c._id, { status: 'awaiting_pickup', ready: true, note: undefined, rolledFrom: undefined });
         await event(c, `${addDays(today, -1)}T16:00`, names.get(c.dealer) === 'Yorkdale Honda' ? 'Maria' : 'Sales', 'Marked ready: on the lot, both keys, ownership papers', 'pickup');
       }
       if (c.status === 'awaiting_pickup' && c.runDate === today && c.onLotFrom && c.onLotFrom <= today && !c.ready) {

@@ -388,7 +388,7 @@ function ByHand({ t, q, reasons }: { t: TradeIn; q: Quote; reasons: string[] }) 
         <p className="mt-1 text-sm text-muted">A Clutch appraiser prices this one:</p>
         <p className="mt-0.5 text-sm font-medium text-ink">{reasons.join(' · ')}</p>
       </div>
-      <Button className="shrink-0 px-6" disabled={!q.complete} onClick={() => t.setOutcome('review-sent', reasons)}>
+      <Button className="shrink-0 px-6" disabled={!q.complete || t.submitting} onClick={() => t.setOutcome('review-sent', reasons)}>
         {q.complete ? 'Send to Clutch' : `${q.answered} of ${q.total} answered`}
       </Button>
     </div>

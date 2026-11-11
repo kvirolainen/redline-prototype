@@ -19,7 +19,6 @@ export const TheApp: Story = { name: 'The app', args: { initial: 'the-app' } };
 export const ClutchsLook: Story = { name: 'Clutch’s look', args: { initial: 'clutchs-look' } };
 export const Prototypes: Story = { args: { initial: 'prototypes' } };
 export const Architecture: Story = { args: { initial: 'architecture' } };
-export const BuildPlan: Story = { name: 'Build plan', args: { initial: 'build-plan' } };
 export const TestReport: Story = { name: 'Test report', args: { initial: 'test-report' } };
 export const DealerResearch: Story = { name: 'Dealer research', args: { initial: 'dealer-research' } };
 export const DecisionsLog: Story = { name: 'Decisions log', args: { initial: 'decisions' } };
@@ -43,10 +42,6 @@ Every block a document can embed, one of each. Each directive sits on its own li
 ## Diagram
 
 ::diagram[architecture]
-
-## Milestones
-
-::milestones
 
 ## Image
 

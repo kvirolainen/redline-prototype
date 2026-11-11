@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, Fragment, useContext, useEffect, useState, type ReactNode } from 'react';
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import type { Doc } from '../../convex/_generated/dataModel';
@@ -49,7 +49,13 @@ export function WorldProvider({ children, empty }: { children: ReactNode; empty:
   const data = useQuery(api.world.get);
   if (data === undefined) return <div className="grid flex-1 place-items-center p-10 text-sm text-muted">Loading…</div>;
   if (!data.meta) return <>{empty}</>;
-  return <WorldContext.Provider value={{ ...data, meta: data.meta }}>{children}</WorldContext.Provider>;
+  // Keyed by the clock's start: a reset or a skip remounts the screens, so no screen keeps state about cars that
+  // changed or no longer exist.
+  return (
+    <WorldContext.Provider value={{ ...data, meta: data.meta }}>
+      <Fragment key={data.meta.setAt}>{children}</Fragment>
+    </WorldContext.Provider>
+  );
 }
 
 /** The persona's dealer for the demo: Maria and Dave both work at Yorkdale Honda. */

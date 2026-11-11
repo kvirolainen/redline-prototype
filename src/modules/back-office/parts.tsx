@@ -191,12 +191,19 @@ export function ExpiringOffer({ car, onRefresh, quiet }: { car: BackOfficeCar; o
 }
 
 export function ExpiryTag({ car }: { car: BackOfficeCar }) {
+  const { today } = useBackOfficeEnv();
   if (car.status !== 'offered' || !car.expires) return null;
   return car.expiresSoon ? (
-    <span className="inline-flex h-6 items-center rounded-pill border border-warning bg-nudge px-2.5 text-caption font-medium text-ink">Expires tomorrow</span>
+    <span className="inline-flex h-6 items-center rounded-pill border border-warning bg-nudge px-2.5 text-caption font-medium text-ink">{car.expires === today ? 'Expires today' : 'Expires tomorrow'}</span>
   ) : (
     <span className="text-caption text-muted">Holds until {car.expires}</span>
   );
+}
+
+/** "Offer expires today" on its last day, "tomorrow" the day before. */
+export function useExpiryLabel() {
+  const { today } = useBackOfficeEnv();
+  return (car: BackOfficeCar) => (car.expires === today ? 'Offer expires today' : 'Offer expires tomorrow');
 }
 
 // ───────────────────────── Decided note ─────────────────────────
@@ -204,11 +211,17 @@ export function ExpiryTag({ car }: { car: BackOfficeCar }) {
 export function DecidedNote({ car }: { car: BackOfficeCar }) {
   const { dealer: DEALER } = useBackOfficeEnv();
   const text =
-    car.status === 'confirmed'
+    car.status === 'confirmed' || car.status === 'picked_up'
       ? `Accepted at ${money(car.offer)}. Sam loads it today; payment within 2 business days.`
-      : car.status === 'declined'
-        ? `Declined. The car stays with ${DEALER}.`
-        : `Refreshed. ${money(car.offer)} holds until ${car.expires}.`;
+      : car.status === 'paid'
+        ? `Paid ${money(car.offer)} to ${DEALER}.`
+        : car.status === 'declined'
+          ? `Declined. The car stays with ${DEALER}.`
+          : car.status === 'expired'
+            ? 'The offer ran out. Refresh it from the car’s timeline.'
+            : car.status === 'awaiting_pickup'
+              ? `Accepted at ${money(car.offer)}. Joined the ${car.pickup} pickup.`
+              : `Refreshed. ${money(car.offer)} holds until ${car.expires}.`;
   return (
     <div className="flex items-start gap-3">
       <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-success" aria-hidden>
@@ -234,6 +247,7 @@ function Fact({ label, value, hint }: { label: string; value: string; hint?: str
 }
 
 export function CarDetail({ car, office }: { car: BackOfficeCar; office: BackOffice }) {
+  const expiryLabel = useExpiryLabel();
   return (
     <div>
       <div className="flex items-start justify-between gap-4">
@@ -260,7 +274,7 @@ export function CarDetail({ car, office }: { car: BackOfficeCar; office: BackOff
       )}
       {car.status === 'offered' && car.expiresSoon && (
         <section className="mt-5 rounded-card border border-warning bg-white p-4">
-          <h3 className="mb-2 text-base font-bold text-ink">Offer expires tomorrow</h3>
+          <h3 className="mb-2 text-base font-bold text-ink">{expiryLabel(car)}</h3>
           <ExpiringOffer car={car} onRefresh={() => office.refreshOffer(car.vin)} />
         </section>
       )}

@@ -13,8 +13,7 @@ inspector confirms or re-prices it at pickup, and the dealership is paid.
 - [Clutch's look](docs/04-clutchs-look.md): the visual language the screens follow
 - [Prototypes](docs/05-prototypes.md): design variants and the picks
 - [Architecture](docs/06-architecture.md): the system, simplified
-- [Build plan](docs/07-build-plan.md): data model, car statuses, milestones
-- [Test report](docs/08-test-report.md): what was tested and what changed
+- [Test report](docs/07-test-report.md): what was tested and what changed
 - [Decisions](docs/decisions.md): running log of decisions and why
 
 ## Run locally

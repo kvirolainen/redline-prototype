@@ -173,7 +173,8 @@ export function AppShell({ initialView = 'behind', initialTab = 'car-journey', i
             </nav>
           )}
         </div>
-        <div className="flex items-center">
+        <div className="flex items-center gap-6">
+          {hasBackend && view !== 'behind' && <DemoBar />}
           <ViewSwitcher view={view} onChange={go} />
         </div>
       </header>
@@ -184,7 +185,6 @@ export function AppShell({ initialView = 'behind', initialTab = 'car-journey', i
           hasBackend ? (
             // In the app the module reads the shared backend; the demo bar sits on top of it.
             <WorldProvider empty={<EmptyWorld />}>
-              <DemoBar />
               <DemoModule key={view} personaId={view} onSwitch={showPerson} />
             </WorldProvider>
           ) : (

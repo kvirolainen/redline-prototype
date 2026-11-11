@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Button } from '../../components/ui/Button';
 import { OptionCard } from '../../components/ui/OptionCard';
 import { money } from '../../domain/format';
@@ -208,6 +208,17 @@ export function OutcomeView({
   const env = useInspectorEnv();
   const dealer = env.stopOf(car).dealer;
   const director = env.directorOf(car);
+  // A new outcome (sent, or the director's answer arriving) starts at the top, wherever the checklist was scrolled.
+  const top = useRef<HTMLDivElement>(null);
+  const key = `${outcome.kind}-${'loaded' in outcome ? outcome.loaded : ''}-${'accepted' in outcome && outcome.accepted ? 'a' : ''}-${'declined' in outcome && outcome.declined ? 'd' : ''}`;
+  useEffect(() => {
+    let el: HTMLElement | null = top.current?.parentElement ?? null;
+    while (el) {
+      if (el.scrollTop > 0) el.scrollTop = 0;
+      el = el.parentElement;
+    }
+    window.scrollTo(0, 0);
+  }, [key]);
   const truck = env.run.truck;
   let mark: ReactNode;
   let title: string;
@@ -295,7 +306,7 @@ export function OutcomeView({
   }
 
   return (
-    <div className="flex min-h-[70vh] flex-col">
+    <div ref={top} className="flex min-h-[70vh] flex-col">
       <div className="flex-1 pt-6 text-center">
         {mark}
         <p className="mt-5 text-h4 font-bold text-ink">{title}</p>
