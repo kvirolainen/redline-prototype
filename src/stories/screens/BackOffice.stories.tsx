@@ -71,7 +71,7 @@ export const B2: Story = {
     docs: {
       description: {
         story:
-          "B split into a home for each person. Overview is Dave's: Needs you holds only his decisions (a re-price from the lot, which cars on the next pickup to keep for his own lot), next to whether Redline is worth it (above auction, days to cash, staff time, re-prices, by month).",
+          "B split into a home for each person. Overview is Dave's: Needs you holds only his decisions (a re-price from the lot, which cars on the next pickup to keep for his own lot), next to the results as plain facts (cars sold, total vs the auction estimate, days to payment, re-prices, by month).",
       },
     },
   },

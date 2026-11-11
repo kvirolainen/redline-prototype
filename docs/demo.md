@@ -15,7 +15,7 @@ Press **Reset demo** in the header first. It's **Thu Nov 12, 10:40**: pickup day
 ## Explore more
 
 - **Trade-in:** the **2013 F-150** (over 200,000 km) goes to a Clutch appraiser; its offer lands in Back office about 45 seconds later.
-- **Back office:** as Dave, **Keep** a car for the dealer's own lot and read **Is it worth it?**; as Maria, finish the **Equinox**'s check (second key missing), accept the appraiser-priced **2012 Camry**, refresh the **Rogue**'s expiring offer.
+- **Back office:** as Dave, **Keep** a car for the dealer's own lot and read **Results**; as Maria, finish the **Equinox**'s check (second key missing), accept the appraiser-priced **2012 Camry**, refresh the **Rogue**'s expiring offer.
 - **Clutch ops:** expand **Scarborough** (high re-price rate) and **Downtown Toyota** (a car arrives after its run); open **Planning**.
 - **Clutch inspector:** mark the **CX-5** **Not ready**; confirm Vaughan Ford's **F-150** with **All match**; in step 4, **Decline** instead and the car stays with the dealer.
 - **The other directions each screen explored:** [Storybook](https://redline-storybook.vercel.app).

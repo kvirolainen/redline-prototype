@@ -59,13 +59,13 @@ _The dealership's page for cars sold to Clutch · Dave drops in between deals ·
 - Maria: which cars go on the next truck, and exactly what's missing on the rest.
 
 **The main call: one page, a home for each person.** Clutch's whiteboard named two needs: sales managers need a back office (where cars are, when Clutch picks up, issues), and sales directors need the value at a glance. The first sketch put both on one page, and Clutch's feedback was that the summary took too much room and the table should open on cars awaiting pickup. So the page has two tabs, and each person lands on their own:
-- **Overview, Dave's home.** **Needs you** holds only his decisions: a re-price from the lot, and before each pickup which cars to keep for his own lot. Most days it says nothing needs him. Next to it, **Is it worth it?**: dollars above auction, days to get paid, staff time saved, how often inspection changed the price, by month. A small Pickups card says whether the week is on track.
+- **Overview, Dave's home.** **Needs you** holds only his decisions: a re-price from the lot, and before each pickup which cars to keep for his own lot. Most days it says nothing needs him. Next to it, **Results**: cars sold, the total against the auction estimate, days to payment, how often inspection changed the price, by month. Stated as plain facts, not as a pitch: Dave should be able to trust the numbers, not feel sold to. A small Pickups card says whether the week is on track.
 - **Pickups, Maria's home.** The cars by pickup, opening on the next one. Each car's readiness, the offers still open (refresh an expiring one, accept one an appraiser priced after the desk), and what was paid.
 
 **Other calls:**
 - **He doesn't approve Clutch's price; he decides where the car goes.** The offer is firm. What a director really decides is retail on his own lot or wholesale, so before each pickup he can **Keep** any car for his lot.
 - **Ready is a checklist, not a toggle.** Mark ready opens three checks: on the lot, both keys, ownership papers. The car is ready only when all three are ticked, so a stray click can't put it on the truck, and a half-done check is saved and shown ("second key missing"). The same reasoning as the inspector's "never on one tap": a wrong Ready sends a truck for nothing.
-- **"Is it worth it?" doubles as the first-dealer scorecard.** Staff time assumes 1.5 hours of auction work per car, to confirm with the first dealer.
+- **Results doubles as the first-dealer scorecard,** the numbers Clutch and the dealer would agree to judge the pilot by.
 - **Trucks and arrival times are Clutch's,** so they aren't here.
 
 **From Clutch:** the director's role (decides retail or wholesale, signs the contract), the two needs and the dashboard feedback, all from the whiteboard session.

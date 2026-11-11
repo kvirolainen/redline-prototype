@@ -4,7 +4,7 @@ import { PAGE, PageHeader, SectionHeading, SegmentedTabs } from '../../component
 import { StatusChip } from '../../components/ui/StatusChip';
 import { ATTENTION_EDGE } from '../../components/ui/Tag';
 import { money } from '../../domain/format';
-import { AUCTION_HOURS_PER_CAR, checksOf, MONTHS, READY_CHECKS, type BackOfficeCar, type ReadyCheck as ReadyCheckId } from './fixtures';
+import { checksOf, MONTHS, READY_CHECKS, type BackOfficeCar, type ReadyCheck as ReadyCheckId } from './fixtures';
 import { km } from './format';
 import { CarDetail, DecidedNote, Drawer, ExpiryTag, RepriceDecision } from './parts';
 import { AUCTION_DAYS_TO_CASH, computeStats, useBackOffice, useBackOfficeEnv, type BackOffice } from './useBackOffice';
@@ -365,16 +365,16 @@ function Results({ office }: { office: BackOffice }) {
   const repricedCars = office.cars.filter((c) => c.repriced);
 
   const tiles: [string, string, string][] = [
-    ['Above auction', money(total), `${cars} cars since Aug, vs estimated auction net`],
-    ['Paid in', `${daysToCash} days`, `auction: ~${AUCTION_DAYS_TO_CASH} days`],
-    ['Staff time saved', `~${Math.round(cars * AUCTION_HOURS_PER_CAR)} h`, `est. ${AUCTION_HOURS_PER_CAR} h of auction work per car`],
-    ['Re-priced at pickup', `${repriced} of ${cars}`, 'cars where inspection changed the price'],
+    ['Cars sold', String(cars), 'picked up by Clutch'],
+    ['Vs auction estimate', `+${money(total)}`, 'total, vs estimated auction net'],
+    ['Days to payment', `${daysToCash}`, `average · auction typically ~${AUCTION_DAYS_TO_CASH}`],
+    ['Re-priced at pickup', `${repriced} of ${cars}`, 'inspection changed the price'],
   ];
 
   return (
     <div className="min-w-0">
-      <SectionHeading aside="Since Redline started in August" className="mb-3">
-        Is it worth it?
+      <SectionHeading aside="Since August" className="mb-3">
+        Results
       </SectionHeading>
       <div className="space-y-4">
       <section className="grid grid-cols-2 divide-line rounded-card border border-line bg-white xl:grid-cols-4 xl:divide-x">
@@ -392,7 +392,7 @@ function Results({ office }: { office: BackOffice }) {
           <h2 className="text-base font-bold text-ink">By month</h2>
           <div className="mt-4 grid grid-cols-[48px_minmax(0,1fr)_56px_80px_80px] items-center gap-x-4 gap-y-3 text-sm">
             <span />
-            <span className="text-caption text-muted">Above auction</span>
+            <span className="text-caption text-muted">Vs auction estimate</span>
             <span className="text-right text-caption text-muted">Cars</span>
             <span className="text-right text-caption text-muted">Paid in</span>
             <span className="text-right text-caption text-muted">Re-priced</span>
