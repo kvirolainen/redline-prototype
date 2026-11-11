@@ -1,31 +1,39 @@
 import { useState } from 'react';
+import { Button } from '../../components/ui/Button';
 import { PAGE, SegmentedTabs } from '../../components/ui/Page';
+import { Panel, PILL } from '../../components/ui/Panel';
 import { ATTENTION_EDGE, Tag } from '../../components/ui/Tag';
 import { StatusChip } from '../../components/ui/StatusChip';
 import { money } from '../../domain/format';
+import { STATUS } from '../../domain/statuses';
 import type { OpsCar } from './fixtures';
-import { useDealerBoard, type DealerBoard, type DealerFlag, type DealerRow, type LiveReprice, type Readiness } from './useDealerBoard';
-import { Check, ModuleHeader, Toast } from './parts';
+import { useDealerBoard, type DealerBoard, type DealerFlag, type DealerRow, type Need, type Readiness } from './useDealerBoard';
+import { ModuleHeader, Toast } from './parts';
 
-// D · Dealers: only what changes when the seller is a dealer. Dispatch (trucks, routes, rosters)
-// runs in the consumer ops tool; this page keeps the dealer in front: who is blocking what, what it
-// costs, and how each dealer's track record looks.
+// D · Dealers: the dealer relationship and the pickups, for Clutch's coordinator of the dealer channel.
+// The system chases, Jordan decides. Every reminder goes out on its own and shows as a status line; Needs you holds
+// only the calls a person has to make. Today's pickups and the dealer rows are read-only.
+// Dispatch (trucks, routes, rosters) runs in the consumer ops tool; this page keeps the dealer in front.
+// The look follows Back office: white panels with the heading inside, 16px text, outline pills, the yellow edge for
+// anything that needs someone, black only for the one main decision on a card.
 
 type Tab = 'dealers' | 'planning';
 
 export function VariantD() {
   const board = useDealerBoard();
   const [tab, setTab] = useState<Tab>('dealers');
+  const open = board.needs.filter((n) => !board.decided[n.key]).length;
 
   return (
     <div className="min-h-screen bg-canvas py-8">
       <div className={PAGE}>
-        <ModuleHeader title={tab === 'dealers' ? 'Dealers' : 'Planning'} right={<Tabs tab={tab} onChange={setTab} />} />
+        <ModuleHeader title={tab === 'dealers' ? 'Dealers' : 'Planning'} right={<Tabs tab={tab} onChange={setTab} count={open} />} />
         {tab === 'dealers' ? (
-          <>
-            <OnTheLot board={board} />
+          <div className="mt-6 space-y-4">
+            <NeedsYou board={board} />
+            <TodayPickups board={board} />
             <DealerTable board={board} />
-          </>
+          </div>
         ) : (
           <Planning board={board} />
         )}
@@ -35,11 +43,11 @@ export function VariantD() {
   );
 }
 
-function Tabs({ tab, onChange }: { tab: Tab; onChange: (t: Tab) => void }) {
+function Tabs({ tab, onChange, count }: { tab: Tab; onChange: (t: Tab) => void; count: number }) {
   return (
     <SegmentedTabs
       items={[
-        ['dealers', 'Dealers'],
+        ['dealers', count ? `Dealers · ${count}` : 'Dealers'],
         ['planning', 'Planning'],
       ]}
       value={tab}
@@ -48,112 +56,166 @@ function Tabs({ tab, onChange }: { tab: Tab; onChange: (t: Tab) => void }) {
   );
 }
 
-// ---- On the lot now ---------------------------------------------------------
-
-function OnTheLot({ board }: { board: DealerBoard }) {
-  if (!board.live.length) {
-    return (
-      <p className="mt-6 flex items-center gap-2 rounded-panel border border-line bg-white px-6 py-4 text-base text-body">
-        <Check /> Nothing waiting on a dealer's lot right now.
-      </p>
-    );
-  }
+/** The green check of the shared status language (StatusChip): done, nothing for anyone to do. */
+function Tick() {
   return (
-    <section className="mt-6 overflow-hidden rounded-panel border border-line bg-white">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-line-light px-5 pt-5 pb-3">
-        <h2 className="text-title font-bold text-ink">On the lot now</h2>
-        <p className="text-sm text-muted">Inspector on site, re-price waiting on the dealer's director</p>
-      </div>
-      {board.live.map((l) => (
-        <LiveRow key={l.car.id} board={board} l={l} />
-      ))}
-    </section>
+    <span aria-hidden className="font-bold text-success">
+      ✓
+    </span>
   );
 }
 
-function LiveRow({ board, l }: { board: DealerBoard; l: LiveReprice }) {
-  const key = `live-${l.car.id}`;
-  const waited = board.waitedMin(l.waitingSince);
-  const left = board.minutesTo(l.leaves);
-  const span = Math.max(1, waited + Math.max(left, 0));
-  const sent = board.reminded[key];
+/** Plain status text with the green check: what the system already did. */
+function Auto({ children }: { children: string }) {
   return (
-    <div className="grid gap-4 border-b border-line-light px-5 py-4 last:border-b-0 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.3fr)_minmax(0,1fr)_auto] lg:items-center">
-      <div className="min-w-0">
-        <p className="text-sm font-bold text-ink">{l.car.car}</p>
-        <p className="text-caption text-muted">
-          {l.dealer.name} · {l.inspector} on site
+    <p className="mt-1 flex items-center gap-1.5 text-sm text-muted">
+      <Tick /> {children}
+    </p>
+  );
+}
+
+// ---- Needs you: decisions only ----------------------------------------------------
+
+function NeedsYou({ board }: { board: DealerBoard }) {
+  const { needs } = board;
+  const open = needs.filter((n) => !board.decided[n.key]).length;
+  return (
+    <Panel title="Needs you" count={open} aside="Reminders go out on their own. These need a call only you can make.">
+      {needs.length === 0 ? (
+        <p className="border-t border-line-light px-8 py-5 text-base text-muted">
+          Nothing to decide. Every dealer is on track, and the reminders are going out.
         </p>
-      </div>
-      <div className="min-w-0">
-        <p className="text-sm text-body">
-          <span className="line-through">{money(l.car.offer)}</span> → <span className="font-bold text-ink">{money(l.car.newPrice!)}</span>
-        </p>
-        <p className="text-caption text-muted">{l.car.reason}</p>
-      </div>
-      <div className="min-w-0">
-        <p className="flex flex-wrap items-center gap-2 text-sm text-ink">
-          <span>
-            Waiting on <span className="font-bold">{l.director}</span>
-          </span>
-          <Tag className="tabular-nums">
-            <span className="size-1.5 animate-pulse rounded-full bg-warning" />
-            {waited} min
-          </Tag>
-        </p>
-        <div className="mt-2 h-1 overflow-hidden rounded-full bg-line-light" aria-hidden>
-          <div className="h-full rounded-full bg-warning" style={{ width: `${Math.min(100, (waited / span) * 100)}%` }} />
+      ) : (
+        <div className="divide-y divide-line-light border-t border-line-light">
+          {needs.map((n) => (
+            <NeedCard key={n.key} board={board} n={n} />
+          ))}
         </div>
-        <p className="mt-1.5 text-caption text-muted">
-          Since {l.waitingSince} · {l.inspector} leaves ~{l.leaves}
-          {left > 0 ? ` (${left} min)` : ''} · otherwise a second trip
+      )}
+    </Panel>
+  );
+}
+
+function NeedCard({ board, n }: { board: DealerBoard; n: Need }) {
+  const done = board.decided[n.key];
+  return (
+    <article className={`grid gap-4 px-8 py-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center ${done ? '' : ATTENTION_EDGE}`}>
+      <div className="min-w-0">
+        <p className="flex flex-wrap items-center gap-2">
+          <Tag tone={done ? 'neutral' : 'attention'}>{n.tag}</Tag>
+          <span className="text-base font-bold text-ink">{n.title}</span>
         </p>
+        <p className="mt-1.5 max-w-[820px] text-base text-body">{n.detail}</p>
+        {n.auto && <Auto>{n.auto}</Auto>}
       </div>
       <div className="flex flex-wrap items-center gap-2 lg:justify-end">
-        {sent ? (
-          <span className="inline-flex h-8 items-center gap-1.5 text-caption font-medium text-body">
-            <Check /> Reminded {sent}
+        {done ? (
+          <span className="inline-flex h-10 items-center gap-1.5 text-sm font-medium text-body">
+            <Tick /> {done}
           </span>
         ) : (
-          <OutlinePill onClick={() => board.remind(key, l.director, l.dealer, l.car.id)}>{`Remind ${l.director}`}</OutlinePill>
+          n.actions.map((a, i) =>
+            i === 0 ? (
+              <Button key={a.label} variant="primary" className="h-10 px-5 text-sm" onClick={() => board.decide(n, a.done)}>
+                {a.label}
+              </Button>
+            ) : (
+              <button key={a.label} type="button" className={PILL} onClick={() => board.decide(n, a.done)}>
+                {a.label}
+              </button>
+            ),
+          )
         )}
-        <OutlinePill onClick={() => board.call(l.director, l.dealer, l.car.id)}>Call</OutlinePill>
+      </div>
+    </article>
+  );
+}
+
+// ---- Today's pickups: read-only ---------------------------------------------------
+
+function TodayPickups({ board }: { board: DealerBoard }) {
+  const today = board.days.find((d) => d.state === 'today');
+  const stops = today ? board.dealers.filter((dl) => board.carsAt(dl.id, today.id).length) : [];
+  const next = board.days.find((d) => d.state === 'planned');
+  return (
+    <Panel title={today ? `Today’s pickups · ${today.label}` : 'Today’s pickups'} aside={stops.length ? 'Trucks and routes live in dispatch' : undefined} compact>
+      {!stops.length ? (
+        <p className="border-t border-line-light px-6 py-4 text-base text-muted">No pickups today{next ? `. Next: ${next.label}` : ''}.</p>
+      ) : (
+        <div className="divide-y divide-line-light border-t border-line-light">
+          {stops.map((dl) => (
+            <TodayRow key={dl.id} board={board} dealerId={dl.id} dayId={today!.id} />
+          ))}
+        </div>
+      )}
+    </Panel>
+  );
+}
+
+function TodayRow({ board, dealerId, dayId }: { board: DealerBoard; dealerId: string; dayId: string }) {
+  const dl = board.dealers.find((d) => d.id === dealerId)!;
+  const cars = board.carsAt(dealerId, dayId);
+  const inspector = board.inspectorName(board.routeFor(dealerId, dayId)?.inspectorId ?? null);
+  const live = board.live.filter((l) => l.dealer.id === dealerId);
+  const count = (pred: (c: OpsCar) => boolean) => cars.filter(pred).length;
+  const parts = [
+    [count((c) => c.status === 'picked_up' || c.status === 'paid'), 'picked up'],
+    [count((c) => c.status === 'awaiting_pickup'), 'to inspect'],
+    [count((c) => c.status === 'reprice_pending'), 'waiting on a re-price'],
+    [count((c) => c.status === 'not_ready'), 'not ready, moved a week'],
+    [count((c) => c.status === 'declined'), 'stayed with the dealer'],
+  ].filter(([n]) => n) as [number, string][];
+  const escalated = live.some((l) => l.escalated);
+  return (
+    <div className={`grid gap-x-6 gap-y-2 px-6 py-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,2fr)] ${escalated ? `${ATTENTION_EDGE} bg-nudge/50` : ''}`}>
+      <div className="min-w-0">
+        <p className="text-base font-medium text-ink">{dl.name}</p>
+        <p className="text-sm text-muted">
+          {inspector ? `${inspector} on site` : 'No inspector yet'} · {cars.length} {cars.length === 1 ? 'car' : 'cars'}
+        </p>
+      </div>
+      <div className="min-w-0">
+        <p className="text-base text-body">{parts.map(([n, l]) => `${n} ${l}`).join(' · ') || 'All cars handled'}</p>
+        {live.map((l) => {
+          const left = board.minutesTo(l.leaves);
+          return (
+            <div key={l.car.id} className="mt-1.5">
+              <p className="text-sm text-ink">
+                <span className="font-medium">{l.car.car}</span> re-priced {money(l.car.offer)} → {money(l.car.newPrice!)}, waiting on {l.director} ·{' '}
+                {board.waitedMin(l.waitingSince)} min · {l.inspector} leaves ~{l.leaves}
+                {left > 0 ? ` (${left} min)` : ''}
+              </p>
+              <Auto>{`Texted ${l.director} ${l.texts.join(' and ')}${l.nextText ? ` · again at ${l.nextText}` : ''}${l.escalated ? ' · no answer, in Needs you' : ''}`}</Auto>
+            </div>
+          );
+        })}
+        {!inspector ? (
+          <Auto>Flagged to dispatch</Auto>
+        ) : (
+          !live.length && !!cars.length && cars.every((c) => STATUS[c.status].tone !== 'attention') && <Auto>On track</Auto>
+        )}
       </div>
     </div>
   );
 }
 
-function OutlinePill({ onClick, children }: { onClick: () => void; children: string }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="inline-flex h-10 items-center rounded-pill border border-line bg-white px-5 text-sm font-medium whitespace-nowrap text-ink hover:border-ink"
-    >
-      {children}
-    </button>
-  );
-}
-
-// ---- Dealer table -------------------------------------------------------------
+// ---- Dealers: the relationship, read-only ------------------------------------------
 
 const COLS = 'lg:grid-cols-[minmax(0,1.7fr)_minmax(0,0.9fr)_minmax(0,1.5fr)_76px_88px_92px_24px]';
 
 function DealerTable({ board }: { board: DealerBoard }) {
   const [open, setOpen] = useState<string | null>(null);
-  const attention = board.rows.filter((r) => r.flags.length).length;
+  const flagged = board.rows.filter((r) => r.flags.some((f) => f.kind !== 'health')).length;
   return (
-    <section className="mt-4">
-      <div className="overflow-hidden rounded-panel border border-line bg-white">
-        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-5 pt-5 pb-3">
-          <h2 className="text-title font-bold text-ink">This week</h2>
-          <p className="text-sm text-muted">
-            {attention ? `${attention} of ${board.rows.length} dealers need a nudge · listed first` : 'Every dealer is on track'} · health over 90 days
-          </p>
-        </div>
-        <div className={`hidden border-y border-line-light px-5 py-3 text-caption font-medium text-muted lg:grid lg:gap-4 ${COLS}`}>
+    <section>
+      <Panel
+        title="All dealers"
+        aside={`${flagged ? `${flagged} of ${board.rows.length} with something in motion · listed first` : 'Every dealer on track'} · track record over 90 days`}
+        compact
+      >
+        <div className={`hidden border-y border-line-light px-6 py-3 text-sm font-medium text-muted lg:grid lg:gap-4 ${COLS}`}>
           <span>Dealer</span>
-          <span>Next run</span>
+          <span>Next pickup</span>
           <span>Cars on the way</span>
           <span className="text-right">Re-price</span>
           <span className="text-right">Acceptance</span>
@@ -169,8 +231,8 @@ function DealerTable({ board }: { board: DealerBoard }) {
             onToggle={() => setOpen((o) => (o === r.dealer.id ? null : r.dealer.id))}
           />
         ))}
-      </div>
-      <p className="mt-3 text-caption text-muted">
+      </Panel>
+      <p className="mt-3 text-sm text-muted">
         Re-price: share of inspected cars re-priced on the lot (all dealers {board.avgReprice}%). Acceptance: offers the dealer took. Days to cash: pickup to
         payment.
       </p>
@@ -181,22 +243,22 @@ function DealerTable({ board }: { board: DealerBoard }) {
 function DealerRowView({ board, row, open, onToggle }: { board: DealerBoard; row: DealerRow; open: boolean; onToggle: () => void }) {
   const { dealer: dl, health, nextRun, counts } = row;
   const flaggedCars = new Set(row.flags.map((f) => f.carId).filter(Boolean));
-  // The live re-price already leads the page in "On the lot now"; the row only carries week-level items.
-  const weekFlags = row.flags.filter((f) => f.kind !== 'live');
+  // The live re-price shows under Today's pickups and the track record under Needs you; the row carries the week.
+  const weekFlags = row.flags.filter((f) => f.kind !== 'live' && f.kind !== 'health');
   return (
-    <div className={`border-b border-line last:border-b-0 ${row.flags.length ? ATTENTION_EDGE : ''}`}>
+    <div className="border-t border-line-light">
       <div
         role="button"
         tabIndex={0}
         aria-expanded={open}
         onClick={onToggle}
         onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), onToggle())}
-        className={`grid cursor-pointer grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-3 px-5 py-4 hover:bg-canvas lg:items-center ${COLS}`}
+        className={`grid cursor-pointer grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-3 px-6 py-4 hover:bg-canvas lg:items-center ${COLS}`}
       >
         <div className="min-w-0">
-          <p className="text-sm font-bold text-ink">{dl.name}</p>
-          <p className="text-caption text-muted">{dl.contact}</p>
-          <p className="text-caption text-muted">{dl.director}, Sales Director</p>
+          <p className="text-base font-medium text-ink">{dl.name}</p>
+          <p className="text-sm text-muted">{dl.contact}</p>
+          <p className="text-sm text-muted">{dl.director}, Sales Director</p>
         </div>
         <div className="col-start-2 row-start-1 flex items-start gap-3 lg:col-start-auto lg:row-start-auto lg:block">
           <div className="text-right lg:text-left">
@@ -211,7 +273,7 @@ function DealerRowView({ board, row, open, onToggle }: { board: DealerBoard; row
           <ReadinessCounts counts={counts} />
         </div>
         <div className="col-span-2 grid grid-cols-3 gap-4 lg:contents">
-          <Metric label="Re-price" value={`${health.repriceRate}%`} flag={health.repriceRate >= board.avgReprice * 2} />
+          <Metric label="Re-price" value={`${health.repriceRate}%`} flag={health.repriceRate >= board.repriceBar} />
           <Metric label="Acceptance" value={`${health.acceptRate}%`} flag={health.acceptRate < 60} />
           <Metric label="Days to cash" value={health.daysToCash.toFixed(1)} flag={health.daysToCash > 5} />
         </div>
@@ -219,23 +281,16 @@ function DealerRowView({ board, row, open, onToggle }: { board: DealerBoard; row
       </div>
 
       {(weekFlags.length > 0 || row.dispatchNote) && (
-        <ul className="space-y-2 px-5 pb-4">
+        <ul className="space-y-1.5 px-6 pb-4">
           {weekFlags.map((f) => (
-            <FlagLine key={f.key} board={board} row={row} f={f} />
+            <FlagLine key={f.key} f={f} />
           ))}
-          {row.dispatchNote && (
-            <li className="flex flex-wrap items-center gap-x-2 text-caption text-muted">
-              <span>{row.dispatchNote}</span>
-              <button type="button" onClick={() => board.openInDispatch(row.dispatchNote!, row.dealer)} className="font-medium text-ink underline underline-offset-2">
-                Open in dispatch
-              </button>
-            </li>
-          )}
+          {row.dispatchNote && <li className="text-sm text-muted">{row.dispatchNote} · flagged to dispatch</li>}
         </ul>
       )}
 
       {open && (
-        <div className="border-t border-line-light bg-canvas px-5 py-4">
+        <div className="border-t border-line-light bg-canvas px-6 py-4">
           {row.cars.length ? (
             <ul className="overflow-hidden rounded-card border border-line bg-white">
               {row.cars.map((c) => (
@@ -313,37 +368,23 @@ const flagTag: Record<DealerFlag['kind'], string> = {
   expiring: 'Offer ending',
   rolls: 'Not on the lot yet',
   rolled: 'Rolled',
+  unconfirmed: 'Not confirmed',
   health: 'Track record',
 };
 
-function FlagLine({ board, row, f }: { board: DealerBoard; row: DealerRow; f: DealerFlag }) {
-  const sent = board.reminded[f.key];
-  const action =
-    f.kind === 'health' ? (
-      <OutlinePill onClick={() => board.call(f.who, row.dealer, f.carId)}>{`Call ${f.who}`}</OutlinePill>
-    ) : sent ? (
-      <span className="inline-flex h-8 items-center gap-1.5 text-caption font-medium text-body">
-        <Check /> Reminded {sent}
-      </span>
-    ) : (
-      <OutlinePill onClick={() => board.remind(f.key, f.who, row.dealer, f.carId)}>
-        {f.kind === 'rolls' ? `Confirm date with ${f.who}` : `Remind ${f.who}`}
-      </OutlinePill>
-    );
+/** One thing in motion at a dealer, and what the system did about it. */
+function FlagLine({ f }: { f: DealerFlag }) {
   return (
-    <li className="flex flex-col gap-2 rounded-card border border-line-light bg-white px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between">
-      <div className="min-w-0">
-        <p className="text-sm text-ink">
-          <Tag tone={f.kind === 'live' ? 'dark' : 'attention'} className="mr-2">
-            {flagTag[f.kind]}
-          </Tag>
-          {f.title}
-        </p>
-        <p className="mt-0.5 text-caption text-muted">
-          {f.kind === 'health' ? 'Raise with' : 'Waiting on'} <span className="font-medium text-body">{f.who}</span> · {f.cost}
-        </p>
-      </div>
-      <div className="shrink-0">{action}</div>
+    <li className="text-sm">
+      <p className="text-ink">
+        <Tag tone="neutral" className="mr-2">
+          {flagTag[f.kind]}
+        </Tag>
+        {f.title}
+      </p>
+      <p className="mt-1 flex items-center gap-1.5 pl-1 text-muted">
+        <Tick /> {f.auto}
+      </p>
     </li>
   );
 }
@@ -398,19 +439,16 @@ const PLAN_LEGEND: [Readiness, string][] = [
 
 function Planning({ board }: { board: DealerBoard }) {
   return (
-    <section className="mt-6">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
-        <p className="text-sm text-muted">Cars per dealer and run day. Trucks, routes and inspectors live in dispatch.</p>
-        <ul className="flex flex-wrap gap-x-4 gap-y-1 text-caption text-muted">
+    <div className="mt-6">
+      <Panel title="Cars per dealer and pickup day" aside="Trucks, routes and inspectors live in dispatch" compact>
+        <ul className="flex flex-wrap gap-x-4 gap-y-1 px-6 pb-4 text-sm text-muted">
           {PLAN_LEGEND.map(([r, l]) => (
             <li key={r} className="flex items-center gap-1.5">
               <Dot r={r} /> {l}
             </li>
           ))}
         </ul>
-      </div>
-      <div className="mt-4 overflow-hidden rounded-panel border border-line bg-white">
-        <div className="grid grid-cols-[minmax(120px,1.1fr)_repeat(4,minmax(0,1fr))]">
+        <div className="grid grid-cols-[minmax(120px,1.1fr)_repeat(4,minmax(0,1fr))] overflow-hidden rounded-b-panel border-t border-line">
           <div className="border-b border-line px-4 py-3 text-caption font-medium text-muted">Dealer</div>
           {board.days.map((d) => (
             <div key={d.id} className={`border-b border-l border-line px-3 py-3 sm:px-4 ${d.state === 'today' ? 'bg-ink text-white' : ''}`}>
@@ -424,8 +462,8 @@ function Planning({ board }: { board: DealerBoard }) {
             <PlanRow key={dl.id} board={board} dealerId={dl.id} />
           ))}
         </div>
-      </div>
-    </section>
+      </Panel>
+    </div>
   );
 }
 

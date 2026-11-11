@@ -21,9 +21,9 @@ director approval → payment, plus the dealer's Back office and Clutch ops.
   Font: Figtree (substitute for Circular). Inside product flows the primary button is a black pill and
   selected states are black; the red CTA gradient (`bg-cta`) is for marketing CTAs only. Flow inputs are
   56px with an 8px radius and a `#EEEEEE` outline. Reuse `src/components/ui/` and the Foundations stories.
-- Modules and personas, dealer-facing first: Trade-in (Maria, Sales Manager, Yorkdale Honda) → Back office
-  (Dave, Sales Director, Yorkdale Honda) → Clutch ops (Jordan, Operations) → Clutch inspector (Sam, Inspector,
-  phone layout).
+- Modules and personas, in the car's order, with the overview last: Trade-in (Maria, Sales Manager, Yorkdale
+  Honda) → Back office (Dave, Sales Director, Yorkdale Honda) → Clutch inspector (Sam, Inspector, phone layout) →
+  Clutch ops (Jordan, Operations).
 - Pricing is a labelled placeholder for Clutch's real valuation engine — keep it isolated in one module.
 - Every car state change writes an event, so each car has a full timeline.
 - Commit messages: imperative, say what changed and why.

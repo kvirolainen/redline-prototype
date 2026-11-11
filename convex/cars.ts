@@ -257,7 +257,7 @@ export const reopenInspection = mutation({
 
 // ---- Clutch ops ----------------------------------------------------------------------------------------------------
 
-/** A reminder or call note from ops. Messages aren't sent in the prototype; the log line stands in. */
+/** A decision note from ops: a call, a request to a dealer, a hand-off to finance. Nothing is sent in the prototype; the log line stands in. */
 export const opsNote = mutation({
   args: { dealer: v.string(), car: v.optional(v.string()), text: v.string() },
   handler: async (ctx, { dealer, car, text }) => {

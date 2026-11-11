@@ -12,7 +12,7 @@ export interface Persona {
   need: string;
 }
 
-// Dealership-facing modules first, then Clutch's: Trade-in → Back office → Clutch ops → Clutch inspector. Every list uses this order.
+// The car's path first, then the view over all of it: Trade-in → Back office → Clutch inspector → Clutch ops. Every list uses this order.
 export const PERSONAS: Persona[] = [
   {
     id: 'maria', name: 'Maria', role: 'Sales Manager', org: 'Yorkdale Honda', side: 'Dealer',
@@ -25,20 +25,20 @@ export const PERSONAS: Persona[] = [
     need: 'Confidence in the price, and a say when it changes',
   },
   {
-    id: 'jordan', name: 'Jordan', role: 'Operations', org: 'Clutch', side: 'Clutch',
-    module: 'ops-board',
-    need: "Every dealer's pickup runs in one place, plus the exceptions",
-  },
-  {
     id: 'sam', name: 'Sam', role: 'Inspector', org: 'Clutch', side: 'Clutch',
     module: 'inspector',
     need: "Today's cars and a quick way to confirm or flag a difference",
+  },
+  {
+    id: 'jordan', name: 'Jordan', role: 'Operations', org: 'Clutch', side: 'Clutch',
+    module: 'ops-board',
+    need: 'Dealers on track and pickups running, with only the calls a person must make',
   },
 ];
 
 export const MODULES: Record<ModuleId, { label: string; summary: string; device: 'desktop' | 'phone' }> = {
   'trade-in': { label: 'Trade-in', summary: 'Car details → Clutch offer next to the auction estimate', device: 'desktop' },
-  'ops-board': { label: 'Clutch ops', summary: 'Pickup runs by day × dealer, and exceptions', device: 'desktop' },
+  'ops-board': { label: 'Clutch ops', summary: 'Dealers: what needs a decision, today’s pickups, each dealer’s record', device: 'desktop' },
   inspector: { label: 'Clutch inspector', summary: "Today's run → cars → checklist vs declared → confirm or re-price", device: 'phone' },
   'back-office': { label: 'Back office', summary: "Dave's decisions and results; Maria's pickups and readiness", device: 'desktop' },
 };

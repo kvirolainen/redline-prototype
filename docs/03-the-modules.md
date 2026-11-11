@@ -6,8 +6,8 @@ One car, four people. Each module is built around one person's job. The design c
 |---|---|---|
 | **Maria**, sales manager | At the sales desk, customer across from her, every week | **Trade-in**: one fixed screen she learns by heart |
 | **Dave**, sales director, and **Maria** | Maria works the pickups each week; Dave drops in between deals | **Back office**: opens on where every car is; Dave's re-prices and results on a second tab |
-| **Jordan**, Clutch operations | At a desk, all day | **Clutch ops**: dealers, with two clocks: minutes and days |
 | **Sam**, Clutch inspector | On a dealer's lot, one hand free, the truck waiting | **Clutch inspector**: check by exception, on a phone |
+| **Jordan**, Clutch operations | At a desk, all day, across every dealer | **Clutch ops**: the system sends the reminders; Jordan gets only the decisions |
 
 The look and components follow Clutch's own product (colours, type, pill controls, black selected states, pale-yellow notes). They're collected in Storybook under [Foundations](https://redline-storybook.vercel.app/?path=/story/foundations-brand--colours). Each module below notes what it takes from Clutch's existing screens.
 
@@ -75,29 +75,7 @@ _The dealership's page for cars sold to Clutch · Dave drops in between deals ·
 
 **Also tried:** [A · table first](https://redline-storybook.vercel.app/?path=/story/screens-back-office--a) (dense, closer to Maria's job than Dave's), [B · Needs you inbox](https://redline-storybook.vercel.app/?path=/story/screens-back-office--b) (the base for B2, both people on one page) and [C · pipeline board](https://redline-storybook.vercel.app/?path=/story/screens-back-office--c) (shows the flow, doesn't help him decide anything).
 
-## 3. Clutch ops · Jordan
-
-_Clutch coordinator for the dealer channel · desktop · all day_
-
-**Jordan's job:** keep the two promises the dealer buys: "your car joins the next pickup" and "you get paid". A good week: every accepted car is picked up on its run, at the agreed price, with no second trip.
-
-**What's new when the seller is a dealer** (Clutch already runs consumer pickups):
-- **A second decider in the middle of the inspection.** At a consumer pickup the seller stands right there. At a dealer, Dave may be in a meeting while the truck waits.
-- **Accepted doesn't mean on the lot.** The customer usually drives the trade-in until the new car is delivered. Offers hold 7 days and runs are weekly, so an offer can lapse before the car even arrives.
-- **Full runs.** A truck goes to one dealer for many cars, so a car that isn't ready costs real money.
-- **Health per dealer.** A rising re-price rate means a sales manager is over-declaring. Ops sees it first.
-
-**The main call: assume the dispatch tool exists; show only the dealer layer.** No trucks, ETAs or inspector rosters. The page is about **dealers** and **two clocks**:
-- **Minutes:** "On the lot now", a re-price waiting on a director, with how long it's waited and when the inspector has to leave.
-- **Days:** one row per dealer, with readiness (including "not on the lot yet"), re-price rate, acceptance and days to cash. Each problem names who's blocking it and what it costs.
-
-**Planning** is a second tab: dealers × run days, with no dispatch actions.
-
-::screen[ops-board/D]
-
-**Also tried:** [A · week grid](https://redline-storybook.vercel.app/?path=/story/screens-clutch-ops--week-grid) (the right unit, dealers, but half of it was dispatch; it became the Planning tab), [B · today's runs](https://redline-storybook.vercel.app/?path=/story/screens-clutch-ops--todays-runs) (essentially the dispatch tool Clutch already has) and [C · exceptions first](https://redline-storybook.vercel.app/?path=/story/screens-clutch-ops--exceptions-first) (the right instinct, but sorted by type, not urgency). D was built from A and C after that first round.
-
-## 4. Clutch inspector · Sam
+## 3. Clutch inspector · Sam
 
 _Phone, one hand, outdoors · about 15 minutes a car · the truck leaves at a set time_
 
@@ -116,3 +94,32 @@ _Phone, one hand, outdoors · about 15 minutes a car · the truck leaves at a se
 ::screen[inspector/C2]
 
 **Also tried:** [A · run, car, checklist](https://redline-storybook.vercel.app/?path=/story/screens-clutch-inspector--a) (gave the list of stops), [B · one car at a time](https://redline-storybook.vercel.app/?path=/story/screens-clutch-inspector--b) (gave the big "Yorkdale Honda declared" card inside an opened area) and [C · exceptions only](https://redline-storybook.vercel.app/?path=/story/screens-clutch-inspector--c). C2 is C plus parts of A and B, plus the wait on Dave.
+
+## 4. Clutch ops · Jordan
+
+_Clutch coordinator for the dealer channel · desktop · all day_
+
+This one sits outside the car's path. No step of the demo needs it; it shows how Clutch would run the channel once there are many dealers.
+
+**Jordan's job:** keep each dealer happy to keep sending cars. That rests on two promises: "your car joins the next pickup" and "you get paid". A good week: every accepted car is picked up on its run, at the agreed price, with no second trip, and no dealer has a reason to call a competitor.
+
+**What's new when the seller is a dealer** (Clutch already runs consumer pickups):
+- **A second decider in the middle of the inspection.** At a consumer pickup the seller stands right there. At a dealer, Dave may be in a meeting while the truck waits.
+- **Accepted doesn't mean on the lot.** The customer usually drives the trade-in until the new car is delivered. Offers hold 7 days and runs are weekly, so an offer can lapse before the car even arrives.
+- **Full runs.** A truck goes to one dealer for many cars, so a car that isn't ready costs real money.
+- **A relationship, not a transaction.** A dealer sends cars every week. A rising re-price rate means a sales manager is over-declaring; slow payments mean a dealer starts shopping around. Ops sees both first.
+
+**The main call: the system chases, Jordan decides.** Every reminder goes out on its own: Dave gets a text when the re-price is raised and another 10 minutes later; the sales manager hears each morning about an offer that's ending or a ready check that isn't done; a car that won't reach the lot in time goes on the next run instead, and the dealer is told. The page shows each of these as a status line ("Texted Dave 10:42 and 10:52"), never as a button. In the prototype the times are shown, not sent. What reaches **Needs you** is what a person has to decide:
+- **A director who hasn't answered.** Both texts unanswered, or the inspector about to leave: call Dave.
+- **A dealer's track record.** Re-prices well above the others, low acceptance, slow payments. One card per dealer, with the conversation to have: call the sales manager, ask for photos with each trade-in, raise the payments with finance.
+
+**Other calls:**
+- **Assume the dispatch tool exists; show only the dealer layer.** No trucks, ETAs or inspector rosters. A run without an inspector shows as "flagged to dispatch" and goes no further.
+- **Read-only below Needs you.** **Today's pickups** shows where each stop stands (picked up, to inspect, waiting on a re-price). **All dealers** has one row per dealer: next pickup, cars on the way (including "not on the lot yet" and "not confirmed by the dealer"), re-price rate, acceptance and days to cash, and under it what's in motion and what the system already did.
+- **Planning** is a second tab: dealers × pickup days, with no dispatch actions.
+
+**From Clutch:** the same panels, outline pills, yellow edge and green check as Back office, so the dealer's screen and Clutch's read alike.
+
+::screen[ops-board/D]
+
+**Also tried:** [A · week grid](https://redline-storybook.vercel.app/?path=/story/screens-clutch-ops--week-grid) (the right unit, dealers, but half of it was dispatch; it became the Planning tab), [B · today's runs](https://redline-storybook.vercel.app/?path=/story/screens-clutch-ops--todays-runs) (essentially the dispatch tool Clutch already has) and [C · exceptions first](https://redline-storybook.vercel.app/?path=/story/screens-clutch-ops--exceptions-first) (the right instinct, but sorted by type, not urgency). D was built from A and C after that first round, then reworked so reminders run on their own and only decisions need Jordan.

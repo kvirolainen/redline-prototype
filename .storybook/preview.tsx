@@ -20,7 +20,7 @@ const preview: Preview = {
 
     options: {
       storySort: {
-        order: ['App', 'Screens', ['Trade-in', 'Back office', 'Clutch ops', 'Clutch inspector'], 'Behind the build', ['Car journey', 'The thinking'], 'Foundations', ['Brand', 'Components']],
+        order: ['App', 'Screens', ['Trade-in', 'Back office', 'Clutch inspector', 'Clutch ops'], 'Behind the build', ['Car journey', 'The thinking'], 'Foundations', ['Brand', 'Components']],
       },
     },
 

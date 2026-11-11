@@ -19,7 +19,7 @@ import {
   type Route,
 } from './fixtures';
 
-/** A note Jordan's action leaves on the shared record: a reminder sent, a call, a hand-off to dispatch. */
+/** A note Jordan's decision leaves on the shared record: a call, a request to a dealer, a hand-off to finance. */
 export interface OpsNote {
   dealer: string;
   car?: string;
