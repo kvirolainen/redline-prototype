@@ -1,5 +1,5 @@
-import { Suspense, useState, type ReactNode } from 'react';
-import { useMutation, useQuery } from 'convex/react';
+import { Suspense, type ReactNode } from 'react';
+import { useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { Button } from '../components/ui/Button';
 import { MODULES, persona, type ModuleId, type PersonaId } from '../domain/personas';
@@ -87,41 +87,6 @@ export function EmptyWorld() {
           Load demo data
         </Button>
       </div>
-    </div>
-  );
-}
-
-/** In the header, next to the switcher: Reset demo, so every reviewer starts from the same story. */
-export function DemoBar() {
-  // Its own subscription (Convex shares it with the module's), so it can sit in the header outside WorldProvider.
-  const data = useQuery(api.world.get);
-  const reset = useMutation(api.demo.reset);
-  const [confirming, setConfirming] = useState(false);
-  if (!data?.meta) return null;
-  return (
-    <div className="flex items-center gap-4 text-caption whitespace-nowrap text-muted">
-      {confirming ? (
-        <span>
-          Start over for everyone?{' '}
-          <button
-            type="button"
-            onClick={() => {
-              void reset();
-              setConfirming(false);
-            }}
-            className="font-medium text-brand underline"
-          >
-            Reset
-          </button>{' '}
-          <button type="button" onClick={() => setConfirming(false)} className="underline hover:text-ink">
-            Cancel
-          </button>
-        </span>
-      ) : (
-        <button type="button" onClick={() => setConfirming(true)} className="underline hover:text-ink">
-          Reset demo
-        </button>
-      )}
     </div>
   );
 }

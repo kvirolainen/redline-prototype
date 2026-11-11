@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import { fromPath, HOME, toPath, type Route } from './route';
 import { navClick, setRouted } from './link';
 import { Lockup } from '../components/brand/Lockup';
@@ -9,7 +9,7 @@ import { Icon } from '../behind/icons';
 import { MODULE_ICON } from '../behind/moduleIcons';
 import { MODULES, PERSONAS, persona, personaLine, type PersonaId } from '../domain/personas';
 import { BEHIND_TABS, DOCS_TAB_LABEL, type BackOfficeTab, type BehindTab, type View } from './views';
-import { DemoBar, DemoModule, EmptyWorld, WorldProvider } from './parts';
+import { DemoModule, EmptyWorld, WorldProvider } from './parts';
 import { useHasBackend } from '../live/world';
 
 function Chevron() {
@@ -53,8 +53,7 @@ function MenuLine({ view, active }: { view: View; active?: boolean }) {
   );
 }
 
-/** `footer`: Reset demo, kept at the bottom of the menu so the top bar stays clean. */
-function ViewSwitcher({ view, onChange, footer }: { view: View; onChange: (v: View) => void; footer?: ReactNode }) {
+function ViewSwitcher({ view, onChange }: { view: View; onChange: (v: View) => void }) {
   const [open, setOpen] = useState(false);
   const pick = (v: View) => {
     onChange(v);
@@ -93,12 +92,6 @@ function ViewSwitcher({ view, onChange, footer }: { view: View; onChange: (v: Vi
             {PERSONAS.map((p) => item(p.id))}
             <div className="mx-2 my-2 border-t border-line-light" />
             {item('behind')}
-            {footer && (
-              <>
-                <div className="mx-2 my-2 border-t border-line-light" />
-                <div className="px-2 py-1.5">{footer}</div>
-              </>
-            )}
           </div>
         </>
       )}
@@ -206,7 +199,7 @@ export function AppShell({ initialView = 'behind', initialTab = 'car-journey', i
           )}
         </div>
         <div className="flex items-center gap-6">
-          <ViewSwitcher view={view} onChange={(v) => navigate({ view: v, office: 'pickups' })} footer={hasBackend ? <DemoBar /> : undefined} />
+          <ViewSwitcher view={view} onChange={(v) => navigate({ view: v, office: 'pickups' })} />
         </div>
       </header>
 

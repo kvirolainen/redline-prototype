@@ -1,6 +1,8 @@
 # Demo
 
-Press **Reset demo** first (bottom of the top-right menu). The story starts on Thursday, pickup day at Yorkdale Honda, with Sam, the inspector, on the lot. Switch modules from the top-right switcher.
+Reset first, so you start from the same story as everyone else. It starts on Thursday, pickup day at Yorkdale Honda, with Sam, the inspector, on the lot. Switch modules from the top-right switcher.
+
+::reset-demo
 
 ## Showcase: one car, one re-price
 
@@ -18,4 +20,4 @@ Press **Reset demo** first (bottom of the top-right menu). The story starts on T
 - **Clutch ops** (the thinking more than the flow, so it's last): **Needs you** holds only alerts, like Scarborough's re-price record or Downtown Toyota's slow payments. After step 3, **Today's pickups** shows the Civic waiting on Dave; after 20 minutes without an answer it moves to Needs you as **Call Dave** ([that state in Storybook](https://redline-storybook.vercel.app/?path=/story/screens-clutch-ops--dealers)). Then **Planning**.
 - **The other directions each screen explored:** [Storybook](https://redline-storybook.vercel.app).
 
-**Reset demo** puts everything back.
+**Reset demo** at the top of this page puts everything back.

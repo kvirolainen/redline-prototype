@@ -10,21 +10,17 @@ The in-person session with Clutch: the problem, who decides at a dealership, and
 
 Clutch's public site, its sell flow, its firm-offer card and its inspection report. Colours, type, pill controls, black selected states and the pale-yellow honesty notes became the shared foundation every screen uses ([Storybook → Foundations](https://redline-storybook.vercel.app/?path=/story/foundations-brand--colours)).
 
-![Clutch's firm-offer card, reused for the trade-in confirmation](img/look-offer-card.jpg)
-
-![Clutch's inspection report rows, which became the inspector's checklist](img/look-inspection-report.png)
-
 ## 3. First concept, split into modules
 
-The whiteboard became the **Concept**: one car's whole path, split into four modules, one per person who touches the car.
+The whiteboard became the [Concept](01-concept.md): one car's whole path, split into four modules, one per person who touches the car.
 
 ## 4. Desk or online?
 
-The first open question: does the trade-in happen at the sales desk or online? It got its own page, **Desk or online?**, instead of being settled quietly inside a screen.
+The first open question: does the trade-in happen at the sales desk or online? It got its own page, [Desk or online?](02-desk-or-online.md), instead of being settled quietly inside a screen.
 
 ## 5. A closer look at the people
 
-For each module: who uses it, how often, what's hard and what matters to them. That set the main design call for every screen, written up in **The modules**.
+For each module: who uses it, how often, what's hard and what matters to them. That set the main design call for every screen, written up in [The modules](03-the-modules.md).
 
 ## 6. Prototypes: versions, then iterations
 
@@ -36,7 +32,7 @@ The best version of each then went through rounds of review: Trade-in took six. 
 
 ## 7. Architecture
 
-One live backend, one data model for the car and its status, one query feeding every module, and every change as a single transaction that records who did what and why. Details in **Architecture**.
+One live backend, one data model for the car and its status, one query feeding every module, and every change as a single transaction that records who did what and why. Details in [Architecture](04-architecture.md).
 
 ## 8. Wiring it up
 
@@ -48,11 +44,11 @@ A code review of the whole build, then a scripted browser click-through of the f
 
 ## 10. The demo path
 
-One car, start to finish, person by person: **Demo**.
+One car, start to finish, person by person: [Demo](demo.md).
 
 ## Extra: dealer research
 
-Alongside the build: who should be the first Redline dealer, and how much public data can tell. In **Dealer research**.
+Alongside the build: who should be the first Redline dealer, and how much public data can tell. In [Dealer research](dealer-research.md).
 
 ## Tools
 

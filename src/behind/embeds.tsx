@@ -2,6 +2,7 @@ import { Suspense, useEffect, useLayoutEffect, useRef, useState, type ReactNode 
 import { createPortal } from 'react-dom';
 import { MODULES, type ModuleId } from '../domain/personas';
 import { ArchitectureDiagram } from './Architecture';
+import { ResetDemo } from '../shell/ResetDemo';
 import { Icon } from './icons';
 import { DEVICE, isModule, isVariant, screen, screenCaption, type Device, type VariantKey } from './screens';
 
@@ -9,6 +10,7 @@ import { DEVICE, isModule, isVariant, screen, screenCaption, type Device, type V
 //   ::screen[trade-in/B]   one live screen variant in a device frame
 //   ::screens[inspector]   all three variants of a module, side by side
 //   ::diagram[architecture]
+//   ::reset-demo           the Reset demo button (live app only)
 
 /** Width of the element, kept up to date as the layout changes. */
 function useWidth<T extends HTMLElement>() {
@@ -154,6 +156,7 @@ function Missing({ what }: { what: string }) {
 
 /** Renders one directive line. Unknown names or arguments render a muted "Missing embed" note. */
 export function Embed({ name, arg, raw }: { name: string; arg: string; raw: string }) {
+  if (name === 'reset-demo') return <ResetDemo />;
   if (name === 'screen') {
     const [m, v] = arg.split('/');
     if (!m || !v || !isModule(m) || !isVariant(m, v)) return <Missing what={raw} />;

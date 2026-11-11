@@ -1,5 +1,5 @@
 import { navClick } from '../shell/link';
-import { useMemo, useState } from 'react';
+import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 import Markdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { DOCS, isEmptyDoc, type Doc, type DocId } from './docs';
@@ -17,6 +17,41 @@ const imageUrl = (src?: string) => {
 
 const isEmpty = isEmptyDoc;
 
+/** Opens another document in place. A markdown link to a doc file (`[Concept](01-concept.md)`) uses it, so the same
+ *  link works here and on GitHub. Empty outside the viewer: the link then stays a plain href. */
+const OpenDoc = createContext<((id: DocId) => void) | null>(null);
+const docByFile = (href?: string) => DOCS.find((d) => href && href.replace(/^\.?\//, '').split('#')[0] === d.file);
+
+function DocLinkInText({ href, children }: { href?: string; children: ReactNode }) {
+  const open = useContext(OpenDoc);
+  const doc = docByFile(href);
+  const cls = 'text-ink underline decoration-subtle underline-offset-2 hover:decoration-ink';
+  if (doc && open) {
+    const path = `/thinking/${doc.id}`;
+    const nav = navClick(path, () => open(doc.id));
+    return (
+      <a
+        href={path}
+        className={cls}
+        onAuxClick={nav.onAuxClick}
+        onClick={(e) => {
+          if (e.metaKey || e.ctrlKey || e.shiftKey) return; // let the browser open the link in a new tab
+          e.preventDefault();
+          nav.onClick(e);
+        }}
+      >
+        {children}
+      </a>
+    );
+  }
+  const external = !!href && /^https?:/.test(href);
+  return (
+    <a href={href} className={cls} {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
+      {children}
+    </a>
+  );
+}
+
 const md: Components = {
   h1: ({ children }) => <h1 className="text-h3 font-bold text-ink">{children}</h1>,
   h2: ({ children }) => <h2 className="mt-12 border-t border-line pt-8 text-h4 font-bold text-ink">{children}</h2>,
@@ -27,11 +62,7 @@ const md: Components = {
   li: ({ children }) => <li className="pl-1 [&>p]:mt-0">{children}</li>,
   strong: ({ children }) => <strong className="font-bold text-ink">{children}</strong>,
   em: ({ children }) => <em className="text-ink italic">{children}</em>,
-  a: ({ children, href }) => (
-    <a href={href} className="text-ink underline decoration-subtle underline-offset-2 hover:decoration-ink">
-      {children}
-    </a>
-  ),
+  a: ({ children, href }) => <DocLinkInText href={href}>{children}</DocLinkInText>,
   blockquote: ({ children }) => <blockquote className="mt-4 border-l-2 border-ink pl-4 text-muted">{children}</blockquote>,
   code: ({ children }) => <code className="rounded-xs bg-line-light px-1.5 py-0.5 font-mono text-[0.875em] text-ink">{children}</code>,
   // Markdown wraps a lone image in a paragraph; render that paragraph as a figure so the caption isn't nested in <p>.
@@ -146,7 +177,9 @@ export function DocsViewer({ initial = 'concept', selected, onSelect }: Props) {
         </ul>
       </nav>
       <div className="min-w-0 bg-white px-6 py-8 lg:px-12 lg:py-10">
-        <DocPanel id={current} />
+        <OpenDoc.Provider value={pick}>
+          <DocPanel id={current} />
+        </OpenDoc.Provider>
       </div>
     </div>
   );
