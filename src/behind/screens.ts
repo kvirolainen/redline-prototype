@@ -1,8 +1,8 @@
 import { lazy, type ComponentType, type LazyExoticComponent } from 'react';
 import { MODULES, type ModuleId } from '../domain/personas';
 
-/** A, B, C are the three explored versions; B2 is the picked one, refined. */
-export type VariantKey = 'A' | 'B' | 'C' | 'B2';
+/** A, B, C are the three explored versions; B2, C2 and D are the picked ones, refined or built from the explored ones. */
+export type VariantKey = 'A' | 'B' | 'C' | 'B2' | 'C2' | 'D';
 type Explored = 'A' | 'B' | 'C';
 
 /** The size each screen was designed for; previews scale this box down to fit. */
@@ -42,11 +42,13 @@ export const SCREENS: Record<ModuleId, Record<Explored, Entry> & Partial<Record<
     A: { name: 'Week grid', Component: named(() => import('../modules/ops-board/VariantA'), 'VariantA') },
     B: { name: 'Today’s runs', Component: named(() => import('../modules/ops-board/VariantB'), 'VariantB') },
     C: { name: 'Exceptions first', Component: named(() => import('../modules/ops-board/VariantC'), 'VariantC') },
+    D: { name: 'Dealers', Component: named(() => import('../modules/ops-board/VariantD'), 'VariantD') },
   },
   inspector: {
     A: { name: 'Run, car, checklist', Component: named(() => import('../modules/inspector/VariantA'), 'InspectorVariantA') },
     B: { name: 'One car at a time', Component: named(() => import('../modules/inspector/VariantB'), 'InspectorVariantB') },
     C: { name: 'Exceptions only', Component: named(() => import('../modules/inspector/VariantC'), 'InspectorVariantC') },
+    C2: { name: 'Exceptions + wait on Dave', Component: named(() => import('../modules/inspector/VariantC2'), 'InspectorVariantC2') },
   },
   'back-office': {
     A: { name: 'Table first', Component: named(() => import('../modules/back-office/VariantA'), 'VariantA') },

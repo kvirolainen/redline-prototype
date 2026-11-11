@@ -60,7 +60,16 @@ Why B: the sales director doesn't work in the back office, he drops in between d
 
 ::screens[ops-board]
 
-**Picked:** _pending_
+**Picked: D · Dealers**, built from A and C after the first round.
+
+::screen[ops-board/D]
+
+Why D: Clutch already runs pickups for its consumer business, so this screen assumes the trucks and the dispatch exist. It shows only what changes when the seller is a dealer. B is close to that existing dispatch tool, so it went. A had the right unit (the dealer) but was half dispatch. C had the right instinct but sorted by type, not urgency. What D keeps:
+
+- **On the lot now**, across the top: a re-price waiting on a director, with a clock and the time the inspector has to leave. That's the one problem measured in minutes; everything else is measured in days.
+- **The dealer is the main object.** One row per dealer: next run, whether the cars are ready (including "not on the lot yet", since a customer drives the trade-in until their new car is delivered), re-price rate, acceptance and days to cash. A dealer whose re-price rate runs high is listed first, with who to call.
+- **Each problem names who blocks it and what it costs**, inside the dealer's row.
+- **Planning** is A's dealers × run days grid, as a second tab, with no dispatch actions.
 
 ## 4. Clutch inspector · Sam, phone, in a parking lot
 
@@ -74,4 +83,13 @@ Every version needs a photo per difference before a re-price can go to Dave.
 
 ::screens[inspector]
 
-**Picked:** _pending_
+**Picked: C, refined into C2 · Exceptions + wait on Dave.**
+
+::screen[inspector/C2]
+
+Why C: Sam checks several cars per stop while the truck waits, so a clean car has to take a few taps. Like Clutch ops, it assumes Clutch already has an inspection app for consumer pickups and shows what changes with a dealer. What changed from C:
+
+- **The run is a list of stops** (from A): done stops fold away, the current one is open with its cars, later ones wait below. It fits a 390-wide phone.
+- **VIN and odometer photos come first.** Identity can't be marked as matching without both, so one tap can't rubber-stamp a car.
+- **A difference opens only that item**, with what the dealer declared shown big (from B), then the finding, its price effect and a required photo.
+- **The wait on Dave.** A re-price goes to the director and Sam moves on to the next car. The answer comes back to the phone: accepted → load it at the new price; declined → leave it; no answer by the time the truck leaves → leave it, the re-price is withdrawn and the car joins next week's run.

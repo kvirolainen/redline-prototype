@@ -10,7 +10,7 @@ import { OpsLive } from '../live/OpsLive';
 import { TradeInLive } from '../live/TradeInLive';
 import { useDemoNow, useHasBackend, WorldProvider } from '../live/world';
 import { VariantB2 as BackOfficeB2 } from '../modules/back-office/VariantB2';
-import { InspectorVariantC } from '../modules/inspector/VariantC';
+import { InspectorVariantC2 } from '../modules/inspector/VariantC2';
 import { VariantD as OpsD } from '../modules/ops-board/VariantD';
 import { TradeInVariantB2 } from '../modules/trade-in/VariantB2';
 
@@ -33,7 +33,7 @@ function PickedScreen({ module, onSwitch }: { module: ModuleId; onSwitch: (id: P
     case 'ops-board':
       return <OpsD />;
     case 'inspector':
-      return <InspectorVariantC />;
+      return <InspectorVariantC2 />;
   }
 }
 

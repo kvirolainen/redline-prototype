@@ -11,4 +11,4 @@ One car, followed across four people:
 
 **Faked on purpose:** pricing (a stub where Clutch's calculator plugs in), sign-in (a person switcher), payments and notifications.
 
-_Each screen in detail follows once the versions are picked._
+Picked versions: Trade-in **B2**, Back office **B2**, Clutch ops **D**, Clutch inspector **C2**. Each one, with the versions it was chosen over and why, is in Prototypes.
