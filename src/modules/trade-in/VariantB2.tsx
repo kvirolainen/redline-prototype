@@ -11,11 +11,12 @@ import { useTradeIn, type TradeIn } from './useTradeIn';
 // the same place, no scrolling at 1440 × 900. The price shows once, when every answer is in, so
 // nobody watches a number move while they answer.
 
-/** Two columns: the car's history and body, and what comes with it. Short questions sit two to a line,
+/** Two columns that each flow on their own with an even rhythm: the car's history and body, then what comes with it.
+ *  Rows are as tall as their content; nothing stretches to fill the screen. Short questions sit two to a line,
  *  on the column's half-way mark, so every answer starts on one of two edges. */
 const COLUMNS: { title: string; rows: QuestionId[][] }[] = [
-  { title: 'History and condition', rows: [['title'], ['accidents', 'rust'], ['exterior'], ['interior'], ['mechanical', 'driveable'], ['condition']] },
-  { title: 'Equipment', rows: [['payout', 'keys'], ['features'], ['rims', 'tireSets'], ['tireType', 'tires']] },
+  { title: 'History and damage', rows: [['title'], ['accidents', 'rust'], ['exterior'], ['interior'], ['mechanical', 'driveable']] },
+  { title: 'Equipment and overall', rows: [['payout', 'keys'], ['features'], ['rims', 'tireSets'], ['tireType', 'tires'], ['condition']] },
 ];
 
 const Q = (id: QuestionId) => FULL_QUESTIONS.find((q) => q.id === id)!;
@@ -124,16 +125,16 @@ export function TradeInVariantB2({ onOpenBackOffice }: { onOpenBackOffice?: () =
     );
 
   return (
-    <div className="min-h-screen bg-canvas">
+    <div className="flex min-h-screen flex-col bg-canvas">
       <Header />
-      <div className="mx-auto grid max-w-[1400px] grid-cols-[1fr_300px] gap-5 px-6 py-4 min-[1400px]:grid-cols-[1fr_340px] min-[1400px]:py-6">
+      <div className="mx-auto grid w-full max-w-[1400px] items-start grid-cols-[1fr_300px] gap-5 px-6 py-4 min-[1400px]:grid-cols-[1fr_340px] min-[1400px]:py-6">
         <div className="rounded-panel border border-line bg-white">
           <CarRow t={t} />
           <div className="grid grid-cols-2 divide-x divide-line-light">
             {COLUMNS.map((c) => (
-              <section key={c.title} className="px-6 py-4 min-[1400px]:py-5">
+              <section key={c.title} className="px-6 pt-4 pb-5">
                 <h2 className="text-caption font-bold tracking-wide text-muted uppercase">{c.title}</h2>
-                <div className="mt-3 space-y-4 min-[1400px]:mt-4 min-[1400px]:space-y-5">
+                <div className="mt-3 space-y-5">
                   {c.rows.map((ids) => (
                     <Line key={ids.join()} ids={ids} t={t} />
                   ))}
@@ -142,7 +143,7 @@ export function TradeInVariantB2({ onOpenBackOffice }: { onOpenBackOffice?: () =
             ))}
           </div>
         </div>
-        <aside className="self-start">
+        <aside>
           <OfferPanel t={t} />
         </aside>
       </div>
@@ -302,17 +303,20 @@ function OfferPanel({ t }: { t: TradeIn }) {
   const reasons = reviewReasons(t);
   return (
     <div className="rounded-panel border border-line bg-white p-6">
-      {t.car ? (
-        <div className="border-b border-line-light pb-4">
-          <p className="text-base font-bold text-ink">{carName(t.car)}</p>
-          <p className="mt-1 text-caption text-muted">
-            {t.car.colour} · {t.car.transmission}
-            {t.km > 0 && ` · ${kmLabel(t.km)}`}
-          </p>
-        </div>
-      ) : (
-        <p className="text-sm text-muted">Answer in any order. The offer appears here once the VIN, odometer and every question are in.</p>
-      )}
+      <div className="border-b border-line-light pb-4">
+        <p className="text-caption font-bold tracking-wide text-muted uppercase">Your vehicle</p>
+        {t.car ? (
+          <>
+            <p className="mt-2 text-title font-bold text-ink">{carName(t.car)}</p>
+            <p className="mt-1 text-caption text-muted">
+              {t.car.colour} · {t.car.transmission}
+              {t.km > 0 && ` · ${kmLabel(t.km)}`}
+            </p>
+          </>
+        ) : (
+          <p className="mt-2 text-sm text-muted">Answer in any order. The offer appears here once the VIN, odometer and every question are in.</p>
+        )}
+      </div>
       {!q && <Waiting t={t} />}
       {q && (reasons.length ? <ByHand t={t} q={q} reasons={reasons} /> : <Instant t={t} q={q} />)}
     </div>
