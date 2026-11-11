@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import Markdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { DOCS, type DocId } from './docs';
+import { DOCS, isEmptyDoc, type DocId } from './docs';
 
-// A doc is "empty" until it has more than its title and a placeholder line.
-const isEmpty = (md: string) => md.replace(/^#.*$/m, '').replace(/_To be written\._/g, '').trim().length === 0;
+const isEmpty = isEmptyDoc;
 
 const md: Components = {
   h1: ({ children }) => <h1 className="text-h3 font-bold text-ink">{children}</h1>,
@@ -45,11 +44,11 @@ export function DocBody({ body }: { body: string }) {
 }
 
 /** One document: its file path, then the rendered markdown, or "Coming next" while it's still empty. */
-export function DocPanel({ id }: { id: DocId }) {
+export function DocPanel({ id, showPath = true }: { id: DocId; showPath?: boolean }) {
   const doc = DOCS.find((d) => d.id === id)!;
   return (
     <>
-      <p className="mb-6 font-mono text-caption text-subtle">docs/{doc.file}</p>
+      {showPath && <p className="mb-6 font-mono text-caption text-subtle">docs/{doc.file}</p>}
       {isEmpty(doc.body) ? (
         <div className="max-w-[720px]">
           <h1 className="text-h3 font-bold text-ink">{doc.label}</h1>

@@ -43,3 +43,7 @@ export const MODULES: Record<ModuleId, { label: string; summary: string; device:
 };
 
 export const persona = (id: PersonaId) => PERSONAS.find((p) => p.id === id)!;
+
+/** "Maria, Sales manager" / "Sam, Clutch inspector": the second line under a module name. */
+export const personaLine = (p: Persona) =>
+  `${p.name}, ${p.side === 'Clutch' ? `Clutch ${p.role.toLowerCase()}` : p.role[0] + p.role.slice(1).toLowerCase()}`;

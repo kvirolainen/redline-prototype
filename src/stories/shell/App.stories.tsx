@@ -9,7 +9,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'One shell. A “Viewing as” switcher at the top right picks Behind the build (the landing) or one person, each with exactly one module. Clickable throughout.',
+          'One shell. The switcher at the top right picks Behind the build (the landing, with a pointer at the switcher) or one of four working screens, one per role. Clickable throughout.',
       },
     },
   },
@@ -17,10 +17,16 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const ipad = (value: 'ipadLandscape' | 'ipadPortrait') => ({ viewport: { value, isRotated: false } });
+
 export const Journey: Story = { name: 'Behind the build – Journey', args: { initialView: 'behind', initialTab: 'journey' } };
-export const Process: Story = { name: 'Behind the build – Process', args: { initialView: 'behind', initialTab: 'process' } };
-export const Architecture: Story = { name: 'Behind the build – Architecture', args: { initialView: 'behind', initialTab: 'architecture' } };
-export const Maria: Story = { name: 'Maria – Trade-in', args: { initialView: 'maria' } };
-export const Dave: Story = { name: 'Dave – Back office', args: { initialView: 'dave' } };
-export const Sam: Story = { name: 'Sam – Inspector', args: { initialView: 'sam' } };
-export const Jordan: Story = { name: 'Jordan – Ops board', args: { initialView: 'jordan' } };
+export const JourneyIpadLandscape: Story = { name: 'Journey – iPad landscape (1024)', args: { initialView: 'behind', initialTab: 'journey' }, globals: ipad('ipadLandscape') };
+export const JourneyIpadPortrait: Story = { name: 'Journey – iPad portrait (768)', args: { initialView: 'behind', initialTab: 'journey' }, globals: ipad('ipadPortrait') };
+export const Process: Story = { name: 'Behind the build – Process', args: { initialView: 'behind', initialTab: 'process', coach: false } };
+export const ProcessIpadPortrait: Story = { name: 'Process – iPad portrait (768)', args: { initialView: 'behind', initialTab: 'process', coach: false }, globals: ipad('ipadPortrait') };
+export const Architecture: Story = { name: 'Behind the build – Architecture', args: { initialView: 'behind', initialTab: 'architecture', coach: false } };
+export const ArchitectureIpadPortrait: Story = { name: 'Architecture – iPad portrait (768)', args: { initialView: 'behind', initialTab: 'architecture', coach: false }, globals: ipad('ipadPortrait') };
+export const Maria: Story = { name: 'Trade-in · Maria', args: { initialView: 'maria' } };
+export const Dave: Story = { name: 'Back office · Dave', args: { initialView: 'dave' } };
+export const Sam: Story = { name: 'Inspector · Sam', args: { initialView: 'sam' } };
+export const Jordan: Story = { name: 'Ops board · Jordan', args: { initialView: 'jordan' } };

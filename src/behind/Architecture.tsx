@@ -9,15 +9,15 @@ const POINTS = [
 export function ArchitecturePage() {
   return (
     <CenteredPage title="Architecture, simplified" intro="One app, one shared live backend. A change on one screen shows on every other screen.">
-      <div className="overflow-x-auto pb-2">
-        <div className="mx-auto flex w-[880px] items-start">
-          <FlowNode shape="tile" icon="devices" label="Phone and laptop screens" sub="Four people, one screen each" width="w-[168px]" />
+      <div className="pb-2">
+        <div className="mx-auto flex w-full max-w-[880px] items-start">
+          <FlowNode shape="tile" icon="devices" label="Phone and laptop screens" sub="Four people, one screen each" width="w-[136px] lg:w-[168px]" />
           <Connector arrow />
-          <FlowNode shape="tile" icon="cloud" label="React app on Vercel" sub="One app for everyone" width="w-[168px]" />
+          <FlowNode shape="tile" icon="cloud" label="React app on Vercel" sub="One app for everyone" width="w-[136px] lg:w-[168px]" />
           <Connector arrow label="live" />
-          <FlowNode shape="tile" icon="database" label="Convex" sub="Live database and server functions" width="w-[168px]" />
+          <FlowNode shape="tile" icon="database" label="Convex" sub="Live database and server functions" width="w-[136px] lg:w-[168px]" />
           <Connector arrow dashed />
-          <FlowNode shape="tile" tone="stub" icon="calculator" label="Pricing stub" sub="Placeholder for Clutch’s engine" width="w-[168px]" />
+          <FlowNode shape="tile" tone="stub" icon="calculator" label="Pricing stub" sub="Placeholder for Clutch’s engine" width="w-[136px] lg:w-[168px]" />
         </div>
       </div>
 

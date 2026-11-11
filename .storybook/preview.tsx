@@ -1,5 +1,6 @@
 import '../src/index.css'
 import type { Preview } from '@storybook/react-vite'
+import { IPAD_VIEWPORTS } from '../src/stories/viewports'
 
 const preview: Preview = {
   parameters: {
@@ -9,6 +10,8 @@ const preview: Preview = {
        date: /Date$/i,
       },
     },
+
+    viewport: { options: IPAD_VIEWPORTS },
 
     a11y: {
       // 'todo' - show a11y violations in the test UI only

@@ -1,8 +1,8 @@
 import { JOURNEY_FORK, JOURNEY_MAIN, type JourneyStep, type JourneyStepId } from '../domain/journey';
-import { PERSONAS, persona, type PersonaId } from '../domain/personas';
-import { Avatar } from './Avatar';
+import { MODULES, persona, type PersonaId } from '../domain/personas';
 import { CenteredPage, Connector, FlowNode, VArrow, type NodeShape } from './flow';
-import type { IconName } from './icons';
+import { Icon, type IconName } from './icons';
+import { MODULE_ICON } from './moduleIcons';
 
 const ICONS: Record<JourneyStepId, IconName> = {
   offer: 'tag',
@@ -13,6 +13,17 @@ const ICONS: Record<JourneyStepId, IconName> = {
   reprice: 'pencil',
   director: 'person',
 };
+
+/** The module (screen) where a step happens: small icon + module name. */
+function ModuleChip({ owner }: { owner: PersonaId }) {
+  const m = persona(owner).module;
+  return (
+    <span className="inline-flex items-center gap-1 rounded-pill border border-line bg-white px-2 py-0.5 text-caption font-medium whitespace-nowrap text-ink">
+      <Icon name={MODULE_ICON[m]} className="size-3.5 text-muted" />
+      {MODULES[m].label}
+    </span>
+  );
+}
 
 interface Props {
   shape?: NodeShape;
@@ -29,21 +40,17 @@ export function JourneyDiagram({ shape = 'circle', onPick }: Props) {
       sub={s.detail}
       shape={shape}
       size={size}
-      badge={
-        <span className="block rounded-full ring-2 ring-white">
-          <Avatar id={s.owner} size="sm" />
-        </span>
-      }
+      foot={<ModuleChip owner={s.owner} />}
       onClick={onPick ? () => onPick(s.owner) : undefined}
-      title={`${persona(s.owner).name} owns this step${onPick ? ': see their screen' : ''}`}
+      title={`Happens in ${MODULES[persona(s.owner).module].label}${onPick ? ': open that screen' : ''}`}
     />
   );
   const [offer, accepted, pickup, inspection, paid] = JOURNEY_MAIN;
   const [reprice, director] = JOURNEY_FORK;
 
   return (
-    <div className="overflow-x-auto pb-2">
-      <div className="mx-auto grid w-[920px] grid-cols-[132px_1fr_132px_1fr_132px_1fr_132px_1fr_132px] justify-items-center">
+    <div className="pb-2">
+      <div className="mx-auto grid w-full max-w-[920px] grid-cols-[104px_1fr_104px_1fr_104px_1fr_104px_1fr_104px] justify-items-center lg:grid-cols-[132px_1fr_132px_1fr_132px_1fr_132px_1fr_132px]">
         {node(offer)}
         <Connector />
         {node(accepted)}
@@ -71,40 +78,19 @@ export function JourneyDiagram({ shape = 'circle', onPick }: Props) {
   );
 }
 
-function People({ onPick }: { onPick?: (id: PersonaId) => void }) {
-  return (
-    <div className="mt-16 flex flex-wrap justify-center gap-x-8 gap-y-3">
-      {PERSONAS.map((p) => {
-        const inner = (
-          <>
-            <Avatar id={p.id} size="sm" />
-            <span className="font-medium text-ink">{p.name}</span>
-            <span className="text-muted">{p.role}</span>
-          </>
-        );
-        return onPick ? (
-          <button key={p.id} type="button" onClick={() => onPick(p.id)} className="flex items-center gap-2 text-sm hover:underline">
-            {inner}
-          </button>
-        ) : (
-          <span key={p.id} className="flex items-center gap-2 text-sm">
-            {inner}
-          </span>
-        );
-      })}
-    </div>
-  );
-}
-
 export function JourneyPage({ shape = 'circle', onPick }: Props) {
   return (
     <CenteredPage
       title="One car, start to finish"
-      intro="From the dealer’s desk to payment. Each step has one owner; the inspection is the only place the path can fork."
-      hint={onPick ? 'Pick a person at the top right to see their screen, or click a step.' : undefined}
+      intro="From the dealer’s desk to payment. Each step happens on one screen; the inspection is the only place the path can fork."
     >
       <JourneyDiagram shape={shape} onPick={onPick} />
-      <People onPick={onPick} />
+      <p className="mt-12 flex items-center justify-center gap-1.5 text-center text-base text-ink lg:mt-16">
+        <span>
+          <span className="font-bold">4 working screens, one per role.</span> Switch at the top right
+        </span>
+        <Icon name="arrowUpRight" className="size-4 shrink-0" />
+      </p>
     </CenteredPage>
   );
 }

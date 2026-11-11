@@ -13,3 +13,6 @@ export const DOCS: { id: DocId; label: string; file: string; body: string }[] = 
   { id: 'test-report', label: 'Test report', file: '04-test-report.md', body: testReport },
   { id: 'decisions', label: 'Decisions', file: 'decisions.md', body: decisions },
 ];
+
+/** A doc is "empty" until it has more than its title and a placeholder line. */
+export const isEmptyDoc = (md: string) => md.replace(/^#.*$/m, '').replace(/_To be written\._/g, '').trim().length === 0;

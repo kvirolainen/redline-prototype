@@ -1,63 +1,58 @@
-// Product lockups for Redline. The "clutch" wordmark is styled text (Figtree, bold, lowercase, ink),
-// standing in for Clutch's real logo file.
+import { ClutchWordmark } from './ClutchWordmark';
 
-export type LockupVariant = 'divider' | 'by' | 'descriptor' | 'tag';
+// The Redline product lockup: "clutch | Redline". Every variant is the same idea; they differ only in the mark
+// (the redrawn Clutch wordmark or plain Figtree text), the colour of "Redline", and the thin divider.
+//
+// Alignment: the row is a flex row with `items-baseline`, so "clutch" and "Redline" share one baseline (the
+// wordmark SVG's bottom edge is its baseline). Optical size: "Redline" is sized so its ascenders (R, d, l) reach
+// the top of the wordmark's l/t/h, which also lands its x-height on the wordmark's x-height (Figtree: x-height
+// 0.50 em, ascender 0.704 em; wordmark: x-height 0.725 of its ascender).
 
-function ClutchWord({ size, invert }: { size: number; invert?: boolean }) {
-  return (
-    <span className={`font-bold tracking-[-0.03em] lowercase ${invert ? 'text-white' : 'text-ink'}`} style={{ fontSize: size, lineHeight: 1 }}>
-      clutch
-    </span>
-  );
+const FIGTREE_ASCENDER = 0.704;
+
+export interface LockupOptions {
+  /** The redrawn Clutch wordmark (SVG) or Figtree text. */
+  mark?: 'wordmark' | 'text';
+  /** Colour of "clutch" (the wordmark is red by default, as in Clutch's own header). */
+  clutch?: 'ink' | 'red';
+  /** Colour of "Redline". */
+  redline?: 'ink' | 'red';
+  divider?: boolean;
 }
 
-/** `size` is the wordmark height in px; everything else scales from it. */
-export function Lockup({ variant = 'divider', size = 26, invert }: { variant?: LockupVariant; size?: number; invert?: boolean }) {
-  const soft = invert ? 'text-white/70' : 'text-muted';
-  const strong = invert ? 'text-white' : 'text-ink';
+interface Props extends LockupOptions {
+  /** Ascender height in px (top of the "l" to the baseline); everything scales from it. */
+  size?: number;
+  invert?: boolean;
+}
 
-  switch (variant) {
-    case 'divider':
-      return (
-        <span className="inline-flex items-center" aria-label="Clutch Redline">
-          <ClutchWord size={size} invert={invert} />
-          <span className={`w-px ${invert ? 'bg-white/40' : 'bg-line'}`} style={{ height: size * 0.9, marginInline: size * 0.45 }} />
-          <span className={`font-medium ${strong}`} style={{ fontSize: size * 0.72, lineHeight: 1 }}>
-            Redline
-          </span>
+
+export function Lockup({ mark = 'wordmark', clutch = 'red', redline = 'ink', divider = true, size = 24, invert }: Props) {
+  const fontSize = size / FIGTREE_ASCENDER;
+  const ink = invert ? 'text-white' : 'text-ink';
+  const red = 'text-brand';
+  const markColor = clutch === 'red' ? red : ink;
+
+  return (
+    <span className="inline-flex items-baseline" aria-label="Clutch Redline" role="img">
+      {mark === 'wordmark' ? (
+        <span className={markColor}>
+          <ClutchWordmark height={size} title="" />
         </span>
-      );
-    case 'by':
-      return (
-        <span className="inline-flex flex-col" aria-label="Redline by Clutch">
-          <span className={`font-bold tracking-[-0.02em] ${strong}`} style={{ fontSize: size, lineHeight: 1 }}>
-            Redline
-          </span>
-          <span className={`font-medium ${soft}`} style={{ fontSize: Math.max(11, size * 0.42), lineHeight: 1.4 }}>
-            by <span className={`font-bold lowercase ${strong}`}>clutch</span>
-          </span>
+      ) : (
+        <span className={`font-bold tracking-[-0.03em] ${markColor}`} style={{ fontSize, lineHeight: 1 }}>
+          clutch
         </span>
-      );
-    case 'descriptor':
-      return (
-        <span className="inline-flex items-baseline gap-[0.3em]" aria-label="Clutch for Dealers">
-          <ClutchWord size={size} invert={invert} />
-          <span className={`font-medium ${soft}`} style={{ fontSize: size * 0.62, lineHeight: 1 }}>
-            for Dealers
-          </span>
-        </span>
-      );
-    case 'tag':
-      return (
-        <span className="inline-flex items-center gap-[0.35em]" aria-label="Clutch Redline">
-          <ClutchWord size={size} invert={invert} />
-          <span
-            className="rounded-badge bg-brand font-bold tracking-wide text-white uppercase"
-            style={{ fontSize: Math.max(10, size * 0.4), lineHeight: 1, padding: '0.35em 0.55em' }}
-          >
-            Redline
-          </span>
-        </span>
-      );
-  }
+      )}
+      {divider ? (
+        // Runs from the baseline to the ascender line, the same height as the letters it separates.
+        <span className={`w-px self-baseline ${invert ? 'bg-white/40' : 'bg-line'}`} style={{ height: size, marginInline: size * 0.45 }} aria-hidden />
+      ) : (
+        <span style={{ width: size * 0.32 }} aria-hidden />
+      )}
+      <span className={`font-semibold tracking-[-0.01em] ${redline === 'red' ? red : ink}`} style={{ fontSize, lineHeight: 1 }}>
+        Redline
+      </span>
+    </span>
+  );
 }

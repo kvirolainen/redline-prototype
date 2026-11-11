@@ -16,6 +16,12 @@ const PATHS = {
   devices: 'M3 5h13v10H3zM1 18h17M18 9h4v11h-4z',
   cloud: 'M7 18a4 4 0 010-8 5.5 5.5 0 0110.6-1.5A4.5 4.5 0 0117.5 18z',
   database: 'M4 6c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3zM4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3',
+  list: 'M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01',
+  swap: 'M4 8h15l-4-4M20 16H5l4 4',
+  table: 'M3 5h18v14H3zM3 10h18M3 14.5h18M9 10v9',
+  board: 'M3 4h5v16H3zM10 4h5v10h-5zM17 4h4v13h-4z',
+  arrowUpRight: 'M7 17L17 7M9 7h8v8',
+  close: 'M6 6l12 12M18 6L6 18',
   calculator: 'M6 3h12v18H6zM9 7h6M9 12h.01M12 12h.01M15 12h.01M9 16h.01M12 16h.01M15 16h.01',
 } as const;
 
