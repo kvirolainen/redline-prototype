@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { fromPath, toPath, type Route } from './route';
 import { Lockup } from '../components/brand/Lockup';
 import { CarJourney } from '../behind/CarJourney';
 import type { DocId } from '../behind/docs';
@@ -135,15 +136,35 @@ interface Props {
   initialView?: View;
   initialTab?: BehindTab;
   initialDoc?: DocId;
+  /** The app keeps the screen in the address bar, so a refresh or a shared link reopens it. Storybook leaves it off. */
+  routed?: boolean;
 }
 
 /** The app shell: the logo, one switcher at the top right, and either the Behind-the-build pages (with a light
  *  sub-nav) or the selected person's module. The pages are the same components as in Storybook, rendered as-is. */
-export function AppShell({ initialView = 'behind', initialTab = 'car-journey', initialDoc = 'concept' }: Props) {
-  const [view, setView] = useState<View>(initialView);
-  const [tab, setTab] = useState<BehindTab>(initialTab);
-  const [doc, setDoc] = useState<DocId>(initialDoc);
-  const go = (v: View) => setView(v);
+export function AppShell({ initialView = 'behind', initialTab = 'car-journey', initialDoc = 'concept', routed = false }: Props) {
+  const [route, setRoute] = useState<Route>(() =>
+    routed ? fromPath(window.location.pathname) : { view: initialView, tab: initialTab, doc: initialDoc },
+  );
+  const { view, tab, doc } = route;
+  const navigate = (patch: Partial<Route>) => {
+    const next = { ...route, ...patch };
+    setRoute(next);
+    if (routed && toPath(next) !== window.location.pathname) window.history.pushState(null, '', toPath(next));
+  };
+  // Back and forward in the browser move between screens.
+  useEffect(() => {
+    if (!routed) return;
+    // An unknown or partial path opened a fallback screen: show that screen's own path.
+    const own = toPath(fromPath(window.location.pathname));
+    if (own !== window.location.pathname) window.history.replaceState(null, '', own);
+    const onPop = () => setRoute(fromPath(window.location.pathname));
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, [routed]);
+  const setTab = (t: BehindTab) => navigate({ view: 'behind', tab: t });
+  const setDoc = (d: DocId) => navigate({ view: 'behind', tab: 'docs', doc: d });
+  const go = (v: View) => navigate({ view: v });
   const showPerson = (id: PersonaId) => go(id);
   // The pointer belongs to the landing page; on the other tabs it would sit over the content.
   const pointerOn = view === 'behind' && tab === 'car-journey';

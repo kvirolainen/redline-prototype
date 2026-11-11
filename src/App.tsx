@@ -5,7 +5,7 @@ import { BackendContext } from './live/world';
 export default function App() {
   return (
     <BackendContext.Provider value={true}>
-      <AppShell />
+      <AppShell routed />
     </BackendContext.Provider>
   );
 }
