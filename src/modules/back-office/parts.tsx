@@ -258,7 +258,10 @@ export function CarDetail({ car, office }: { car: BackOfficeCar; office: BackOff
             VIN {car.vin} · {km(car.km)}
           </p>
         </div>
-        <StatusChip status={car.status} />
+        <div className="shrink-0 text-right">
+          <StatusChip status={car.status} />
+          <p className="mt-1 text-caption text-muted">{STATUS[car.status].hint}</p>
+        </div>
       </div>
 
       <dl className="mt-5 grid grid-cols-3 gap-4 rounded-card border border-line bg-white p-4">
@@ -283,7 +286,6 @@ export function CarDetail({ car, office }: { car: BackOfficeCar; office: BackOff
 
       <h3 className="mt-6 mb-4 text-base font-bold text-ink">Timeline</h3>
       <Timeline events={car.events} />
-      <p className="mt-5 text-caption text-muted">{STATUS[car.status].hint}</p>
     </div>
   );
 }

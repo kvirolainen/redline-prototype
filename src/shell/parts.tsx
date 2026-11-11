@@ -26,7 +26,8 @@ function PhoneFrame({ children }: { children: ReactNode }) {
   return (
     <div className="mx-auto w-[414px] rounded-[44px] border border-line bg-white p-3">
       <div className="mx-auto mb-3 h-1.5 w-20 rounded-pill bg-line-light" />
-      <div className="h-[780px] overflow-y-auto rounded-[32px] border border-line-light bg-canvas">{children}</div>
+      {/* As tall as a phone, but never taller than the window, so the whole device stays in view on a laptop. */}
+      <div className="h-[min(780px,calc(100vh-184px))] min-h-[560px] overflow-y-auto rounded-[32px] border border-line-light bg-canvas">{children}</div>
     </div>
   );
 }

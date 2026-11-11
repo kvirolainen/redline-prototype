@@ -481,7 +481,7 @@ function Done({ t, q, onOpenBackOffice }: { t: TradeIn; q: Quote; onOpenBackOffi
         ))}
       </ol>
       {!review && (
-        <p className="mx-auto mt-6 max-w-[520px] text-caption text-muted">
+        <p className="mx-auto mt-6 max-w-[600px] text-sm text-muted">
           If something differs at pickup, Clutch sends a new price with the reason, and the dealership decides.
         </p>
       )}

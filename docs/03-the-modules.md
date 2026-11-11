@@ -13,6 +13,8 @@ The look and components follow Clutch's own product (colours, type, pill control
 
 The three desk modules open the same way: the page title, a grey line under it with the dealer and next pickup, and tabs on the right when the module has more than one page. They share one content width, so switching people doesn't move the page. Anything that needs someone gets a yellow stripe down its left edge and a yellow label pill. The inspector keeps its own phone header.
 
+Inside the desk modules every white panel uses one 24px inner gutter, so text keeps the same left edge across panels, tabs and modules. A count of what needs someone is always the same small yellow badge, on a panel heading and on a tab. Car names and the grey line under them wrap rather than cut off, because the cut-off part was usually the part that mattered (the trim, or why a car went to auction). Prices sit in a fixed column so they line up down a list. The phone frame is never taller than the window, so the whole device stays in view on a laptop.
+
 ## 1. Trade-in · Maria
 
 _Sales manager · laptop at the sales desk · the customer looks at the same screen_

@@ -47,7 +47,7 @@ function Tabs({ tab, onChange, count }: { tab: Tab; onChange: (t: Tab) => void; 
   return (
     <SegmentedTabs
       items={[
-        ['dealers', count ? `Dealers · ${count}` : 'Dealers'],
+        ['dealers', 'Dealers', count],
         ['planning', 'Planning'],
       ]}
       value={tab}
@@ -82,7 +82,7 @@ function NeedsYou({ board }: { board: DealerBoard }) {
   return (
     <Panel title="Needs you" count={open} aside="Reminders go out on their own. These need a call only you can make.">
       {needs.length === 0 ? (
-        <p className="border-t border-line-light px-8 py-5 text-base text-muted">
+        <p className="border-t border-line-light px-6 py-5 text-base text-muted">
           Nothing to decide. Every dealer is on track, and the reminders are going out.
         </p>
       ) : (
@@ -99,7 +99,7 @@ function NeedsYou({ board }: { board: DealerBoard }) {
 function NeedCard({ board, n }: { board: DealerBoard; n: Need }) {
   const done = board.decided[n.key];
   return (
-    <article className={`grid gap-4 px-8 py-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center ${done ? '' : ATTENTION_EDGE}`}>
+    <article className={`grid gap-4 px-6 py-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center ${done ? '' : ATTENTION_EDGE}`}>
       <div className="min-w-0">
         <p className="flex flex-wrap items-center gap-2">
           <Tag tone={done ? 'neutral' : 'attention'}>{n.tag}</Tag>
@@ -138,7 +138,7 @@ function TodayPickups({ board }: { board: DealerBoard }) {
   const stops = today ? board.dealers.filter((dl) => board.carsAt(dl.id, today.id).length) : [];
   const next = board.days.find((d) => d.state === 'planned');
   return (
-    <Panel title={today ? `Today’s pickups · ${today.label}` : 'Today’s pickups'} aside={stops.length ? 'Trucks and routes live in dispatch' : undefined} compact>
+    <Panel title={today ? `Today’s pickups · ${today.label}` : 'Today’s pickups'} aside={stops.length ? 'Trucks and routes live in dispatch' : undefined}>
       {!stops.length ? (
         <p className="border-t border-line-light px-6 py-4 text-base text-muted">No pickups today{next ? `. Next: ${next.label}` : ''}.</p>
       ) : (
@@ -211,7 +211,6 @@ function DealerTable({ board }: { board: DealerBoard }) {
       <Panel
         title="All dealers"
         aside={`${flagged ? `${flagged} of ${board.rows.length} with something in motion · listed first` : 'Every dealer on track'} · track record over 90 days`}
-        compact
       >
         <div className={`hidden border-y border-line-light px-6 py-3 text-sm font-medium text-muted lg:grid lg:gap-4 ${COLS}`}>
           <span>Dealer</span>
@@ -440,7 +439,7 @@ const PLAN_LEGEND: [Readiness, string][] = [
 function Planning({ board }: { board: DealerBoard }) {
   return (
     <div className="mt-6">
-      <Panel title="Cars per dealer and pickup day" aside="Trucks, routes and inspectors live in dispatch" compact>
+      <Panel title="Cars per dealer and pickup day" aside="Trucks, routes and inspectors live in dispatch">
         <ul className="flex flex-wrap gap-x-4 gap-y-1 px-6 pb-4 text-sm text-muted">
           {PLAN_LEGEND.map(([r, l]) => (
             <li key={r} className="flex items-center gap-1.5">
@@ -449,11 +448,11 @@ function Planning({ board }: { board: DealerBoard }) {
           ))}
         </ul>
         <div className="grid grid-cols-[minmax(120px,1.1fr)_repeat(4,minmax(0,1fr))] overflow-hidden rounded-b-panel border-t border-line">
-          <div className="border-b border-line px-4 py-3 text-caption font-medium text-muted">Dealer</div>
+          <div className="border-b border-line px-6 py-3 text-sm font-medium text-muted">Dealer</div>
           {board.days.map((d) => (
-            <div key={d.id} className={`border-b border-l border-line px-3 py-3 sm:px-4 ${d.state === 'today' ? 'bg-ink text-white' : ''}`}>
+            <div key={d.id} className={`border-b border-l border-line px-3 py-3 text-ink sm:px-4 ${d.state === 'today' ? 'bg-canvas shadow-[inset_0_3px_0_0_var(--color-ink)]' : ''}`}>
               <p className="text-sm font-bold">{d.label}</p>
-              <p className={`text-caption ${d.state === 'today' ? 'text-white/70' : 'text-muted'}`}>
+              <p className={`text-caption ${d.state === 'today' ? 'font-medium text-ink' : 'text-muted'}`}>
                 {d.state === 'done' ? 'Done' : d.state === 'today' ? 'Today' : 'Planned'}
               </p>
             </div>
@@ -472,7 +471,7 @@ function PlanRow({ board, dealerId }: { board: DealerBoard; dealerId: string }) 
   const { dayLabel } = board;
   return (
     <>
-      <div className="border-b border-line px-4 py-4">
+      <div className="border-b border-line px-6 py-4">
         <p className="text-sm font-bold text-ink">{dl.name}</p>
         <p className="text-caption text-muted">{dl.runDay === 'Thu' ? 'Thursdays' : 'Tuesdays'}</p>
       </div>

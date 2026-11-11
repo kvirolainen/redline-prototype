@@ -39,12 +39,11 @@ function useCounts(office: BackOffice) {
 }
 
 function Tabs({ tab, onChange, counts, hrefOf }: { tab: BackOfficeTab; onChange: (t: BackOfficeTab) => void; counts: { pickups: number; overview: number }; hrefOf?: (t: BackOfficeTab) => string }) {
-  const label = (text: string, n: number) => (n ? `${text} · ${n}` : text);
   return (
     <SegmentedTabs
       items={[
-        ['pickups', label('Pickups', counts.pickups)],
-        ['overview', label('Overview', counts.overview)],
+        ['pickups', 'Pickups', counts.pickups],
+        ['overview', 'Overview', counts.overview],
       ]}
       value={tab}
       onChange={onChange}
@@ -200,22 +199,29 @@ function RowAction({ car, office, mode, onOpen }: { car: BackOfficeCar; office: 
 function CarRow({ car, office, onOpen, mode, urgent }: { car: BackOfficeCar; office: BackOffice; onOpen: () => void; mode: RowMode; urgent: boolean }) {
   const detail = rowDetail(car, mode);
   return (
-    <div className={`grid grid-cols-[minmax(0,1fr)_auto_auto_12px] items-center gap-4 px-6 py-3 ${urgent ? `${ATTENTION_EDGE} bg-nudge/50` : 'hover:bg-canvas'}`}>
+    <div className={`grid grid-cols-[minmax(0,1fr)_auto_auto_16px] items-center gap-4 px-6 py-3 ${urgent ? `${ATTENTION_EDGE} bg-nudge/50` : 'hover:bg-canvas'}`}>
       <button type="button" onClick={onOpen} className="min-w-0 text-left">
-        <span className="block truncate text-base font-medium text-ink">{car.car}</span>
+        <span className="block text-base font-medium text-ink">{car.car}</span>
         <span className="block truncate text-sm text-muted">
           {car.vin.slice(-6)} · {km(car.km)}
         </span>
-        {detail && <span className="mt-0.5 block truncate text-sm text-muted">{detail}</span>}
+        {detail && <span className="mt-0.5 line-clamp-2 text-sm text-muted">{detail}</span>}
       </button>
       <span className="w-20 text-right text-base font-bold text-ink">{car.status === 'appraising' ? '' : money(car.offer)}</span>
-      <span className="flex min-w-[150px] justify-end">
+      <span className="flex w-[176px] justify-end">
         <RowAction car={car} office={office} mode={mode} onOpen={onOpen} />
       </span>
-      <span className="text-subtle" aria-hidden>
-        ›
-      </span>
+      <RowChevron />
     </div>
+  );
+}
+
+/** The same chevron as the inspector's rows: the row opens the car. */
+function RowChevron() {
+  return (
+    <svg viewBox="0 0 24 24" className="size-4 text-subtle" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M9 6l6 6-6 6" />
+    </svg>
   );
 }
 
@@ -225,7 +231,7 @@ function GroupPanel({ g, office, onOpen }: { g: Group; office: BackOffice; onOpe
   const { nextPickup, checkDueSoon = false } = useBackOfficeEnv();
   if (!g.cars.length) return null;
   return (
-    <Panel title={g.title} aside={g.aside || `${g.cars.length} ${g.cars.length === 1 ? 'car' : 'cars'}`} compact>
+    <Panel title={g.title} aside={g.aside || `${g.cars.length} ${g.cars.length === 1 ? 'car' : 'cars'}`}>
       <div className="divide-y divide-line-light border-t border-line-light">
         {g.cars.map((c) => (
           <CarRow key={c.vin} car={c} office={office} mode={g.mode} urgent={isUrgent(c, nextPickup, checkDueSoon)} onOpen={() => onOpen(c.vin)} />
@@ -286,7 +292,7 @@ function NeedsYou({ office, onOpen }: { office: BackOffice; onOpen: (vin: string
   return (
     <Panel title="Needs you" count={pendingVins.length} aside={pendingVins.length ? 'Clutch’s inspector is on the lot, waiting for your answer' : undefined}>
       {inbox.length === 0 ? (
-        <p className="border-t border-line-light px-8 py-5 text-base text-muted">
+        <p className="border-t border-line-light px-6 py-5 text-base text-muted">
           Nothing right now. If Clutch’s inspection finds a difference on pickup day, the new price lands here for your call.
         </p>
       ) : (
@@ -295,7 +301,7 @@ function NeedsYou({ office, onOpen }: { office: BackOffice; onOpen: (vin: string
             const car = office.cars.find((c) => c.vin === vin)!;
             const pending = car.status === 'reprice_pending';
             return (
-              <article key={vin} className={`px-8 py-6 ${pending ? ATTENTION_EDGE : ''}`}>
+              <article key={vin} className={`px-6 py-6 ${pending ? ATTENTION_EDGE : ''}`}>
                 <div className="mb-4 flex items-start justify-between gap-4">
                   <div className="min-w-0">
                     <p className="text-sm text-muted">{pending ? `Re-price at pickup · ${car.reprice?.waiting ?? ''}` : 'Done'}</p>
@@ -347,7 +353,7 @@ function Results({ office }: { office: BackOffice }) {
   ];
   return (
     <Panel title="Results" aside="Since August">
-      <dl className="grid grid-cols-2 gap-y-5 border-t border-line-light px-8 py-5 xl:grid-cols-4">
+      <dl className="grid grid-cols-2 gap-y-5 border-t border-line-light px-6 py-5 xl:grid-cols-4">
         {stats.map(([label, value, hint]) => (
           <div key={label} className="min-w-0 pr-4">
             <dt className="text-sm text-muted">{label}</dt>
@@ -356,7 +362,7 @@ function Results({ office }: { office: BackOffice }) {
           </div>
         ))}
       </dl>
-      <div className="border-t border-line-light px-8 pt-5 pb-6">
+      <div className="border-t border-line-light px-6 pt-5 pb-6">
         <h3 className="text-base font-bold text-ink">By month</h3>
         <div className="mt-4 grid grid-cols-[48px_minmax(0,1fr)_56px_80px_80px] items-center gap-x-4 gap-y-3 text-base">
           <span />
@@ -409,7 +415,7 @@ function ThisWeek({ office, onTab, tabHref }: { office: BackOffice; onTab: (t: B
     >
       <dl className="divide-y divide-line-light border-t border-line-light">
         {lines.map(([k, v]) => (
-          <div key={k} className="flex justify-between gap-3 px-8 py-3 text-base">
+          <div key={k} className="flex justify-between gap-3 px-6 py-3 text-base">
             <dt className="text-muted">{k}</dt>
             <dd className="font-medium text-ink">{v}</dd>
           </div>
@@ -428,15 +434,15 @@ function RepricedList({ office }: { office: BackOffice }) {
           const found = c.reprice?.items.map((i) => i.label.toLowerCase()).join(', ') ?? c.events.find((e) => e.kind === 'reprice')?.text.split('.')[0] ?? '';
           const outcome = c.status === 'reprice_pending' ? 'Waiting on you' : c.status === 'declined' ? 'Declined, stayed with you' : 'Accepted';
           return (
-            <li key={c.vin} className="px-8 py-3">
-              <p className="truncate text-base font-medium text-ink">{c.car}</p>
-              <p className="truncate text-sm text-muted">
+            <li key={c.vin} className="px-6 py-3">
+              <p className="text-base font-medium text-ink">{c.car}</p>
+              <p className="text-sm text-muted">
                 <span className="text-body">{outcome}</span> · {found.toLowerCase()}
               </p>
             </li>
           );
         })}
-        {repricedCars.length === 0 && <li className="px-8 py-3 text-base text-muted">None yet.</li>}
+        {repricedCars.length === 0 && <li className="px-6 py-3 text-base text-muted">None yet.</li>}
       </ul>
     </Panel>
   );
