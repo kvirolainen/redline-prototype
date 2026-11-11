@@ -1,6 +1,6 @@
 # Process
 
-How the prototype was made, from the whiteboard to a live app. Every version mentioned here can be opened in [Storybook](https://redline-storybook.vercel.app).
+How the prototype was made, from the whiteboard to a live app. The first versions of each screen, and the foundations they share, are in [Storybook](https://redline-storybook.vercel.app).
 
 ## 1. Start from the room
 

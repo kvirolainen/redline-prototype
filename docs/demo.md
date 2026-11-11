@@ -17,6 +17,6 @@ Press **Reset demo** in the header first. It's **Thu Nov 12, 10:40**: pickup day
 - **Back office:** **Keep** a car for the dealer's own lot, tick **Ready**, accept the appraiser-priced **2012 Camry**, open **Results**.
 - **Clutch ops:** expand **Scarborough** (high re-price rate) and **Downtown Toyota** (a car arrives after its run); open **Planning**.
 - **Clutch inspector:** mark the **CX-5** **Not ready**; confirm Vaughan Ford's **F-150** with **All match**; in step 4, **Decline** instead and the car stays with the dealer.
-- **Every earlier version of each screen:** [Storybook](https://redline-storybook.vercel.app).
+- **The other directions each screen explored:** [Storybook](https://redline-storybook.vercel.app).
 
 **Reset demo** puts everything back.
