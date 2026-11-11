@@ -7,7 +7,7 @@ import { useOpsBoard } from './useOpsBoard';
 
 // What changes when the seller is a dealer: the dealer is the main object, with its people,
 // its cars on the way and its track record. Trucks, routes and rosters stay in dispatch.
-// The system chases, Jordan decides: every reminder goes out on its own and shows as a status line; only what
+// Only what
 // needs judgment (a dealer's track record, slow payments, a director who hasn't answered) lands in Needs you.
 
 export type Readiness = 'ready' | 'unconfirmed' | 'not_on_lot' | 'expiring' | 'offer' | 'not_ready' | 'done' | 'closed';
@@ -22,18 +22,10 @@ export interface DealerFlag {
   who: string;
   /** What it costs if nobody acts. */
   cost: string;
-  /** What the system already did about it: the reminder it sent, the run it moved the car to. */
-  auto: string;
   carId?: string;
 }
 
-/** One way to settle a Needs-you item: the button, and the line it leaves once done. */
-export interface NeedAction {
-  label: string;
-  done: string;
-}
-
-/** A decision only Jordan can make. Reminders never land here; they go out on their own. */
+/** An alert for Jordan: something only a person can settle. Reminders never land here; they go out on their own. */
 export interface Need {
   key: string;
   kind: 'call' | 'health';
@@ -42,10 +34,6 @@ export interface Need {
   dealer: Dealer;
   /** What's going on, in one line. */
   detail: string;
-  /** What the system did before handing it over. */
-  auto: string;
-  /** The main decision first (black), the others outline. */
-  actions: NeedAction[];
   carId?: string;
 }
 
@@ -148,8 +136,6 @@ export function useDealerBoard() {
   const env = useOpsEnv();
   const board = useOpsBoard();
   const { day, dealer, inspectorName } = board;
-  const [decided, setDecided] = useState<Record<string, string>>({}); // need key -> what Jordan did
-  const [log, setLog] = useState<string[]>([]);
   const localNow = useNow(env.startTime);
   const now = env.now ?? localNow;
   const today = env.days.find((d) => d.state === 'today');
@@ -201,7 +187,6 @@ export function useDealerBoard() {
         key: `live-${l.car.id}`, kind: 'live', carId: l.car.id, who: dl.director,
         title: `${l.car.car} re-price on the lot now`,
         cost: `${l.inspector} leaves ~${l.leaves}, otherwise a second trip`,
-        auto: `Texted ${l.director} ${l.texts.join(' and ')}`,
       });
     }
     for (const c of open) {
@@ -215,16 +200,14 @@ export function useDealerBoard() {
             ? `${c.car}: offer ends ${label(c.expiresOn!)}, car on the lot ${label(c.onLotFrom!)}`
             : `${c.car}: offer ends ${label(c.expiresOn!)}, before the ${label(runDate)} run`,
           cost: `${money(c.offer)} offer lapses unless ${contact} accepts`,
-          auto: `${contact} reminded each morning · refreshing it is one click in Back office`,
         });
       }
       if (r === 'not_on_lot' && c.onLotFrom! > runDate) {
         const next = runOnOrAfter(c.onLotFrom!, dl.runDay);
         flags.push({
           key: `rolls-${c.id}`, kind: 'rolls', carId: c.id, who: contact,
-          title: `${c.car} reaches the lot ${label(c.onLotFrom!)}, after the ${label(runDate)} run`,
+          title: `${c.car} reaches the lot ${label(c.onLotFrom!)}, after the ${label(runDate)} run: goes on the ${label(next)} run`,
           cost: `rolls to ${label(next)}, cash a week later`,
-          auto: `Goes on the ${label(next)} run instead · ${contact} told`,
         });
       }
       if (r === 'not_ready' && c.rolledFrom) {
@@ -232,7 +215,6 @@ export function useDealerBoard() {
           key: `rolled-${c.id}`, kind: 'rolled', carId: c.id, who: contact,
           title: `${c.car} rolled from ${day(c.rolledFrom).label}: ${(c.note ?? 'not ready').toLowerCase()}`,
           cost: `rolls again if it isn't sorted by ${day(c.day).label}`,
-          auto: `${contact} reminded each morning until it's sorted`,
         });
       }
     }
@@ -243,7 +225,6 @@ export function useDealerBoard() {
         key: `unconfirmed-${dl.id}`, kind: 'unconfirmed', who: contact,
         title: `${n === 1 ? unconfirmed[0].car : `${n} cars`} not confirmed ready by the dealer yet`,
         cost: 'a car that isn’t ready waits a week',
-        auto: `${contact} reminded each morning until the check is done`,
       });
     }
     if (health.repriceRate >= repriceBar) {
@@ -251,7 +232,6 @@ export function useDealerBoard() {
         key: `reprice-${dl.id}`, kind: 'health', who: contact,
         title: `Re-prices ${health.repriceRate}% of cars, about ${Math.round(health.repriceRate / medianReprice)}× the others`,
         cost: 'declarations run high, so prices get re-done on the lot and inspectors wait on directors',
-        auto: '',
       });
     }
     if (health.acceptRate < 60) {
@@ -259,7 +239,6 @@ export function useDealerBoard() {
         key: `accept-${dl.id}`, kind: 'health', who: contact,
         title: `Takes ${health.acceptRate}% of offers`,
         cost: 'the rest go to auction or a competitor',
-        auto: '',
       });
     }
     if (health.daysToCash > 5) {
@@ -267,7 +246,6 @@ export function useDealerBoard() {
         key: `cash-${dl.id}`, kind: 'health', who: contact,
         title: `Waits ${health.daysToCash.toFixed(1)} days for payment, about ${Math.round(health.daysToCash / medianCash)}× the others`,
         cost: 'slow money is the fastest way to lose a dealer',
-        auto: '',
       });
     }
 
@@ -299,56 +277,33 @@ export function useDealerBoard() {
     };
   }).sort((a, b) => b.score - a.score || env.days.indexOf(a.nextRun!) - env.days.indexOf(b.nextRun!));
 
-  // ---- writes ----------------------------------------------------------------
-  // The toast shows each line; in the app the same line also goes on the shared record.
-  const note = (line: string, dealerId: string, carId?: string) => {
-    setLog((l) => [line, ...l]);
-    env.live?.note({ dealer: dealerId, car: carId, text: line });
-  };
-  /** Jordan's decision on a Needs-you item: the card keeps what was done, the shared record gets the line. */
-  const decide = (n: Need, done: string) => {
-    setDecided((d) => ({ ...d, [n.key]: `${done} · ${clock(now)}` }));
-    note(`${done} · ${n.title}`, n.dealer.id, n.carId);
-  };
-
-  // ---- Needs you: decisions only ---------------------------------------------
+  // ---- Needs you: alerts only ---------------------------------------------
   const needs: Need[] = [];
   for (const l of live.filter((x) => x.escalated)) {
     needs.push({
       key: `call-${l.car.id}`, kind: 'call', tag: 'On the lot now', dealer: l.dealer, carId: l.car.id,
       title: `${l.car.car} · ${l.dealer.name}`,
       detail: `${l.director} hasn't answered the re-price, ${money(l.car.offer)} → ${money(l.car.newPrice!)}. ${l.inspector} leaves ~${l.leaves}; without an answer the car waits a week.`,
-      auto: `Texted ${l.director} ${l.texts.join(' and ')}`,
-      actions: [{ label: `Call ${l.director}`, done: `Called ${l.director}` }],
     });
   }
   // One card per dealer whose track record needs a conversation: re-prices, acceptance, payment speed.
   for (const r of rows) {
     const h = r.flags.filter((f) => f.kind === 'health');
     if (!h.length) continue;
-    const contact = firstName(r.dealer.contact);
-    const reprice = h.some((f) => f.key.startsWith('reprice-'));
-    const cash = h.some((f) => f.key.startsWith('cash-'));
-    const actions: NeedAction[] = [{ label: `Call ${contact}`, done: `Called ${contact}` }];
-    if (reprice) actions.push({ label: 'Ask for photos with each trade-in', done: 'Photos now required with each trade-in' });
-    if (cash) actions[reprice ? 'push' : 'unshift']({ label: 'Raise with finance', done: 'Raised with finance' });
     needs.push({
       key: `health-${r.dealer.id}`, kind: 'health', tag: 'Track record', dealer: r.dealer,
       title: r.dealer.name,
       detail: h.map((f) => `${f.title}: ${f.cost}.`).join(' '),
-      auto: '',
-      actions,
     });
   }
   const order: Record<Need['kind'], number> = { call: 0, health: 1 };
   needs.sort((a, b) => order[a.kind] - order[b.kind]);
 
   return {
-    cars: board.cars, live, rows, needs, decided, log, now, avgReprice, repriceBar,
+    cars: board.cars, live, rows, needs, now, avgReprice, repriceBar,
     days: env.days, dealers: env.dealers, today: env.today, day, dayLabel: label, readiness: ready,
     carsAt: board.carsAt, routeFor: board.routeFor, inspectorName,
     waitedMin: (since: string) => now - toMin(since), minutesTo: (t: string) => toMin(t) - now,
-    decide,
   };
 }
 

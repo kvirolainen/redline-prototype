@@ -39,7 +39,7 @@ On Clutch's stack the same tables move to Postgres, the server functions become 
 ## How it was tested
 
 - **Type checks and lint** on every change.
-- **A scripted click-through in a real browser** of the whole demo path, about 35 steps across all four modules, with a screenshot checked at each step and no console errors: a trade-in, an appraiser-priced car landing in Back office, Keep and Ready, a re-price sent from the phone and decided by the director, a car marked not ready, and the skip to next pickup day.
+- **A scripted click-through in a real browser** of the whole demo path, about 35 steps across all four modules, with a screenshot checked at each step and no console errors: a trade-in, an appraiser-priced car landing in Back office, Keep and Ready, a re-price sent from the phone and decided by the director, and a car marked not ready.
 - **Screen fit** measured at 1280 × 800, 1440 × 900 and 1920 × 1080 for the desktop modules, and at 390 px for the phone.
 
 ## Deployment

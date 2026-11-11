@@ -66,7 +66,7 @@ function ReadyCheck({ car, office }: { car: BackOfficeCar; office: BackOffice })
     setOpen(false);
     trigger.current?.focus();
   };
-  // Someone else changed the check while it's open (another screen, Skip to next pickup day): start from theirs.
+  // Someone else changed the check while it's open (another screen, Reset demo): start from theirs.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => setTicks(saved), [savedKey]);
   useEffect(() => {

@@ -2,13 +2,12 @@ import { Suspense, useState, type ReactNode } from 'react';
 import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { Button } from '../components/ui/Button';
-import { clockAmPm, shortDate } from '../domain/calendar';
 import { MODULES, persona, type ModuleId, type PersonaId } from '../domain/personas';
 import { BackOfficeLive } from '../live/BackOfficeLive';
 import { InspectorLive } from '../live/InspectorLive';
 import { OpsLive } from '../live/OpsLive';
 import { TradeInLive } from '../live/TradeInLive';
-import { useDemoNow, useHasBackend, WorldProvider } from '../live/world';
+import { useHasBackend, WorldProvider } from '../live/world';
 import { VariantB2 as BackOfficeB2 } from '../modules/back-office/VariantB2';
 import { InspectorVariantC2 } from '../modules/inspector/VariantC2';
 import { VariantD as OpsD } from '../modules/ops-board/VariantD';
@@ -92,35 +91,22 @@ export function EmptyWorld() {
   );
 }
 
-/** In the header, next to the switcher: the demo clock, and the two controls that make a week fit in a few minutes. */
+/** In the header, next to the switcher: Reset demo, so every reviewer starts from the same story. */
 export function DemoBar() {
   // Its own subscription (Convex shares it with the module's), so it can sit in the header outside WorldProvider.
   const data = useQuery(api.world.get);
-  const world = data?.meta ? { meta: data.meta } : null;
   const reset = useMutation(api.demo.reset);
-  const skip = useMutation(api.demo.skipToPickup);
-  if (!world) return null;
-  return <DemoBarInner key={world.meta.setAt} today={world.meta.today} meta={world.meta} onReset={() => void reset()} onSkip={() => void skip()} />;
-}
-
-function DemoBarInner({ today, meta, onReset, onSkip }: { today: string; meta: Parameters<typeof useDemoNow>[0]; onReset: () => void; onSkip: () => void }) {
-  const now = useDemoNow(meta);
   const [confirming, setConfirming] = useState(false);
+  if (!data?.meta) return null;
   return (
     <div className="flex items-center gap-4 text-caption whitespace-nowrap text-muted">
-      <span>
-        Demo time <span className="font-medium text-ink">{shortDate(today)}, {clockAmPm(now)}</span>
-      </span>
-      <button type="button" onClick={onSkip} className="font-medium text-ink underline hover:text-brand">
-        Skip to next pickup day
-      </button>
       {confirming ? (
         <span>
           Start over for everyone?{' '}
           <button
             type="button"
             onClick={() => {
-              onReset();
+              void reset();
               setConfirming(false);
             }}
             className="font-medium text-brand underline"

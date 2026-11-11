@@ -20,7 +20,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "Jordan plans and watches pickup runs across dealers: which dealer, which day, how many cars, which inspector and truck, and what's stuck. The first three variants can move a car or a whole run to another day and assign an inspector; D, the picked one, leaves that to dispatch and sends reminders on its own.",
+          "Jordan plans and watches pickup runs across dealers: which dealer, which day, how many cars, which inspector and truck, and what's stuck. The first three variants can move a car or a whole run to another day and assign an inspector; D, the picked one, leaves that to dispatch.",
       },
     },
   },
@@ -36,7 +36,7 @@ export const Dealers: Story = {
     docs: {
       description: {
         story:
-          'The system chases, Jordan decides. Reminders go out on their own and show as status lines; Needs you holds only decisions (a director who hasn\'t answered a re-price, a dealer\'s track record). Below, read-only: today\'s pickups and one row per dealer. Dispatch stays in the existing ops tool; a Planning tab shows the week without dispatch actions.',
+          'Needs you holds only alerts a person has to settle (a director who hasn\'t answered a re-price, a dealer\'s track record), each with Dismiss. Below, read-only: today\'s pickups and one row per dealer that opens to its cars. Dispatch stays in the existing ops tool; a Planning tab shows the week without dispatch actions.',
       },
     },
   },

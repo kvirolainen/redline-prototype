@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Button } from '../../components/ui/Button';
 import { PAGE, SegmentedTabs } from '../../components/ui/Page';
 import { Panel, PILL } from '../../components/ui/Panel';
 import { ATTENTION_EDGE, Tag } from '../../components/ui/Tag';
@@ -8,29 +7,37 @@ import { money } from '../../domain/format';
 import { STATUS } from '../../domain/statuses';
 import type { OpsCar } from './fixtures';
 import { useDealerBoard, type DealerBoard, type DealerFlag, type DealerRow, type Need, type Readiness } from './useDealerBoard';
-import { ModuleHeader, Toast } from './parts';
+import { ModuleHeader } from './parts';
 
 // D · Dealers: the dealer relationship and the pickups, for Clutch's coordinator of the dealer channel.
-// The system chases, Jordan decides. Every reminder goes out on its own and shows as a status line; Needs you holds
-// only the calls a person has to make. Today's pickups and the dealer rows are read-only.
+// Needs you holds only what a person has to settle, as alerts. Today's pickups and the dealer rows are read-only.
 // Dispatch (trucks, routes, rosters) runs in the consumer ops tool; this page keeps the dealer in front.
 // The look follows Back office: white panels with the heading inside, 16px text, outline pills, the yellow edge for
-// anything that needs someone, black only for the one main decision on a card.
+// anything that needs someone. Needs-you cards are alerts: the call itself happens on the phone, the card only offers Dismiss.
 
 type Tab = 'dealers' | 'planning';
 
 export function VariantD() {
   const board = useDealerBoard();
   const [tab, setTab] = useState<Tab>('dealers');
-  const open = board.needs.filter((n) => !board.decided[n.key]).length;
+  // Dismiss takes an alert off Jordan's list for this visit (one line with Undo stays); nothing else changes.
+  const [dismissed, setDismissed] = useState<Set<string>>(() => new Set());
+  const needs = board.needs.filter((n) => !dismissed.has(n.key));
+  const toggle = (key: string) =>
+    setDismissed((d) => {
+      const next = new Set(d);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
 
   return (
     <div className="min-h-screen bg-canvas py-8">
       <div className={PAGE}>
-        <ModuleHeader title={tab === 'dealers' ? 'Dealers' : 'Planning'} right={<Tabs tab={tab} onChange={setTab} count={open} />} />
+        <ModuleHeader title={tab === 'dealers' ? 'Dealers' : 'Planning'} right={<Tabs tab={tab} onChange={setTab} count={needs.length} />} />
         {tab === 'dealers' ? (
           <div className="mt-6 space-y-4">
-            <NeedsYou board={board} />
+            <NeedsYou needs={board.needs} dismissed={dismissed} onToggle={toggle} />
             <TodayPickups board={board} />
             <DealerTable board={board} />
           </div>
@@ -38,7 +45,6 @@ export function VariantD() {
           <Planning board={board} />
         )}
       </div>
-      <Toast log={board.log} />
     </div>
   );
 }
@@ -74,21 +80,29 @@ function Auto({ children }: { children: string }) {
   );
 }
 
-// ---- Needs you: decisions only ----------------------------------------------------
+// ---- Needs you: alerts only --------------------------------------------------------
 
-function NeedsYou({ board }: { board: DealerBoard }) {
-  const { needs } = board;
-  const open = needs.filter((n) => !board.decided[n.key]).length;
+function NeedsYou({ needs, dismissed, onToggle }: { needs: Need[]; dismissed: Set<string>; onToggle: (key: string) => void }) {
+  const open = needs.filter((n) => !dismissed.has(n.key)).length;
   return (
-    <Panel title="Needs you" count={open} aside="Reminders go out on their own. These need a call only you can make.">
+    <Panel title="Needs you" count={open}>
       {needs.length === 0 ? (
         <p className="border-t border-line-light px-6 py-5 text-base text-muted">
-          Nothing to decide. Every dealer is on track, and the reminders are going out.
+          Nothing needs you. Every dealer is on track.
         </p>
       ) : (
         <div className="divide-y divide-line-light border-t border-line-light">
           {needs.map((n) => (
-            <NeedCard key={n.key} board={board} n={n} />
+            dismissed.has(n.key) ? (
+              <p key={n.key} className="flex flex-wrap items-center gap-x-2 px-6 py-3 text-sm text-muted">
+                <span>Dismissed · {n.title}</span>
+                <button type="button" className="font-medium text-ink underline hover:text-brand" onClick={() => onToggle(n.key)}>
+                  Undo
+                </button>
+              </p>
+            ) : (
+              <NeedCard key={n.key} n={n} onDismiss={() => onToggle(n.key)} />
+            )
           ))}
         </div>
       )}
@@ -96,37 +110,19 @@ function NeedsYou({ board }: { board: DealerBoard }) {
   );
 }
 
-function NeedCard({ board, n }: { board: DealerBoard; n: Need }) {
-  const done = board.decided[n.key];
+function NeedCard({ n, onDismiss }: { n: Need; onDismiss: () => void }) {
   return (
-    <article className={`grid gap-4 px-6 py-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center ${done ? '' : ATTENTION_EDGE}`}>
+    <article className={`grid gap-4 px-6 py-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center ${ATTENTION_EDGE}`}>
       <div className="min-w-0">
         <p className="flex flex-wrap items-center gap-2">
-          <Tag tone={done ? 'neutral' : 'attention'}>{n.tag}</Tag>
+          <Tag tone="attention">{n.tag}</Tag>
           <span className="text-base font-bold text-ink">{n.title}</span>
         </p>
         <p className="mt-1.5 max-w-[820px] text-base text-body">{n.detail}</p>
-        {n.auto && <Auto>{n.auto}</Auto>}
       </div>
-      <div className="flex flex-wrap items-center gap-2 lg:justify-end">
-        {done ? (
-          <span className="inline-flex h-10 items-center gap-1.5 text-sm font-medium text-body">
-            <Tick /> {done}
-          </span>
-        ) : (
-          n.actions.map((a, i) =>
-            i === 0 ? (
-              <Button key={a.label} variant="primary" className="h-10 px-5 text-sm" onClick={() => board.decide(n, a.done)}>
-                {a.label}
-              </Button>
-            ) : (
-              <button key={a.label} type="button" className={PILL} onClick={() => board.decide(n, a.done)}>
-                {a.label}
-              </button>
-            ),
-          )
-        )}
-      </div>
+      <button type="button" className={`${PILL} justify-self-start lg:justify-self-end`} onClick={onDismiss}>
+        Dismiss
+      </button>
     </article>
   );
 }
@@ -184,8 +180,8 @@ function TodayRow({ board, dealerId, dayId }: { board: DealerBoard; dealerId: st
                 <span className="font-medium">{l.car.car}</span> re-priced {money(l.car.offer)} → {money(l.car.newPrice!)}, waiting on {l.director} ·{' '}
                 {board.waitedMin(l.waitingSince)} min · {l.inspector} leaves ~{l.leaves}
                 {left > 0 ? ` (${left} min)` : ''}
+                {l.escalated ? ' · in Needs you' : ''}
               </p>
-              <Auto>{`Texted ${l.director} ${l.texts.join(' and ')}${l.nextText ? ` · again at ${l.nextText}` : ''}${l.escalated ? ' · no answer, in Needs you' : ''}`}</Auto>
             </div>
           );
         })}
@@ -244,6 +240,7 @@ function DealerRowView({ board, row, open, onToggle }: { board: DealerBoard; row
   const flaggedCars = new Set(row.flags.map((f) => f.carId).filter(Boolean));
   // The live re-price shows under Today's pickups and the track record under Needs you; the row carries the week.
   const weekFlags = row.flags.filter((f) => f.kind !== 'live' && f.kind !== 'health');
+  const summary = systemSummary(weekFlags, row.dispatchNote);
   return (
     <div className="border-t border-line-light">
       <div
@@ -277,16 +274,12 @@ function DealerRowView({ board, row, open, onToggle }: { board: DealerBoard; row
           <Metric label="Days to cash" value={health.daysToCash.toFixed(1)} flag={health.daysToCash > 5} />
         </div>
         <Chevron open={open} className="hidden justify-self-end lg:block" />
+        {summary && (
+          <p className="col-span-full -mt-1 flex items-start gap-1.5 text-sm text-muted">
+            <Tick /> <span>{summary}</span>
+          </p>
+        )}
       </div>
-
-      {(weekFlags.length > 0 || row.dispatchNote) && (
-        <ul className="space-y-1.5 px-6 pb-4">
-          {weekFlags.map((f) => (
-            <FlagLine key={f.key} f={f} />
-          ))}
-          {row.dispatchNote && <li className="text-sm text-muted">{row.dispatchNote} · flagged to dispatch</li>}
-        </ul>
-      )}
 
       {open && (
         <div className="border-t border-line-light bg-canvas px-6 py-4">
@@ -362,30 +355,13 @@ function ReadinessCounts({ counts }: { counts: DealerRow['counts'] }) {
   );
 }
 
-const flagTag: Record<DealerFlag['kind'], string> = {
-  live: 'On the lot now',
-  expiring: 'Offer ending',
-  rolls: 'Not on the lot yet',
-  rolled: 'Rolled',
-  unconfirmed: 'Not confirmed',
-  health: 'Track record',
-};
-
-/** One thing in motion at a dealer, and what the system did about it. */
-function FlagLine({ f }: { f: DealerFlag }) {
-  return (
-    <li className="text-sm">
-      <p className="text-ink">
-        <Tag tone="neutral" className="mr-2">
-          {flagTag[f.kind]}
-        </Tag>
-        {f.title}
-      </p>
-      <p className="mt-1 flex items-center gap-1.5 pl-1 text-muted">
-        <Tick /> {f.auto}
-      </p>
-    </li>
-  );
+/** The collapsed row's one line: what the system already handled at this dealer, nothing per car. */
+function systemSummary(flags: DealerFlag[], dispatchNote: string | null): string {
+  const parts: string[] = [];
+  const moved = flags.filter((f) => f.kind === 'rolls').length;
+  if (moved) parts.push(`${moved} ${moved === 1 ? 'car' : 'cars'} moved to a later run`);
+  if (dispatchNote) parts.push(`${dispatchNote}, flagged to dispatch`);
+  return parts.join(' · ');
 }
 
 function CarRow({ board, car, flagged }: { board: DealerBoard; car: OpsCar; flagged: boolean }) {
