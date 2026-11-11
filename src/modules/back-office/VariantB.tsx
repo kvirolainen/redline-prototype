@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { StatusChip } from '../../components/ui/StatusChip';
 import { money } from '../../domain/format';
 import { NEXT_PICKUP, TODAY, type BackOfficeCar } from './fixtures';
-import { CarDetail, DecidedNote, Drawer, ExpiringOffer, ExpiryTag, PageHeader, RepriceDecision, Signed, ValueStrip } from './parts';
+import { CarDetail, DecidedNote, Drawer, ExpiringOffer, ExpiryTag, PageHeader, RepriceDecision, ValueStrip } from './parts';
 import { km } from './format';
 import { useBackOffice } from './useBackOffice';
 
@@ -45,7 +45,7 @@ export function VariantB() {
   return (
     <div className="min-h-screen bg-canvas">
       <div className="mx-auto max-w-[1240px] px-8 py-8">
-        <PageHeader right={<Signed />} />
+        <PageHeader />
         <div className="mt-6">
           <ValueStrip stats={office.stats} dense />
         </div>

@@ -14,26 +14,11 @@ export function PageHeader({ subtitle, right }: { subtitle?: string; right?: Rea
   return (
     <header className="flex flex-wrap items-end justify-between gap-4">
       <div>
-        <p className="text-sm text-muted">{DEALER}</p>
-        <h1 className="mt-1 text-h4 font-bold text-ink">Cars sold to Clutch</h1>
+        <h1 className="text-h4 font-bold text-ink">Cars sold to Clutch</h1>
         {subtitle && <p className="mt-1 text-sm text-muted">{subtitle}</p>}
       </div>
       {right}
     </header>
-  );
-}
-
-export function Signed() {
-  return (
-    <span className="flex items-center gap-3 text-sm">
-      <span className="grid size-9 place-items-center rounded-full bg-ink text-sm font-bold text-white" aria-hidden>
-        D
-      </span>
-      <span>
-        <span className="block font-medium text-ink">Dave</span>
-        <span className="block text-caption text-muted">Sales Director</span>
-      </span>
-    </span>
   );
 }
 

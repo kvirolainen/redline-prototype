@@ -5,21 +5,16 @@ import { OfferCard } from '../../components/ui/OfferCard';
 import { OptionCard } from '../../components/ui/OptionCard';
 import { StatusChip } from '../../components/ui/StatusChip';
 import { money } from '../../domain/format';
-import { AUCTION_COSTS, carName, DATES, DEALER, kmLabel, reference, TRADE_IN_LIST, USER, type DecodedCar } from './fixtures';
+import { AUCTION_COSTS, carName, DATES, DEALER, kmLabel, reference, TRADE_IN_LIST, type DecodedCar } from './fixtures';
 import { kmNudge, nudgeFor, type Question, type Quote } from './pricing';
 import type { TradeIn } from './useTradeIn';
 
 
-/** Slim bar on top of the screen: what this is, for whom, and the next pickup day. */
+/** Slim bar on top of the screen: what this is and the next pickup day. Who is viewing lives in the app shell. */
 export function ModuleBar({ title = 'New trade-in', right }: { title?: string; right?: ReactNode }) {
   return (
     <header className="flex h-16 items-center justify-between border-b border-line bg-white px-8">
-      <div className="flex items-baseline gap-3">
-        <h1 className="text-title font-bold text-ink">{title}</h1>
-        <span className="text-sm text-muted">
-          {DEALER.name} · {USER.name}, {USER.role}
-        </span>
-      </div>
+      <h1 className="text-title font-bold text-ink">{title}</h1>
       {right ?? (
         <span className="text-sm text-muted">
           Next pickup <span className="font-medium text-ink">{DATES.pickup}</span>

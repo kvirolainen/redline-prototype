@@ -3,7 +3,7 @@ import { StatusChip } from '../../components/ui/StatusChip';
 import type { CarStatus } from '../../domain/statuses';
 import { money } from '../../domain/format';
 import type { BackOfficeCar } from './fixtures';
-import { CarDetail, Drawer, ExpiryTag, PageHeader, Signed, ValueStrip } from './parts';
+import { CarDetail, Drawer, ExpiryTag, PageHeader, ValueStrip } from './parts';
 import { km } from './format';
 import { useBackOffice } from './useBackOffice';
 
@@ -70,7 +70,7 @@ export function VariantC() {
   return (
     <div className="min-h-screen bg-canvas">
       <div className="mx-auto max-w-[1280px] px-6 py-8">
-        <PageHeader right={<Signed />} />
+        <PageHeader />
         <div className="mt-6">
           <ValueStrip stats={office.stats} dense />
         </div>

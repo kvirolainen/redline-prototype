@@ -12,7 +12,7 @@ export function ModuleHeader({ title, right }: { title: string; right?: ReactNod
   return (
     <header className="flex flex-wrap items-end justify-between gap-4">
       <div>
-        <p className="text-sm text-muted">Ops board · {NOW_LABEL}</p>
+        <p className="text-sm text-muted">{NOW_LABEL}</p>
         <h1 className="mt-1 text-h4 font-bold text-ink">{title}</h1>
       </div>
       {right}

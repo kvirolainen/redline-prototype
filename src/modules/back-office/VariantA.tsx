@@ -5,7 +5,7 @@ import type { CarRow } from '../../domain/sampleCars';
 import type { CarStatus } from '../../domain/statuses';
 import { money } from '../../domain/format';
 import type { BackOfficeCar } from './fixtures';
-import { CarDetail, DecidedNote, Drawer, PageHeader, Signed, ValueStrip } from './parts';
+import { CarDetail, DecidedNote, Drawer, PageHeader, ValueStrip } from './parts';
 import { useBackOffice } from './useBackOffice';
 
 const FILTERS: { id: string; label: string; statuses: CarStatus[] }[] = [
@@ -60,7 +60,7 @@ export function VariantA() {
   return (
     <div className="min-h-screen bg-canvas">
       <div className="mx-auto max-w-[1200px] px-8 py-8">
-        <PageHeader subtitle="Every car you sold to Clutch, where it is, and what needs you." right={<Signed />} />
+        <PageHeader subtitle="Every car you sold to Clutch, where it is, and what needs you." />
 
         <div className="mt-6">
           <ValueStrip stats={office.stats} />
