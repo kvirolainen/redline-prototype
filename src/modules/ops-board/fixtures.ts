@@ -22,6 +22,18 @@ export const DAYS: Day[] = [
 
 export const NOW_LABEL = 'Thu Nov 12, 11:40';
 
+/** The demo moment as data, for clocks and date checks. */
+export const TODAY_DATE = '2026-11-12';
+export const NOW_TIME = '11:40';
+
+/** Calendar date of each run day, to compare with lot and expiry dates. */
+export const DAY_DATE: Record<DayId, string> = {
+  'tue-10': '2026-11-10',
+  'thu-12': '2026-11-12',
+  'tue-17': '2026-11-17',
+  'thu-19': '2026-11-19',
+};
+
 export interface Dealer {
   id: string;
   name: string;
@@ -39,6 +51,27 @@ export const DEALERS: Dealer[] = [
   { id: 'downtown', name: 'Downtown Toyota', area: 'Downtown Toronto', runDay: 'Tue', contact: 'Daniel, Pre-owned Manager', director: 'Nadia' },
   { id: 'oakville', name: 'Oakville Kia', area: 'Oakville', runDay: 'Tue', contact: 'Sofia, Sales Manager', director: 'Mark' },
 ];
+
+/** Track record per dealer, last 90 days. */
+export interface DealerHealth {
+  /** Share of inspected cars the inspector re-priced. */
+  repriceRate: number;
+  /** Share of offers the dealer accepted. */
+  acceptRate: number;
+  /** Average days from pickup to payment. */
+  daysToCash: number;
+  /** Cars inspected in the period, so the rates have a base. */
+  inspected: number;
+}
+
+export const DEALER_HEALTH: Record<string, DealerHealth> = {
+  yorkdale: { repriceRate: 11, acceptRate: 74, daysToCash: 2.4, inspected: 38 },
+  vaughan: { repriceRate: 9, acceptRate: 68, daysToCash: 3.1, inspected: 22 },
+  mississauga: { repriceRate: 8, acceptRate: 81, daysToCash: 1.9, inspected: 31 },
+  scarborough: { repriceRate: 31, acceptRate: 57, daysToCash: 4.6, inspected: 16 },
+  downtown: { repriceRate: 12, acceptRate: 63, daysToCash: 5.8, inspected: 27 },
+  oakville: { repriceRate: 10, acceptRate: 70, daysToCash: 2.8, inspected: 19 },
+};
 
 export interface Inspector {
   id: string;
@@ -88,11 +121,17 @@ export interface OpsCar {
   newPrice?: number;
   reason?: string;
   waiting?: string; // "since 10:42"
+  /** Live re-price: when the decision went to the director, and when the inspector plans to leave the lot. */
+  waitingSince?: string; // "10:42"
+  inspectorLeaves?: string; // "12:30"
   /** Not ready: the run it rolled from and why. */
   rolledFrom?: DayId;
   note?: string;
   /** Offer made but not accepted yet. */
   expires?: string;
+  expiresOn?: string; // ISO date the offer ends
+  /** Accepted, but the customer keeps driving it until their new car is delivered. ISO date it reaches the lot. */
+  onLotFrom?: string;
 }
 
 export const CARS: OpsCar[] = [
@@ -105,7 +144,7 @@ export const CARS: OpsCar[] = [
   // Thu Nov 12: today
   {
     id: 'civic', dealerId: 'yorkdale', day: 'thu-12', car: '2019 Honda Civic EX', vin: '2HGFC2F69KH512345', km: 68400, offer: 17850,
-    status: 'reprice_pending', newPrice: 16950, waiting: 'since 10:42',
+    status: 'reprice_pending', newPrice: 16950, waiting: 'since 10:42', waitingSince: '10:42', inspectorLeaves: '12:30',
     reason: 'Declared no accidents, clean. Found a cracked windshield and a repainted rear bumper.',
   },
   { id: 'crv', dealerId: 'yorkdale', day: 'thu-12', car: '2021 Honda CR-V LX', vin: '2HKRW2H26MH604412', km: 48900, offer: 26700, status: 'confirmed' },
@@ -119,8 +158,8 @@ export const CARS: OpsCar[] = [
   { id: 'c16', dealerId: 'scarborough', day: 'thu-12', car: '2019 Hyundai Tucson Preferred', vin: 'KM8J3CA46KU952318', km: 82000, offer: 16900, status: 'awaiting_pickup' },
 
   // Tue Nov 17
-  { id: 'c20', dealerId: 'downtown', day: 'tue-17', car: '2021 Toyota Corolla LE', vin: '5YFEPMAE1MP230981', km: 39800, offer: 19600, status: 'offered', expires: 'today, 6:00 pm' },
-  { id: 'c21', dealerId: 'downtown', day: 'tue-17', car: '2019 Toyota Highlander XLE', vin: '5TDJZRFH6KS571203', km: 88100, offer: 27400, status: 'awaiting_pickup' },
+  { id: 'c20', dealerId: 'downtown', day: 'tue-17', car: '2021 Toyota Corolla LE', vin: '5YFEPMAE1MP230981', km: 39800, offer: 19600, status: 'offered', expires: 'today, 6:00 pm', expiresOn: '2026-11-12' },
+  { id: 'c21', dealerId: 'downtown', day: 'tue-17', car: '2019 Toyota Highlander XLE', vin: '5TDJZRFH6KS571203', km: 88100, offer: 27400, status: 'awaiting_pickup', onLotFrom: '2026-11-19' },
   { id: 'c22', dealerId: 'oakville', day: 'tue-17', car: '2020 Kia Forte EX', vin: '3KPF54AD9LE184530', km: 52600, offer: 15700, status: 'awaiting_pickup' },
 
   // Thu Nov 19
@@ -128,8 +167,8 @@ export const CARS: OpsCar[] = [
     id: 'cx5', dealerId: 'yorkdale', day: 'thu-19', car: '2017 Mazda CX-5 GS', vin: 'JM3KFBCL1H0198765', km: 102300, offer: 13900,
     status: 'not_ready', rolledFrom: 'thu-12', note: 'Keys missing at pickup',
   },
-  { id: 'rogue', dealerId: 'yorkdale', day: 'thu-19', car: '2021 Nissan Rogue SV', vin: '5N1AT3BB2MC718406', km: 57300, offer: 23100, status: 'offered', expires: 'Fri Nov 13' },
-  { id: 'c31', dealerId: 'yorkdale', day: 'thu-19', car: '2018 Honda Accord Sport', vin: '1HGCV1F34JA090417', km: 95400, offer: 16200, status: 'awaiting_pickup' },
-  { id: 'c32', dealerId: 'mississauga', day: 'thu-19', car: '2018 Mazda CX-9 GS', vin: 'JM3TCBCY3J0213398', km: 109000, offer: 18500, status: 'awaiting_pickup' },
+  { id: 'rogue', dealerId: 'yorkdale', day: 'thu-19', car: '2021 Nissan Rogue SV', vin: '5N1AT3BB2MC718406', km: 57300, offer: 23100, status: 'offered', expires: 'Fri Nov 13', expiresOn: '2026-11-13', onLotFrom: '2026-11-18' },
+  { id: 'c31', dealerId: 'yorkdale', day: 'thu-19', car: '2018 Honda Accord Sport', vin: '1HGCV1F34JA090417', km: 95400, offer: 16200, status: 'awaiting_pickup', onLotFrom: '2026-11-17' },
+  { id: 'c32', dealerId: 'mississauga', day: 'thu-19', car: '2018 Mazda CX-9 GS', vin: 'JM3TCBCY3J0213398', km: 109000, offer: 18500, status: 'awaiting_pickup', onLotFrom: '2026-11-16' },
   { id: 'c33', dealerId: 'scarborough', day: 'thu-19', car: '2017 Hyundai Santa Fe Sport', vin: '5XYZU3LB8HG447102', km: 121000, offer: 10900, status: 'awaiting_pickup' },
 ];

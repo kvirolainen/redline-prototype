@@ -32,25 +32,25 @@ const LABEL: Partial<Record<QuestionId, string>> = {
   driveable: 'Driveable',
   keys: 'Keys',
   features: 'Features or modifications',
-  rims: 'Factory rims',
+  rims: 'Original rims',
   tireSets: 'Sets of tires',
   tireType: 'Tires on it now',
-  tires: 'All-seasons replaced',
+  tires: 'All-seasons under a year old',
   condition: 'Overall condition',
 };
 
 const SHORT: Record<string, string> = {
   'title:none': 'None',
-  'title:rebuilt': 'Salvage, rebuilt or total loss',
+  'title:rebuilt': 'Salvage or rebuilt',
   'title:flood': 'Fire or flood',
   'title:stolen': 'Stolen',
   'accidents:none': 'None',
   'accidents:yes': '1 or more',
   'exterior:none': 'None',
-  'exterior:minor': 'Minor, under a golf ball',
-  'exterior:moderate': 'Over a golf ball',
-  'exterior:bodywork': 'Cracked body',
-  'exterior:glass': 'Glass chip',
+  'exterior:minor': 'Minor',
+  'exterior:moderate': 'Moderate',
+  'exterior:bodywork': 'Cracked',
+  'exterior:glass': 'Glass',
   'mechanical:no': 'None',
   'mechanical:yes': 'Yes',
   'interior:none': 'None',
@@ -63,9 +63,18 @@ const SHORT: Record<string, string> = {
   'features:cosmetic': 'Cosmetic',
   'features:wrap': 'Wrap',
   'features:performance': 'Performance',
-  'features:software': 'Software upgrades',
-  'tires:new': 'Under 12 months',
-  'tires:old': 'Over a year',
+  'features:software': 'Software',
+  'features:rims': 'Rims',
+  'tireSets:1': '1',
+  'tireSets:2': '2',
+  'tireSets:3': '3 or more',
+  'tires:new': 'Yes',
+  'tires:old': 'No',
+};
+
+/** Small grey hint beside a label, for words that need a definition. */
+const HINT: Partial<Record<QuestionId, string>> = {
+  exterior: 'minor is under a golf ball',
 };
 
 /** Pale-yellow notes under an answer, after Clutch's own flow, worded for both people at the desk. */
@@ -117,14 +126,14 @@ export function TradeInVariantB2({ onOpenBackOffice }: { onOpenBackOffice?: () =
   return (
     <div className="min-h-screen bg-canvas">
       <Header />
-      <div className="mx-auto grid max-w-[1320px] grid-cols-[1fr_300px] gap-5 px-6 py-4 xl:grid-cols-[1fr_340px]">
+      <div className="mx-auto grid max-w-[1400px] grid-cols-[1fr_300px] gap-5 px-6 py-4 min-[1400px]:grid-cols-[1fr_340px] min-[1400px]:py-6">
         <div className="rounded-panel border border-line bg-white">
           <CarRow t={t} />
           <div className="grid grid-cols-2 divide-x divide-line-light">
             {COLUMNS.map((c) => (
-              <section key={c.title} className="px-5 py-3">
+              <section key={c.title} className="px-6 py-4 min-[1400px]:py-5">
                 <h2 className="text-caption font-bold tracking-wide text-muted uppercase">{c.title}</h2>
-                <div className="mt-3 space-y-3">
+                <div className="mt-3 space-y-4 min-[1400px]:mt-4 min-[1400px]:space-y-5">
                   {c.rows.map((ids) => (
                     <Line key={ids.join()} ids={ids} t={t} />
                   ))}
@@ -259,11 +268,12 @@ function Answer({ q, t, wide }: { q: Question; t: TradeIn; wide: boolean }) {
   const picked = t.answers[q.id] ?? [];
   return (
     <fieldset className={wide ? 'col-span-2' : ''}>
-      <legend className="text-sm font-medium text-ink">
+      <legend className="text-sm font-medium text-ink min-[1400px]:text-base">
         {LABEL[q.id] ?? q.label}
         {q.multi && <span className="font-normal text-subtle"> · all that apply</span>}
+        {HINT[q.id] && <span className="font-normal text-subtle"> · {HINT[q.id]}</span>}
       </legend>
-      <div className="mt-1 flex flex-wrap gap-1.5">
+      <div className="mt-1.5 flex flex-wrap gap-1.5">
         {q.options.map((o) => {
           const on = picked.includes(o.value);
           return (
@@ -273,7 +283,7 @@ function Answer({ q, t, wide }: { q: Question; t: TradeIn; wide: boolean }) {
               aria-pressed={on}
               title={o.helper ?? o.title}
               onClick={() => t.answer(q.id, o.value)}
-              className={`h-7 rounded-pill border px-3 text-sm transition-colors ${
+              className={`h-8 rounded-pill border px-3 text-sm transition-colors min-[1400px]:h-9 min-[1400px]:px-3.5 min-[1400px]:text-base ${
                 on ? 'border-ink bg-ink font-medium text-white' : 'border-line bg-white text-ink hover:border-ink'
               }`}
             >
@@ -312,7 +322,7 @@ function OfferPanel({ t }: { t: TradeIn }) {
 /** Before there is a quote: how many answers are in, and what is still missing. */
 function Waiting({ t }: { t: TradeIn }) {
   const answered = FULL_QUESTIONS.filter((x) => t.answers[x.id]?.length).length;
-  const missing = !t.car ? 'Enter the VIN to see the offer' : 'Add the odometer reading';
+  const missing = !t.car ? 'Needs the VIN' : 'Needs the odometer';
   return (
     <>
       <Progress q={{ answered, total: FULL_QUESTIONS.length }} />

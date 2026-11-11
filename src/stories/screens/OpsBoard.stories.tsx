@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { VariantA } from '../../modules/ops-board/VariantA';
 import { VariantB } from '../../modules/ops-board/VariantB';
 import { VariantC } from '../../modules/ops-board/VariantC';
+import { VariantD } from '../../modules/ops-board/VariantD';
 
 // Clutch ops · Jordan, Clutch ops, on a desktop. Shown on a pickup day (Thu Nov 12, 11:40) while the runs are out.
 
@@ -27,6 +28,19 @@ const meta = {
 } satisfies Meta;
 export default meta;
 type Story = StoryObj<typeof meta>;
+
+export const Dealers: Story = {
+  name: 'D · Dealers',
+  render: () => <VariantD />,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Only what changes when the seller is a dealer: live re-prices waiting on a director while the inspector is still on the lot, then one row per dealer with cars by readiness, inline problems that name who is blocking them, and the dealer\'s track record. Dispatch stays in the existing ops tool; a Planning tab shows the week without dispatch actions.',
+      },
+    },
+  },
+};
 
 export const WeekGrid: Story = {
   name: 'A · Week grid',
