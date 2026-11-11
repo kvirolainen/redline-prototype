@@ -77,7 +77,7 @@ _Phone, one hand, outdoors · about 15 minutes a car · the truck leaves at a se
 
 **What's new with dealers:** several cars per stop, the dealer's declared answers to check against, a director deciding the re-price while Sam is still on the lot, and "not ready" moving a car to next week's run.
 
-**The main call: check by exception, but never on one tap.** Each area of the car closes with one "All match", and only a difference opens for detail, its price effect and a photo. A clean car takes a few taps. To stop "All match" from becoming a rubber stamp, the VIN and odometer photos come first.
+**The main call: check by exception, but never on one tap.** One area of the car per screen, in the order Sam walks around it, each a short checklist: every declared item gets its own **Same** or **Different**, nothing pre-ticked, and only a difference opens for detail, its price effect and a photo. A clean car is a tap per item. The VIN and odometer photos come first, so the check starts from the right car.
 
 **Other calls:**
 - **The wait on Dave.** Every first version ended at "Send re-price". The real pain comes after it: Sam moves on to the next car, the answer comes back to the phone, and he loads the car or leaves it. No answer by the time the truck leaves → leave it, the re-price is withdrawn, and the car joins next week's run. This is what ties Clutch ops' clock and Dave's re-price card together.
