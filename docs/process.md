@@ -1,6 +1,6 @@
 # Process
 
-How the prototype was made, from the whiteboard to a live app. Every version mentioned here can be opened in Storybook (`npm run storybook`).
+How the prototype was made, from the whiteboard to a live app. Every version mentioned here can be opened in [Storybook](https://redline-storybook.vercel.app).
 
 ## 1. Start from the room
 
@@ -8,7 +8,7 @@ The whiteboard session became the Concept: the problem, what was learned in the 
 
 ## 2. Study Clutch's product before designing
 
-Clutch's public site, its sell flow walked through on a tablet with a real car, and press images of the firm-offer card and the inspection report. Colours, type, pill controls, black selected states and the pale-yellow honesty notes became the shared foundation every screen uses (Storybook → Foundations).
+Clutch's public site, its sell flow walked through on a tablet with a real car, and press images of the firm-offer card and the inspection report. Colours, type, pill controls, black selected states and the pale-yellow honesty notes became the shared foundation every screen uses ([Storybook → Foundations](https://redline-storybook.vercel.app/?path=/story/foundations-brand--colours)).
 
 ![Clutch's sell flow, Condition step: option cards, black selected state, honesty note](img/look-sell-flow-condition.jpg)
 

@@ -9,7 +9,7 @@ One car, four people. Each module is built around one person's job. The design c
 | **Jordan**, Clutch operations | At a desk, all day | **Clutch ops**: dealers, with two clocks: minutes and days |
 | **Sam**, Clutch inspector | On a dealer's lot, one hand free, the truck waiting | **Clutch inspector**: check by exception, on a phone |
 
-The look and components follow Clutch's own product (colours, type, pill controls, black selected states, pale-yellow notes). They're collected in Storybook under Foundations. Each module below notes what it takes from Clutch's existing screens.
+The look and components follow Clutch's own product (colours, type, pill controls, black selected states, pale-yellow notes). They're collected in Storybook under [Foundations](https://redline-storybook.vercel.app/?path=/story/foundations-brand--colours). Each module below notes what it takes from Clutch's existing screens.
 
 ## 1. Trade-in · Maria
 
@@ -40,7 +40,7 @@ _Sales manager · laptop at the sales desk · the customer looks at the same scr
 
 ::screen[trade-in/B2]
 
-**Also tried:** A · step by step (Clutch's own flow, four screens before a number) and C · quick quote first (the fastest number, but the most re-prices at pickup). Both are in Storybook under Screens / Trade-in.
+**Also tried:** [A · step by step](https://redline-storybook.vercel.app/?path=/story/screens-trade-in--step-by-step) (Clutch's own flow, four screens before a number), [B · one page, live offer](https://redline-storybook.vercel.app/?path=/story/screens-trade-in--one-page-live-offer) (the base for B2) and [C · quick quote first](https://redline-storybook.vercel.app/?path=/story/screens-trade-in--quick-quote-first) (the fastest number, but the most re-prices at pickup).
 
 ## 2. Back office · Dave, and Maria
 
@@ -66,7 +66,7 @@ _Sales director · drops in between deals, often on his phone · Maria uses the 
 
 ::screen[back-office/B2]
 
-**Also tried:** A · table first (dense, closer to Maria's job than Dave's) and C · pipeline board (shows the flow, doesn't help him decide anything).
+**Also tried:** [A · table first](https://redline-storybook.vercel.app/?path=/story/screens-back-office--a) (dense, closer to Maria's job than Dave's), [B · Needs you inbox](https://redline-storybook.vercel.app/?path=/story/screens-back-office--b) (the base for B2) and [C · pipeline board](https://redline-storybook.vercel.app/?path=/story/screens-back-office--c) (shows the flow, doesn't help him decide anything).
 
 ## 3. Clutch ops · Jordan
 
@@ -88,7 +88,7 @@ _Clutch coordinator for the dealer channel · desktop · all day_
 
 ::screen[ops-board/D]
 
-**Also tried:** A · week grid (the right unit, dealers, but half of it was dispatch; it became the Planning tab), B · today's runs (essentially the dispatch tool Clutch already has) and C · exceptions first (the right instinct, but sorted by type, not urgency). D was built from A and C after that first round.
+**Also tried:** [A · week grid](https://redline-storybook.vercel.app/?path=/story/screens-clutch-ops--week-grid) (the right unit, dealers, but half of it was dispatch; it became the Planning tab), [B · today's runs](https://redline-storybook.vercel.app/?path=/story/screens-clutch-ops--todays-runs) (essentially the dispatch tool Clutch already has) and [C · exceptions first](https://redline-storybook.vercel.app/?path=/story/screens-clutch-ops--exceptions-first) (the right instinct, but sorted by type, not urgency). D was built from A and C after that first round.
 
 ## 4. Clutch inspector · Sam
 
@@ -108,4 +108,4 @@ _Phone, one hand, outdoors · about 15 minutes a car · the truck leaves at a se
 
 ::screen[inspector/C2]
 
-**Also tried:** A · run, car, checklist (gave the list of stops) and B · one question at a time (gave the big "Yorkdale Honda declared" card inside an opened area). C2 is C plus those two, plus the wait on Dave.
+**Also tried:** [A · run, car, checklist](https://redline-storybook.vercel.app/?path=/story/screens-clutch-inspector--a) (gave the list of stops), [B · one car at a time](https://redline-storybook.vercel.app/?path=/story/screens-clutch-inspector--b) (gave the big "Yorkdale Honda declared" card inside an opened area) and [C · exceptions only](https://redline-storybook.vercel.app/?path=/story/screens-clutch-inspector--c). C2 is C plus parts of A and B, plus the wait on Dave.

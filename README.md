@@ -4,7 +4,9 @@ Prototype of **Redline**: Clutch buys used cars from dealerships. A sales manage
 Clutch offer for a trade-in at the desk, the car joins the dealer's regular pickup day, a Clutch
 inspector confirms or re-prices it at pickup, and the dealership is paid.
 
-> Work in progress. Live link and demo path will be added here.
+**Live app:** https://redline-dealers.vercel.app · **Storybook** (every screen version, foundations): https://redline-storybook.vercel.app
+
+The demo path is in [docs/demo.md](docs/demo.md).
 
 ## Docs
 - [Concept](docs/01-concept.md): the problem, what we learned in the room, and what this prototype builds
