@@ -208,7 +208,16 @@ export const markNotReady = mutation({
     const dealer = await dealerByKey(ctx, car.dealer);
     const today = (await getMeta(ctx)).today;
     const next = nextPickup(today, dealer.runDay);
-    await ctx.db.patch(car._id, { status: 'not_ready', ready: false, rolledFrom: car.runDate ?? today, runDate: next, note: reason });
+    // Leaving a car whose re-price got no answer withdraws that re-price, so the director isn't asked about it later.
+    const withdrawn = car.status === 'reprice_pending';
+    await ctx.db.patch(car._id, {
+      status: 'not_ready',
+      ready: false,
+      rolledFrom: car.runDate ?? today,
+      runDate: next,
+      note: reason,
+      ...(withdrawn ? { reprice: undefined, repriced: false } : {}),
+    });
     await log(ctx, car, who, `Not ready: ${reason.toLowerCase()}. Moved to the next pickup, ${shortDate(next)}`, 'alert');
   },
 });
