@@ -208,11 +208,11 @@ function ReadyCheck({ car, office }: { car: BackOfficeCar; office: BackOffice })
         }}
         aria-expanded={open}
         aria-haspopup="dialog"
-        className={`inline-flex h-7 items-center gap-1.5 rounded-pill border px-3 text-caption font-medium whitespace-nowrap ${
-          all ? 'border-ink bg-ink text-white' : 'border-line bg-white text-ink hover:border-ink'
-        }`}
+        // Ready is a status, so it stays quiet (a green check, as on Clutch's inspection report); black is kept for
+        // actions still to take.
+        className="inline-flex h-7 items-center gap-1.5 rounded-pill border border-line bg-white px-3 text-caption font-medium whitespace-nowrap text-ink hover:border-ink"
       >
-        <span aria-hidden>{all ? '✓' : saved.length ? '◐' : '○'}</span>
+        <span aria-hidden className={all ? 'font-bold text-success' : ''}>{all ? '✓' : saved.length ? '◐' : '○'}</span>
         {all ? 'Ready' : saved.length ? `${saved.length} of ${READY_CHECKS.length} ready` : 'Mark ready'}
       </button>
       {open && (
