@@ -4,7 +4,7 @@ import { StatusChip } from '../../components/ui/StatusChip';
 import { money } from '../../domain/format';
 import { AUCTION_HOURS_PER_CAR, MONTHS, type BackOfficeCar } from './fixtures';
 import { km } from './format';
-import { CarDetail, DecidedNote, Drawer, ExpiringOffer, ExpiryTag, RepriceDecision } from './parts';
+import { CarDetail, DecidedNote, Drawer, ExpiringOffer, ExpiryTag, RepriceDecision, useExpiryLabel } from './parts';
 import { AUCTION_DAYS_TO_CASH, computeStats, useBackOffice, useBackOfficeEnv, type BackOffice } from './useBackOffice';
 
 // Back office B2: one page for the dealership, two people.
@@ -120,6 +120,7 @@ function KeepOrSend({ office, onOpen }: { office: BackOffice; onOpen: (vin: stri
 function NeedsYou({ office, onOpen }: { office: BackOffice; onOpen: (vin: string) => void }) {
   // Cards stay after a decision, showing what happened, until the page is left. New ones (a re-price sent from the
   // lot while the page is open) join at the top.
+  const expiryLabel = useExpiryLabel();
   const [seen, setSeen] = useState(() => office.needsYou.map((c) => c.vin));
   const fresh = office.needsYou.map((c) => c.vin).filter((v) => !seen.includes(v));
   if (fresh.length) setSeen([...fresh, ...seen]);
@@ -141,7 +142,7 @@ function NeedsYou({ office, onOpen }: { office: BackOffice; onOpen: (vin: string
           return (
             <Card
               key={vin}
-              label={isReprice ? `Re-price at pickup · ${car.reprice!.waiting}` : 'Offer expires tomorrow'}
+              label={isReprice ? `Re-price at pickup · ${car.reprice!.waiting}` : expiryLabel(car)}
               title={car.car}
               onTimeline={() => onOpen(vin)}
               done={done}
