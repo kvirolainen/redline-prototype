@@ -88,6 +88,8 @@ export default defineSchema({
     onLotFrom: v.optional(v.string()),
     /** Sales manager's pickup check: on the lot, both keys, ownership papers. */
     ready: v.optional(v.boolean()),
+    /** Which of those three checks are ticked (`lot`, `keys`, `papers`) while the car isn't fully ready. */
+    readyChecks: v.optional(v.array(v.string())),
     /** Priced by a Clutch appraiser after the desk, not instantly. */
     fromReview: v.optional(v.boolean()),
     reviewReasons: v.optional(v.array(v.string())),

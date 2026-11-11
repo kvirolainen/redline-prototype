@@ -86,7 +86,7 @@ export const acceptOffer = mutation({
     if (car.status !== 'offered') return;
     const dealer = await dealerByKey(ctx, car.dealer);
     const runDate = nextPickup((await getMeta(ctx)).today, dealer.runDay);
-    await ctx.db.patch(car._id, { status: 'awaiting_pickup', runDate, expiresOn: undefined, ready: false });
+    await ctx.db.patch(car._id, { status: 'awaiting_pickup', runDate, expiresOn: undefined, ready: false, readyChecks: [] });
     await log(ctx, car, who, `Accepted. Joined the next pickup, ${shortDate(runDate)}`, 'accept');
   },
 });
@@ -120,16 +120,25 @@ export const undoKeep = mutation({
   },
 });
 
+const READY_CHECKS: Record<string, string> = { lot: 'on the lot', keys: 'both keys', papers: 'ownership papers' };
+
+/** The sales manager's pickup check. Ready only when all three are ticked; a partial check is kept, so everyone sees
+ *  what's missing ("second key missing") instead of a bare "not ready". */
 export const setReady = mutation({
-  args: { key: v.string(), ready: v.boolean(), who: v.string() },
-  handler: async (ctx, { key, ready, who }) => {
+  args: { key: v.string(), checks: v.array(v.string()), who: v.string() },
+  handler: async (ctx, { key, checks, who }) => {
     const car = await carByKey(ctx, key);
+    const ticked = Object.keys(READY_CHECKS).filter((c) => checks.includes(c));
+    const missing = Object.keys(READY_CHECKS).filter((c) => !ticked.includes(c));
+    const ready = missing.length === 0;
     await ctx.db.patch(car._id, {
       ready,
+      readyChecks: ready ? undefined : ticked,
       status: ready && car.status === 'not_ready' ? 'awaiting_pickup' : car.status,
       note: ready ? undefined : car.note,
     });
-    await log(ctx, car, who, ready ? 'Marked ready: on the lot, both keys, ownership papers' : 'Marked not ready yet', 'pickup');
+    const list = (ids: string[]) => ids.map((c) => READY_CHECKS[c]).join(', ');
+    await log(ctx, car, who, ready ? 'Marked ready: on the lot, both keys, ownership papers' : `Not ready yet: missing ${list(missing)}`, 'pickup');
   },
 });
 
@@ -213,6 +222,7 @@ export const markNotReady = mutation({
     await ctx.db.patch(car._id, {
       status: 'not_ready',
       ready: false,
+      readyChecks: undefined,
       rolledFrom: car.runDate ?? today,
       runDate: next,
       note: reason,

@@ -1,7 +1,7 @@
 import { createContext, useContext, useMemo, useState } from 'react';
 import { money } from '../../domain/format';
 import type { CarStatus } from '../../domain/statuses';
-import { AUCTION_DAYS_TO_CASH, BACK_OFFICE_CARS, DEALER, NEXT_PICKUP, OFFERS_NOT_TAKEN, TODAY, type BackOfficeCar } from './fixtures';
+import { AUCTION_DAYS_TO_CASH, BACK_OFFICE_CARS, DEALER, NEXT_PICKUP, OFFERS_NOT_TAKEN, READY_CHECKS, TODAY, type BackOfficeCar, type ReadyCheck } from './fixtures';
 
 const SOLD: CarStatus[] = ['awaiting_pickup', 'not_ready', 'reprice_pending', 'confirmed', 'picked_up', 'paid'];
 
@@ -94,7 +94,7 @@ function useLocalBackOffice(initial: BackOfficeCar[] = BACK_OFFICE_CARS) {
       expiresSoon: false,
       events: [
         ...c.events,
-        { at: 'Today, just now', who: 'Dave', text: `Offer refreshed: ${money(c.offer)} holds until ${NEXT_PICKUP}`, kind: 'offer' },
+        { at: 'Today, just now', who: 'Maria', text: `Offer refreshed: ${money(c.offer)} holds until ${NEXT_PICKUP}`, kind: 'offer' },
       ],
     }));
 
@@ -114,17 +114,27 @@ function useLocalBackOffice(initial: BackOfficeCar[] = BACK_OFFICE_CARS) {
       events: [...c.events, { at: 'Today, just now', who: 'Dave', text: `Back on the ${c.pickup} pickup`, kind: 'decision' }],
     }));
 
-  const setReady = (vin: string, ready: boolean) =>
-    update(vin, (c) => ({
-      ...c,
-      ready,
-      status: ready && c.status === 'not_ready' ? 'awaiting_pickup' : c.status,
-      note: ready ? undefined : c.note,
-      events: [
-        ...c.events,
-        { at: 'Today, just now', who: 'Maria', text: ready ? 'Marked ready: on the lot, both keys, ownership papers' : 'Marked not ready yet', kind: 'pickup' },
-      ],
-    }));
+  const setReady = (vin: string, checks: ReadyCheck[]) =>
+    update(vin, (c) => {
+      const missing = READY_CHECKS.filter((r) => !checks.includes(r.id));
+      const ready = missing.length === 0;
+      return {
+        ...c,
+        ready,
+        readyChecks: ready ? undefined : checks,
+        status: ready && c.status === 'not_ready' ? 'awaiting_pickup' : c.status,
+        note: ready ? undefined : c.note,
+        events: [
+          ...c.events,
+          {
+            at: 'Today, just now',
+            who: 'Maria',
+            text: ready ? 'Marked ready: on the lot, both keys, ownership papers' : `Not ready yet: missing ${missing.map((m) => m.label.toLowerCase()).join(', ')}`,
+            kind: 'pickup',
+          },
+        ],
+      };
+    });
 
   const acceptOffer = (vin: string) =>
     update(vin, (c) => ({
@@ -150,6 +160,6 @@ export interface BackOffice extends ReturnType<typeof summarize> {
   refreshOffer: Act;
   keep: Act;
   undoKeep: Act;
-  setReady: (vin: string, ready: boolean) => void;
+  setReady: (vin: string, checks: ReadyCheck[]) => void;
   acceptOffer: Act;
 }

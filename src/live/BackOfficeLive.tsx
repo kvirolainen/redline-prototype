@@ -28,6 +28,7 @@ function toBackOfficeCar(c: LiveCar, events: LiveEvent[], today: string, nowMin:
     daysToCash: c.daysToCash,
     note: c.note,
     ready: c.ready,
+    readyChecks: c.readyChecks as BackOfficeCar['readyChecks'],
     fromReview: c.fromReview,
     reprice: r && {
       from: r.from,
@@ -71,16 +72,16 @@ export function BackOfficeLive({ children }: { children: ReactNode }) {
     [world, nowMin],
   );
 
-  // Who acts: the director decides on prices and what to keep; the sales manager handles offers and readiness.
+  // Who acts: the director decides on re-prices and what to keep; the sales manager handles offers and readiness.
   const live: BackOffice = {
     cars,
     ...summarize(cars, next),
     acceptReprice: (vin) => void m.acceptReprice({ key: keyOf(vin), who: 'Dave' }),
     declineReprice: (vin) => void m.declineReprice({ key: keyOf(vin), who: 'Dave' }),
-    refreshOffer: (vin) => void m.refreshOffer({ key: keyOf(vin), who: 'Dave' }),
+    refreshOffer: (vin) => void m.refreshOffer({ key: keyOf(vin), who: 'Maria' }),
     keep: (vin) => void m.keep({ key: keyOf(vin), who: 'Dave' }),
     undoKeep: (vin) => void m.undoKeep({ key: keyOf(vin), who: 'Dave' }),
-    setReady: (vin, ready) => void m.setReady({ key: keyOf(vin), ready, who: 'Maria' }),
+    setReady: (vin, checks) => void m.setReady({ key: keyOf(vin), checks, who: 'Maria' }),
     acceptOffer: (vin) => void m.acceptOffer({ key: keyOf(vin), who: 'Maria' }),
   };
 

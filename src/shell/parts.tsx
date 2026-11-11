@@ -13,6 +13,13 @@ import { VariantB2 as BackOfficeB2 } from '../modules/back-office/VariantB2';
 import { InspectorVariantC2 } from '../modules/inspector/VariantC2';
 import { VariantD as OpsD } from '../modules/ops-board/VariantD';
 import { TradeInVariantB2 } from '../modules/trade-in/VariantB2';
+import type { BackOfficeTab } from './views';
+
+/** Back office's tab, owned by the shell so each tab has its own URL and switcher entry. */
+interface OfficeProps {
+  tab: BackOfficeTab;
+  onChange: (t: BackOfficeTab) => void;
+}
 
 function PhoneFrame({ children }: { children: ReactNode }) {
   return (
@@ -24,12 +31,13 @@ function PhoneFrame({ children }: { children: ReactNode }) {
 }
 
 /** The picked version of each module. The explored ones stay in Storybook. */
-function PickedScreen({ module, onSwitch }: { module: ModuleId; onSwitch: (id: PersonaId) => void }) {
+function PickedScreen({ module, onSwitch, office }: { module: ModuleId; onSwitch: (id: PersonaId, office?: BackOfficeTab) => void; office?: OfficeProps }) {
   switch (module) {
     case 'trade-in':
-      return <TradeInVariantB2 onOpenBackOffice={() => onSwitch('dave')} />;
+      // An offer an appraiser prices after the desk is Maria's to accept, on her Pickups page.
+      return <TradeInVariantB2 onOpenBackOffice={() => onSwitch('dave', 'pickups')} />;
     case 'back-office':
-      return <BackOfficeB2 />;
+      return <BackOfficeB2 tab={office?.tab} onTabChange={office?.onChange} />;
     case 'ops-board':
       return <OpsD />;
     case 'inspector':
@@ -46,10 +54,10 @@ function Live({ module, children }: { module: ModuleId; children: ReactNode }) {
 }
 
 /** One person's module: live in the app, on fixtures in Storybook. */
-export function DemoModule({ personaId, onSwitch }: { personaId: PersonaId; onSwitch: (id: PersonaId) => void }) {
+export function DemoModule({ personaId, onSwitch, office }: { personaId: PersonaId; onSwitch: (id: PersonaId, office?: BackOfficeTab) => void; office?: OfficeProps }) {
   const hasBackend = useHasBackend();
   const module = persona(personaId).module;
-  const screen = <PickedScreen module={module} onSwitch={onSwitch} />;
+  const screen = <PickedScreen module={module} onSwitch={onSwitch} office={office} />;
   const body = hasBackend ? <Live module={module}>{screen}</Live> : screen;
   return (
     <Suspense fallback={null}>

@@ -1,26 +1,27 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Button } from '../../components/ui/Button';
 import { PAGE, PageHeader, SectionHeading, SegmentedTabs } from '../../components/ui/Page';
 import { StatusChip } from '../../components/ui/StatusChip';
 import { ATTENTION_EDGE } from '../../components/ui/Tag';
 import { money } from '../../domain/format';
-import { AUCTION_HOURS_PER_CAR, MONTHS, type BackOfficeCar } from './fixtures';
+import { AUCTION_HOURS_PER_CAR, checksOf, MONTHS, READY_CHECKS, type BackOfficeCar, type ReadyCheck as ReadyCheckId } from './fixtures';
 import { km } from './format';
-import { CarDetail, DecidedNote, Drawer, ExpiringOffer, ExpiryTag, RepriceDecision, useExpiryLabel } from './parts';
+import { CarDetail, DecidedNote, Drawer, ExpiryTag, RepriceDecision } from './parts';
 import { AUCTION_DAYS_TO_CASH, computeStats, useBackOffice, useBackOfficeEnv, type BackOffice } from './useBackOffice';
 
-// Back office B2: one page for the dealership, two people.
-// Dave (sales director) drops in to decide: the top-left inbox. Maria (sales manager) works the
-// car list on pickup week: the readiness tick. "Is Redline worth it?" lives in its own Results tab.
+// Back office B2: one page for the dealership, a home for each of its two people.
+// Overview is Dave's (sales director): the decisions that need him, then whether Redline is worth it.
+// Pickups is Maria's (sales manager): the cars by pickup, readiness checks and offers still open.
 
-type Tab = 'today' | 'results';
+import type { BackOfficeTab } from '../../shell/views';
+export type { BackOfficeTab };
 
-function Tabs({ tab, onChange }: { tab: Tab; onChange: (t: Tab) => void }) {
+function Tabs({ tab, onChange }: { tab: BackOfficeTab; onChange: (t: BackOfficeTab) => void }) {
   return (
     <SegmentedTabs
       items={[
-        ['today', 'Cars'],
-        ['results', 'Results'],
+        ['overview', 'Overview'],
+        ['pickups', 'Pickups'],
       ]}
       value={tab}
       onChange={onChange}
@@ -28,31 +29,7 @@ function Tabs({ tab, onChange }: { tab: Tab; onChange: (t: Tab) => void }) {
   );
 }
 
-function ValueLine({ office, onMore }: { office: BackOffice; onMore: () => void }) {
-  const r = results(office);
-  const parts = [
-    `${r.cars} cars sold`,
-    `${money(r.total)} above auction`,
-    `paid in ${r.daysToCash} days (auction ~${AUCTION_DAYS_TO_CASH})`,
-    `${r.repriced} of ${r.cars} re-priced at pickup`,
-  ];
-  return (
-    <p className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-card border border-line bg-white px-4 py-2.5 text-sm text-body">
-      <span className="font-medium text-muted">Since Aug</span>
-      {parts.map((p) => (
-        <span key={p} className="flex items-center gap-2">
-          <span className="text-subtle" aria-hidden>·</span>
-          {p}
-        </span>
-      ))}
-      <button type="button" onClick={onMore} className="ml-auto font-medium text-ink underline">
-        Results
-      </button>
-    </p>
-  );
-}
-
-// ───────────────────────── Dave: what needs a decision ─────────────────────────
+// ───────────────────────── Overview (Dave): what needs a decision ─────────────────────────
 
 function Card({ label, title, onTimeline, done, children }: { label: string; title: string; onTimeline?: () => void; done?: boolean; children: ReactNode }) {
   return (
@@ -73,6 +50,7 @@ function Card({ label, title, onTimeline, done, children }: { label: string; tit
   );
 }
 
+/** Dave's real call on a trade-in: retail on his own lot, or let it go to Clutch. Optional; the default is Clutch. */
 function KeepOrSend({ office, onOpen }: { office: BackOffice; onOpen: (vin: string) => void }) {
   const { nextPickup: NEXT_PICKUP } = useBackOfficeEnv();
   const cars = office.nextRun;
@@ -113,87 +91,199 @@ function KeepOrSend({ office, onOpen }: { office: BackOffice; onOpen: (vin: stri
   );
 }
 
-function NeedsYou({ office, onOpen }: { office: BackOffice; onOpen: (vin: string) => void }) {
+/** Only Dave's decisions: a re-price from the lot. Offers and readiness are Maria's and live on Pickups. */
+function NeedsYou({ office, onOpen, onTab }: { office: BackOffice; onOpen: (vin: string) => void; onTab: (t: BackOfficeTab) => void }) {
   // Cards stay after a decision, showing what happened, until the page is left. New ones (a re-price sent from the
   // lot while the page is open) join at the top.
-  const expiryLabel = useExpiryLabel();
-  const [seen, setSeen] = useState(() => office.needsYou.map((c) => c.vin));
-  const fresh = office.needsYou.map((c) => c.vin).filter((v) => !seen.includes(v));
+  const pendingVins = office.needsYou.filter((c) => c.status === 'reprice_pending').map((c) => c.vin);
+  const [seen, setSeen] = useState(() => pendingVins);
+  const fresh = pendingVins.filter((v) => !seen.includes(v));
   if (fresh.length) setSeen([...fresh, ...seen]);
   const inbox = (fresh.length ? [...fresh, ...seen] : seen).filter((vin) => office.cars.some((c) => c.vin === vin));
-  const pending = office.needsYou.length;
-  const anyReprice = office.needsYou.some((c) => c.status === 'reprice_pending');
   return (
     <section aria-label="Needs you">
-      <SectionHeading count={pending} className="mb-3">
+      <SectionHeading count={pendingVins.length} className="mb-3">
         Needs you
       </SectionHeading>
       <div className="space-y-4">
         {inbox.map((vin) => {
           const car = office.cars.find((c) => c.vin === vin)!;
           const isReprice = car.status === 'reprice_pending';
-          const isExpiring = car.status === 'offered' && car.expiresSoon;
-          const done = !isReprice && !isExpiring;
           return (
-            <Card
-              key={vin}
-              label={isReprice ? `Re-price at pickup · ${car.reprice!.waiting}` : expiryLabel(car)}
-              title={car.car}
-              onTimeline={() => onOpen(vin)}
-              done={done}
-            >
-              {isReprice && <RepriceDecision car={car} compact onAccept={() => office.acceptReprice(vin)} onDecline={() => office.declineReprice(vin)} />}
-              {isExpiring && <ExpiringOffer car={car} quiet={anyReprice} onRefresh={() => office.refreshOffer(vin)} />}
-              {done && <DecidedNote car={car} />}
+            <Card key={vin} label={`Re-price at pickup · ${car.reprice?.waiting ?? ''}`} title={car.car} onTimeline={() => onOpen(vin)} done={!isReprice}>
+              {isReprice ? (
+                <RepriceDecision car={car} compact onAccept={() => office.acceptReprice(vin)} onDecline={() => office.declineReprice(vin)} />
+              ) : (
+                <DecidedNote car={car} />
+              )}
             </Card>
           );
         })}
-        {pending === 0 && inbox.length === 0 && (
-          <div className="rounded-card border border-line bg-white px-5 py-6 text-center">
-            <p className="text-base font-bold text-ink">Nothing needs you</p>
-            <p className="mt-1 text-sm text-muted">Re-prices and expiring offers land here.</p>
+        {inbox.length === 0 && (
+          <div className="rounded-card border border-line bg-white px-5 py-5">
+            <p className="text-base font-bold text-ink">Nothing needs you right now</p>
+            <p className="mt-1 text-sm text-muted">If Clutch’s inspection finds a difference on pickup day, the new price lands here for your call.</p>
           </div>
         )}
         <KeepOrSend office={office} onOpen={onOpen} />
+        <PickupsGlance office={office} onTab={onTab} />
       </div>
     </section>
   );
 }
 
-// ───────────────────────── Maria: the cars, by pickup ─────────────────────────
-
-function ReadyTick({ car, office }: { car: BackOfficeCar; office: BackOffice }) {
-  const on = !!car.ready;
+/** One glance at Maria's side, so Dave knows the week is on track without opening the list. */
+function PickupsGlance({ office, onTab }: { office: BackOffice; onTab: (t: BackOfficeTab) => void }) {
+  const { today: TODAY, nextPickup: NEXT_PICKUP } = useBackOfficeEnv();
+  const going = office.nextRun.filter((c) => c.status !== 'kept');
+  const ready = going.filter((c) => c.ready).length;
+  const todays = office.cars.filter((c) => c.pickup === TODAY && c.status !== 'declined');
+  const loaded = todays.filter((c) => c.status === 'picked_up' || c.status === 'paid').length;
+  const lines: [string, string][] = [
+    [`Today · ${TODAY}`, `${loaded} of ${todays.length} on the truck`],
+    [`Next · ${NEXT_PICKUP}`, `${ready} of ${going.length} ready`],
+  ];
   return (
-    <button
-      type="button"
-      onClick={() => office.setReady(car.vin, !on)}
-      aria-pressed={on}
-      title="On the lot, both keys, ownership papers"
-      className={`inline-flex h-7 items-center gap-1.5 rounded-pill border px-3 text-caption font-medium whitespace-nowrap ${
-        on ? 'border-ink bg-ink text-white' : 'border-line bg-white text-ink hover:border-ink'
-      }`}
-    >
-      <span aria-hidden>{on ? '✓' : '○'}</span>
-      {on ? 'Ready' : 'Mark ready'}
-    </button>
+    <article className="rounded-card border border-line bg-white p-5">
+      <div className="flex items-baseline justify-between gap-3">
+        <h3 className="text-base font-bold text-ink">Pickups</h3>
+        <button type="button" onClick={() => onTab('pickups')} className="text-sm font-medium text-ink underline">
+          See the cars
+        </button>
+      </div>
+      <dl className="mt-2 divide-y divide-line-light">
+        {lines.map(([k, v]) => (
+          <div key={k} className="flex justify-between gap-3 py-2 text-sm">
+            <dt className="text-muted">{k}</dt>
+            <dd className="font-medium text-ink">{v}</dd>
+          </div>
+        ))}
+      </dl>
+    </article>
   );
 }
 
-function CarRow({ car, office, onOpen, mode }: { car: BackOfficeCar; office: BackOffice; onOpen: () => void; mode: 'ready' | 'offer' | 'status' }) {
-  const sub = [car.vin.slice(-6), km(car.km)];
-  if (car.note && car.status !== 'kept' && (car.status === 'not_ready' || mode === 'ready')) sub.push(car.note);
-  if (car.fromReview && car.status === 'offered') sub.push('Priced by a Clutch appraiser');
-  if (car.status === 'appraising') sub.push('With a Clutch appraiser');
+// ───────────────────────── Pickups (Maria): the cars, by pickup ─────────────────────────
+
+/** Mark ready opens the three checks; the car is ready only when all are ticked. A stray click just opens it, and a
+ *  click outside closes it with nothing changed, so readiness can't flip by accident. */
+function ReadyCheck({ car, office }: { car: BackOfficeCar; office: BackOffice }) {
+  const saved = checksOf(car);
+  const savedKey = saved.join();
+  const [open, setOpen] = useState(false);
+  const [ticks, setTicks] = useState<ReadyCheckId[]>(saved);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const close = () => {
+    setOpen(false);
+    trigger.current?.focus();
+  };
+  // Someone else changed the check while it's open (another screen, Skip to next pickup day): start from theirs.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => setTicks(saved), [savedKey]);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && close();
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
+
+  const all = saved.length === READY_CHECKS.length;
+  const toggle = (id: ReadyCheckId) => setTicks((t) => (t.includes(id) ? t.filter((x) => x !== id) : [...t, id]));
+  const allTicked = ticks.length === READY_CHECKS.length;
+  const changed = ticks.length !== saved.length || ticks.some((t) => !saved.includes(t));
+  const action = allTicked ? 'Mark ready' : all ? 'Mark not ready' : 'Save';
+  const save = () => {
+    office.setReady(car.vin, READY_CHECKS.map((r) => r.id).filter((id) => ticks.includes(id)));
+    close();
+  };
+
   return (
-    <div className="flex items-center gap-4 border-b border-line-light px-4 py-3 last:border-b-0 hover:bg-canvas">
-      <button type="button" onClick={onOpen} className="min-w-0 flex-1 text-left">
-        <span className="block truncate text-sm font-medium text-ink">{car.car}</span>
-        <span className="block truncate text-caption text-muted">{sub.join(' · ')}</span>
+    <div className="relative">
+      <button
+        ref={trigger}
+        type="button"
+        onClick={() => {
+          setTicks(saved);
+          setOpen(!open);
+        }}
+        aria-expanded={open}
+        aria-haspopup="dialog"
+        className={`inline-flex h-7 items-center gap-1.5 rounded-pill border px-3 text-caption font-medium whitespace-nowrap ${
+          all ? 'border-ink bg-ink text-white' : 'border-line bg-white text-ink hover:border-ink'
+        }`}
+      >
+        <span aria-hidden>{all ? '✓' : saved.length ? '◐' : '○'}</span>
+        {all ? 'Ready' : saved.length ? `${saved.length} of ${READY_CHECKS.length} ready` : 'Mark ready'}
       </button>
-      <span className="hidden w-20 text-right text-sm font-bold text-ink sm:block">{car.status === 'appraising' ? '' : money(car.offer)}</span>
-      <span className="flex w-44 justify-end">
-        {mode === 'ready' && car.status !== 'kept' && <ReadyTick car={car} office={office} />}
+      {open && (
+        <>
+          <button type="button" aria-label="Close" tabIndex={-1} className="fixed inset-0 z-20 cursor-default" onClick={close} />
+          <div role="dialog" aria-label={`Ready check: ${car.car}`} className="absolute top-full right-0 z-30 mt-2 w-72 rounded-panel border border-line bg-white p-4 text-left shadow-overlay">
+            <p className="text-sm font-bold text-ink">Ready for {car.pickup}?</p>
+            <p className="mt-0.5 truncate text-caption text-muted">{car.car}</p>
+            <ul className="mt-3 space-y-1">
+              {READY_CHECKS.map((r, i) => (
+                <li key={r.id}>
+                  <label className="flex cursor-pointer items-center gap-3 rounded-card px-2 py-1.5 text-sm text-ink hover:bg-canvas">
+                    <input type="checkbox" className="size-4 accent-ink" checked={ticks.includes(r.id)} onChange={() => toggle(r.id)} autoFocus={i === 0} />
+                    {r.label}
+                  </label>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-2 text-caption text-muted">A car that isn’t ready moves to the pickup after.</p>
+            <div className="mt-3 flex justify-end gap-2">
+              <button type="button" onClick={close} className="h-8 px-3 text-caption font-medium text-body hover:underline">
+                Cancel
+              </button>
+              <Button variant="dark-small" disabled={!changed} onClick={save} className="disabled:bg-line-light disabled:text-subtle">
+                {action}
+              </Button>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+/** The grey middle column: what's missing, who priced it, what happened. */
+function rowDetail(car: BackOfficeCar, mode: RowMode): string {
+  if (car.status === 'kept') return 'Kept for your lot';
+  if (mode === 'ready') {
+    const ticked = checksOf(car);
+    if (car.ready) return 'On the lot, both keys, ownership papers';
+    // A car Clutch's inspector left behind says why; otherwise the checks that are still missing.
+    if (car.status === 'not_ready' && car.note) return car.note;
+    const missing = READY_CHECKS.filter((r) => !ticked.includes(r.id)).map((r) => r.missing).join(', ');
+    return ticked.length && missing ? missing[0].toUpperCase() + missing.slice(1) : 'Not checked yet';
+  }
+  if (car.status === 'appraising') return 'With a Clutch appraiser';
+  if (car.status === 'offered' && car.fromReview) return 'Priced by a Clutch appraiser';
+  if (car.status === 'offered') return car.expiresSoon ? '' : `Holds until ${car.expires}`;
+  if (car.status === 'expired') return 'The offer ran out';
+  return car.note ?? '';
+}
+
+type RowMode = 'ready' | 'offer' | 'status';
+
+function CarRow({ car, office, onOpen, mode }: { car: BackOfficeCar; office: BackOffice; onOpen: () => void; mode: RowMode }) {
+  const detail = rowDetail(car, mode);
+  const missingSomething = mode === 'ready' && !car.ready && car.status !== 'kept';
+  return (
+    <div className="grid grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_96px_210px_12px] items-center gap-4 border-b border-line-light px-4 py-3 first:rounded-t-card last:rounded-b-card last:border-b-0 hover:bg-canvas">
+      <button type="button" onClick={onOpen} className="min-w-0 text-left">
+        <span className="block truncate text-sm font-medium text-ink">{car.car}</span>
+        <span className="block truncate text-caption text-muted">
+          {car.vin.slice(-6)} · {km(car.km)}
+        </span>
+      </button>
+      <span className={`truncate text-caption ${missingSomething ? 'text-ink' : 'text-muted'}`}>
+        {car.status === 'offered' && car.expiresSoon && !car.fromReview ? <ExpiryTag car={car} /> : detail}
+      </span>
+      <span className="text-right text-sm font-bold text-ink">{car.status === 'appraising' ? '' : money(car.offer)}</span>
+      <span className="flex justify-end">
+        {mode === 'ready' && car.status !== 'kept' && <ReadyCheck car={car} office={office} />}
         {mode === 'ready' && car.status === 'kept' && <StatusChip status="kept" />}
         {mode === 'offer' && car.status === 'appraising' && <span className="text-caption font-medium text-ink">Offer by 3:00 pm</span>}
         {mode === 'offer' && car.status === 'offered' && car.fromReview && (
@@ -201,7 +291,12 @@ function CarRow({ car, office, onOpen, mode }: { car: BackOfficeCar; office: Bac
             Accept {money(car.offer)}
           </Button>
         )}
-        {mode === 'offer' && car.status === 'offered' && !car.fromReview && <ExpiryTag car={car} />}
+        {mode === 'offer' && car.status === 'offered' && !car.fromReview && car.expiresSoon && (
+          <Button variant="dark-small" onClick={() => office.refreshOffer(car.vin)}>
+            Refresh for 7 days
+          </Button>
+        )}
+        {mode === 'offer' && car.status === 'offered' && !car.fromReview && !car.expiresSoon && <span className="text-caption text-muted">Waiting on the customer</span>}
         {mode === 'offer' && car.status === 'expired' && (
           <Button variant="dark-small" onClick={() => office.refreshOffer(car.vin)}>
             Refresh offer
@@ -221,33 +316,29 @@ function CarGroups({ office, onOpen }: { office: BackOffice; onOpen: (vin: strin
   const next = office.nextRun;
   const readyCount = next.filter((c) => c.ready && c.status !== 'kept').length;
   const going = next.filter((c) => c.status !== 'kept').length;
-  const groups: { title: string; hint?: string; cars: BackOfficeCar[]; mode: 'ready' | 'offer' | 'status' }[] = [
-    { title: `Next pickup · ${NEXT_PICKUP}`, hint: `${readyCount} of ${going} ready`, cars: next, mode: 'ready' },
+  const groups: { title: string; hint?: string; cars: BackOfficeCar[]; mode: RowMode }[] = [
+    { title: `Next pickup · ${NEXT_PICKUP}`, hint: `${readyCount} of ${going} ready · check each car by Wed 5 pm`, cars: next, mode: 'ready' },
     { title: `Today’s pickup · ${TODAY}`, cars: office.cars.filter((c) => c.pickup === TODAY && c.status !== 'declined'), mode: 'status' },
-    { title: 'Open offers', hint: 'not accepted yet', cars: office.cars.filter((c) => c.status === 'offered' || c.status === 'appraising' || c.status === 'expired'), mode: 'offer' },
+    { title: 'Open offers', hint: 'the customer hasn’t traded yet', cars: office.cars.filter((c) => c.status === 'offered' || c.status === 'appraising' || c.status === 'expired'), mode: 'offer' },
     { title: 'Paid', cars: office.cars.filter((c) => c.status === 'paid'), mode: 'status' },
     { title: 'Stayed with you', cars: office.cars.filter((c) => c.status === 'declined' || (c.status === 'kept' && c.pickup !== NEXT_PICKUP)), mode: 'status' },
   ];
   return (
-    <section aria-label="Cars" className="min-w-0">
-      <SectionHeading className="mb-3">Cars</SectionHeading>
-      <div className="space-y-5">
-        {groups.map((g) =>
-          g.cars.length ? (
-            <div key={g.title}>
-              <p className="mb-2 text-sm font-medium text-muted">
-                {g.title} <span className="text-subtle">· {g.hint ?? g.cars.length}</span>
-              </p>
-              <div className="overflow-hidden rounded-card border border-line bg-white">
-                {g.cars.map((c) => (
-                  <CarRow key={c.vin} car={c} office={office} mode={g.mode} onOpen={() => onOpen(c.vin)} />
-                ))}
-              </div>
-              {g.mode === 'ready' && <p className="mt-1.5 text-caption text-muted">Ready = on the lot, both keys, ownership papers. Cars not ready move to the pickup after.</p>}
+    <section aria-label="Cars" className="mt-6 space-y-6">
+      {groups.map((g) =>
+        g.cars.length ? (
+          <div key={g.title}>
+            <SectionHeading count={undefined} aside={g.hint ?? `${g.cars.length} ${g.cars.length === 1 ? 'car' : 'cars'}`} className="mb-2">
+              {g.title}
+            </SectionHeading>
+            <div className="rounded-card border border-line bg-white">
+              {g.cars.map((c) => (
+                <CarRow key={c.vin} car={c} office={office} mode={g.mode} onOpen={() => onOpen(c.vin)} />
+              ))}
             </div>
-          ) : null,
-        )}
-      </div>
+          </div>
+        ) : null,
+      )}
     </section>
   );
 }
@@ -281,8 +372,12 @@ function Results({ office }: { office: BackOffice }) {
   ];
 
   return (
-    <div className="mt-6 space-y-6">
-      <section className="grid grid-cols-4 divide-x divide-line rounded-card border border-line bg-white">
+    <div className="min-w-0">
+      <SectionHeading aside="Since Redline started in August" className="mb-3">
+        Is it worth it?
+      </SectionHeading>
+      <div className="space-y-4">
+      <section className="grid grid-cols-2 divide-line rounded-card border border-line bg-white xl:grid-cols-4 xl:divide-x">
         {tiles.map(([label, value, hint]) => (
           <div key={label} className="px-5 py-4">
             <p className="text-caption font-medium text-muted">{label}</p>
@@ -292,7 +387,7 @@ function Results({ office }: { office: BackOffice }) {
         ))}
       </section>
 
-      <div className="grid grid-cols-[minmax(0,1fr)_420px] items-start gap-6">
+      <div className="space-y-4">
         <section className="rounded-card border border-line bg-white p-5">
           <h2 className="text-base font-bold text-ink">By month</h2>
           <div className="mt-4 grid grid-cols-[48px_minmax(0,1fr)_56px_80px_80px] items-center gap-x-4 gap-y-3 text-sm">
@@ -339,17 +434,21 @@ function Results({ office }: { office: BackOffice }) {
           </ul>
         </section>
       </div>
+      </div>
     </div>
   );
 }
 
 // ───────────────────────── Page ─────────────────────────
 
-/** B2 · Decide and track: Dave's decisions on the left, the cars by pickup on the right, results in a tab. */
-export function VariantB2() {
+/** B2 · Two homes: Overview for Dave (his decisions, then results), Pickups for Maria (the cars by pickup).
+ *  In the app the shell owns the tab, so the person switcher can open either home; in Storybook it's local. */
+export function VariantB2({ tab: tabProp, onTabChange, initialTab = 'overview' }: { tab?: BackOfficeTab; onTabChange?: (t: BackOfficeTab) => void; initialTab?: BackOfficeTab } = {}) {
   const { dealer: DEALER, nextPickup: NEXT_PICKUP } = useBackOfficeEnv();
   const office = useBackOffice();
-  const [tab, setTab] = useState<Tab>('today');
+  const [localTab, setLocalTab] = useState<BackOfficeTab>(initialTab);
+  const tab = tabProp ?? localTab;
+  const setTab = onTabChange ?? setLocalTab;
   const [open, setOpen] = useState<string | null>(null);
   const openCar = office.cars.find((c) => c.vin === open);
 
@@ -366,18 +465,13 @@ export function VariantB2() {
           right={<Tabs tab={tab} onChange={setTab} />}
         />
 
-        {tab === 'today' ? (
-          <>
-            <div className="mt-6">
-              <ValueLine office={office} onMore={() => setTab('results')} />
-            </div>
-            <div className="mt-6 grid grid-cols-[380px_minmax(0,1fr)] items-start gap-6 xl:grid-cols-[420px_minmax(0,1fr)]">
-              <NeedsYou office={office} onOpen={setOpen} />
-              <CarGroups office={office} onOpen={setOpen} />
-            </div>
-          </>
+        {tab === 'overview' ? (
+          <div className="mt-6 grid grid-cols-[380px_minmax(0,1fr)] items-start gap-6 xl:grid-cols-[420px_minmax(0,1fr)]">
+            <NeedsYou office={office} onOpen={setOpen} onTab={setTab} />
+            <Results office={office} />
+          </div>
         ) : (
-          <Results office={office} />
+          <CarGroups office={office} onOpen={setOpen} />
         )}
       </div>
 

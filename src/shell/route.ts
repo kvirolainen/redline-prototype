@@ -1,20 +1,26 @@
 import { DOCS, type DocId } from '../behind/docs';
 import { PERSONAS, type PersonaId } from '../domain/personas';
-import type { BehindTab, View } from './views';
+import type { BackOfficeTab, BehindTab, View } from './views';
 
 /** Where the shell is: which view, and on Behind the build which tab and document. */
 export interface Route {
   view: View;
   tab: BehindTab;
   doc: DocId;
+  /** Back office has a home per person: Overview (Dave) and Pickups (Maria). */
+  office: BackOfficeTab;
 }
 
-export const HOME: Route = { view: 'behind', tab: 'car-journey', doc: 'concept' };
+export const HOME: Route = { view: 'behind', tab: 'car-journey', doc: 'concept', office: 'overview' };
 
 /** One path per screen, so a refresh or a shared link opens the same screen:
- *  `/` car journey · `/thinking/<doc>` a document · `/<module>` a person's module (`/trade-in`, `/inspector`, …). */
+ *  `/` car journey · `/thinking/<doc>` a document · `/<module>` a person's module (`/trade-in`, `/inspector`, …),
+ *  `/back-office/pickups` Maria's home in Back office. */
 export function toPath(r: Route): string {
-  if (r.view !== 'behind') return `/${PERSONAS.find((p) => p.id === r.view)!.module}`;
+  if (r.view !== 'behind') {
+    const module = PERSONAS.find((p) => p.id === r.view)!.module;
+    return module === 'back-office' && r.office === 'pickups' ? '/back-office/pickups' : `/${module}`;
+  }
   return r.tab === 'docs' ? `/thinking/${r.doc}` : '/';
 }
 
@@ -27,5 +33,6 @@ export function fromPath(path: string): Route {
     return { ...HOME, tab: 'docs', doc };
   }
   const person = PERSONAS.find((p) => p.module === first);
-  return person ? { ...HOME, view: person.id as PersonaId } : HOME;
+  if (!person) return HOME;
+  return { ...HOME, view: person.id as PersonaId, office: person.module === 'back-office' && second === 'pickups' ? 'pickups' : 'overview' };
 }

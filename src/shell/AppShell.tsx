@@ -7,7 +7,7 @@ import { DocsViewer } from '../behind/DocsViewer';
 import { Icon } from '../behind/icons';
 import { MODULE_ICON } from '../behind/moduleIcons';
 import { MODULES, PERSONAS, persona, personaLine, type PersonaId } from '../domain/personas';
-import { BEHIND_TABS, DOCS_TAB_LABEL, type BehindTab, type View } from './views';
+import { BEHIND_TABS, DOCS_TAB_LABEL, type BackOfficeTab, type BehindTab, type View } from './views';
 import { DemoBar, DemoModule, EmptyWorld, WorldProvider } from './parts';
 import { useHasBackend } from '../live/world';
 
@@ -30,12 +30,17 @@ function ViewIcon({ view, active, quiet }: { view: View; active?: boolean; quiet
   );
 }
 
-/** Button label: leads with the module ("Trade-in · Maria"), or "Behind the build". */
-const buttonLabel = (view: View) => (view === 'behind' ? 'Behind the build' : `${MODULES[persona(view).module].label} · ${persona(view).name}`);
+/** Back office is one module with two people: Dave's Overview tab and Maria's Pickups tab. */
+const isShared = (view: View) => view !== 'behind' && persona(view).module === 'back-office';
 
-/** Menu item: module name in bold, the person on the second line. */
+/** Button label: leads with the module ("Trade-in · Maria"), or "Behind the build". */
+const buttonLabel = (view: View) =>
+  view === 'behind' ? 'Behind the build' : `${MODULES[persona(view).module].label} · ${isShared(view) ? 'Dave & Maria' : persona(view).name}`;
+
+/** Menu item: module name in bold, the person (or both people) on the second line. */
 function MenuLine({ view, active }: { view: View; active?: boolean }) {
-  const [title, sub] = view === 'behind' ? ['Behind the build', `Car journey, ${DOCS_TAB_LABEL.toLowerCase()}`] : [MODULES[persona(view).module].label, personaLine(persona(view))];
+  const sub = view === 'behind' ? `Car journey, ${DOCS_TAB_LABEL.toLowerCase()}` : isShared(view) ? 'Dave, director · Maria, manager' : personaLine(persona(view));
+  const title = view === 'behind' ? 'Behind the build' : MODULES[persona(view).module].label;
   return (
     <span className="flex min-w-0 items-center gap-3 text-left">
       <ViewIcon view={view} active={active} quiet={view === 'behind'} />
@@ -144,9 +149,9 @@ interface Props {
  *  sub-nav) or the selected person's module. The pages are the same components as in Storybook, rendered as-is. */
 export function AppShell({ initialView = 'behind', initialTab = 'car-journey', initialDoc = 'concept', routed = false }: Props) {
   const [route, setRoute] = useState<Route>(() =>
-    routed ? fromPath(window.location.pathname) : { view: initialView, tab: initialTab, doc: initialDoc },
+    routed ? fromPath(window.location.pathname) : { view: initialView, tab: initialTab, doc: initialDoc, office: 'overview' },
   );
-  const { view, tab, doc } = route;
+  const { view, tab, doc, office } = route;
   const navigate = (patch: Partial<Route>) => {
     const next = { ...route, ...patch };
     setRoute(next);
@@ -165,7 +170,9 @@ export function AppShell({ initialView = 'behind', initialTab = 'car-journey', i
   const setTab = (t: BehindTab) => navigate({ view: 'behind', tab: t });
   const setDoc = (d: DocId) => navigate({ view: 'behind', tab: 'docs', doc: d });
   const go = (v: View) => navigate({ view: v });
-  const showPerson = (id: PersonaId) => go(id);
+  // A module opens on its person's home: Back office on Dave's Overview unless Maria's Pickups is asked for.
+  const showPerson = (id: PersonaId, home: BackOfficeTab = 'overview') => navigate({ view: id, office: home });
+  const officeProps = { tab: office, onChange: (t: BackOfficeTab) => navigate({ office: t }) };
   // The pointer belongs to the landing page; on the other tabs it would sit over the content.
   const pointerOn = view === 'behind' && tab === 'car-journey';
   const hasBackend = useHasBackend();
@@ -196,7 +203,7 @@ export function AppShell({ initialView = 'behind', initialTab = 'car-journey', i
         </div>
         <div className="flex items-center gap-6">
           {hasBackend && view !== 'behind' && <DemoBar />}
-          <ViewSwitcher view={view} onChange={go} />
+          <ViewSwitcher view={view} onChange={(v) => navigate({ view: v, office: 'overview' })} />
         </div>
       </header>
 
@@ -206,10 +213,10 @@ export function AppShell({ initialView = 'behind', initialTab = 'car-journey', i
           hasBackend ? (
             // In the app the module reads the shared backend; the demo bar sits on top of it.
             <WorldProvider empty={<EmptyWorld />}>
-              <DemoModule key={view} personaId={view} onSwitch={showPerson} />
+              <DemoModule key={view} personaId={view} onSwitch={showPerson} office={officeProps} />
             </WorldProvider>
           ) : (
-            <DemoModule key={view} personaId={view} onSwitch={showPerson} />
+            <DemoModule key={view} personaId={view} onSwitch={showPerson} office={officeProps} />
           )
         ) : tab === 'car-journey' ? (
           <CarJourney onPick={showPerson} />

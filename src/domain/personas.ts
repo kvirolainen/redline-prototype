@@ -40,7 +40,7 @@ export const MODULES: Record<ModuleId, { label: string; summary: string; device:
   'trade-in': { label: 'Trade-in', summary: 'Car details → Clutch offer next to the auction estimate', device: 'desktop' },
   'ops-board': { label: 'Clutch ops', summary: 'Pickup runs by day × dealer, and exceptions', device: 'desktop' },
   inspector: { label: 'Clutch inspector', summary: "Today's run → cars → checklist vs declared → confirm or re-price", device: 'phone' },
-  'back-office': { label: 'Back office', summary: "The dealer's cars, re-price approvals and a value strip", device: 'desktop' },
+  'back-office': { label: 'Back office', summary: "Dave's decisions and results; Maria's pickups and readiness", device: 'desktop' },
 };
 
 export const persona = (id: PersonaId) => PERSONAS.find((p) => p.id === id)!;

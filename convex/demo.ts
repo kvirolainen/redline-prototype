@@ -79,11 +79,11 @@ export const skipToPickup = mutation({
         await ctx.db.patch(c._id, { status: 'offered', offer, expiresOn, pendingOffer: undefined });
         await event(c, `${meta.today}T14:30`, 'Clutch', `Offer ready. Holds until ${shortDate(expiresOn)}`, 'offer');
       } else if (c.status === 'not_ready' && c.runDate === today) {
-        await ctx.db.patch(c._id, { status: 'awaiting_pickup', ready: true, note: undefined, rolledFrom: undefined });
+        await ctx.db.patch(c._id, { status: 'awaiting_pickup', ready: true, readyChecks: undefined, note: undefined, rolledFrom: undefined });
         await event(c, `${addDays(today, -1)}T16:00`, names.get(c.dealer) === 'Yorkdale Honda' ? 'Maria' : 'Sales', 'Marked ready: on the lot, both keys, ownership papers', 'pickup');
       }
       if (c.status === 'awaiting_pickup' && c.runDate === today && c.onLotFrom && c.onLotFrom <= today && !c.ready) {
-        await ctx.db.patch(c._id, { ready: true });
+        await ctx.db.patch(c._id, { ready: true, readyChecks: undefined });
       }
     }
 

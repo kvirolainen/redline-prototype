@@ -5,7 +5,7 @@ One car, four people. Each module is built around one person's job. The design c
 | Who | Where, how often | So the module is |
 |---|---|---|
 | **Maria**, sales manager | At the sales desk, customer across from her, every week | **Trade-in**: one fixed screen she learns by heart |
-| **Dave**, sales director | Drops in between deals, a few minutes a day | **Back office**: an inbox of his decisions, then the cars |
+| **Dave**, sales director, and **Maria** | Dave drops in between deals; Maria works the pickup list each week | **Back office**: a home for each. Dave's decisions and results, Maria's pickups |
 | **Jordan**, Clutch operations | At a desk, all day | **Clutch ops**: dealers, with two clocks: minutes and days |
 | **Sam**, Clutch inspector | On a dealer's lot, one hand free, the truck waiting | **Clutch inspector**: check by exception, on a phone |
 
@@ -44,31 +44,35 @@ _Sales manager · laptop at the sales desk · the customer looks at the same scr
 
 **Also tried:** [A · step by step](https://redline-storybook.vercel.app/?path=/story/screens-trade-in--step-by-step) (Clutch's own flow, four screens before a number), [B · one page, live offer](https://redline-storybook.vercel.app/?path=/story/screens-trade-in--one-page-live-offer) (the base for B2) and [C · quick quote first](https://redline-storybook.vercel.app/?path=/story/screens-trade-in--quick-quote-first) (the fastest number, but the most re-prices at pickup).
 
-## 2. Back office · Dave, and Maria
+## 2. Back office · Dave and Maria
 
-_Sales director · drops in between deals, often on his phone · Maria uses the same page_
+_The dealership's page for cars sold to Clutch · Dave drops in between deals · Maria works the pickups each week_
 
-**His job:** make sure trade-ins don't cost him. Decide fast when something changes, and know Redline is worth it.
+**Dave's job:** make sure trade-ins don't cost him. Decide fast when something changes, and know Redline is worth it.
 
-**What's hard today:** he approves every trade-in price. He's afraid of overpaying, of cars sitting unsold, and of slow, poor auction prices. He's measured on new-car sales and profit; trade-ins matter only because they close the deal.
+**Maria's job here:** get each sold car ready for its pickup, and close out the offers still open.
 
-**What matters to him:**
-- "Does anything need me?" answered in seconds.
-- When a re-price lands mid-deal: the old and new price, the reason and photos, and what saying no means, on one card.
-- Once a month, proof in money he can show the dealer principal.
+**What's hard today:** Dave approves every trade-in price. He's afraid of overpaying, of cars sitting unsold, and of slow, poor auction prices. He's measured on new-car sales and profit; trade-ins matter only because they close the deal. Maria chases keys, papers and cars a customer still drives, and a car that isn't ready wastes a truck.
 
-**The main call: an inbox of decisions, not a dashboard.** Dave doesn't work in this screen. He comes for three things: a quick morning check, a re-price pushed to him on pickup day, and a monthly "is this worth it?". So the page opens on **Needs you** (the re-price, an offer about to expire), with the cars next to it. Value is one line at the top, and **Results** is its own tab. That also follows Clutch's feedback on the first sketch: the summary took too much room, and the table should open on cars awaiting pickup.
+**What matters to them:**
+- Dave: "Does anything need me?" answered in seconds; a re-price with the old and new price, the reason and photos on one card; once a month, proof in money he can show the dealer principal.
+- Maria: which cars go on the next truck, and exactly what's missing on the rest.
+
+**The main call: one page, a home for each person.** Clutch's whiteboard named two needs: sales managers need a back office (where cars are, when Clutch picks up, issues), and sales directors need the value at a glance. The first sketch put both on one page, and Clutch's feedback was that the summary took too much room and the table should open on cars awaiting pickup. So the page has two tabs, and each person lands on their own:
+- **Overview, Dave's home.** **Needs you** holds only his decisions: a re-price from the lot, and before each pickup which cars to keep for his own lot. Most days it says nothing needs him. Next to it, **Is it worth it?**: dollars above auction, days to get paid, staff time saved, how often inspection changed the price, by month. A small Pickups card says whether the week is on track.
+- **Pickups, Maria's home.** The cars by pickup, opening on the next one. Each car's readiness, the offers still open (refresh an expiring one, accept one an appraiser priced after the desk), and what was paid.
 
 **Other calls:**
 - **He doesn't approve Clutch's price; he decides where the car goes.** The offer is firm. What a director really decides is retail on his own lot or wholesale, so before each pickup he can **Keep** any car for his lot.
-- **Maria shares the page.** She ticks each car **Ready** for the next pickup (on the lot, both keys, ownership papers) and accepts offers an appraiser priced after the desk. Trucks and arrival times are Clutch's, so they aren't here.
-- **Results is also the first-dealer scorecard:** dollars above auction, days to get paid, staff time saved, and how often inspection changed the price, by month. Staff time assumes 1.5 hours of auction work per car, to confirm with the first dealer.
+- **Ready is a checklist, not a toggle.** Mark ready opens three checks: on the lot, both keys, ownership papers. The car is ready only when all three are ticked, so a stray click can't put it on the truck, and a half-done check is saved and shown ("second key missing"). The same reasoning as the inspector's "never on one tap": a wrong Ready sends a truck for nothing.
+- **"Is it worth it?" doubles as the first-dealer scorecard.** Staff time assumes 1.5 hours of auction work per car, to confirm with the first dealer.
+- **Trucks and arrival times are Clutch's,** so they aren't here.
 
-**From Clutch:** the director's role (decides retail or wholesale, signs the contract) and the dashboard feedback, both from the whiteboard session.
+**From Clutch:** the director's role (decides retail or wholesale, signs the contract), the two needs and the dashboard feedback, all from the whiteboard session.
 
 ::screen[back-office/B2]
 
-**Also tried:** [A · table first](https://redline-storybook.vercel.app/?path=/story/screens-back-office--a) (dense, closer to Maria's job than Dave's), [B · Needs you inbox](https://redline-storybook.vercel.app/?path=/story/screens-back-office--b) (the base for B2) and [C · pipeline board](https://redline-storybook.vercel.app/?path=/story/screens-back-office--c) (shows the flow, doesn't help him decide anything).
+**Also tried:** [A · table first](https://redline-storybook.vercel.app/?path=/story/screens-back-office--a) (dense, closer to Maria's job than Dave's), [B · Needs you inbox](https://redline-storybook.vercel.app/?path=/story/screens-back-office--b) (the base for B2, both people on one page) and [C · pipeline board](https://redline-storybook.vercel.app/?path=/story/screens-back-office--c) (shows the flow, doesn't help him decide anything).
 
 ## 3. Clutch ops · Jordan
 

@@ -3,6 +3,8 @@ import type { PersonaId } from '../domain/personas';
 /** What the shell shows: the Behind-the-build area, or one person's module. */
 export type View = 'behind' | PersonaId;
 export type BehindTab = 'car-journey' | 'docs';
+/** Back office's two homes: Dave's Overview and Maria's Pickups. */
+export type BackOfficeTab = 'overview' | 'pickups';
 
 /** Label of the documents tab (rendered by DocsViewer). Storybook titles can't import it, so
  *  `src/stories/behind/Docs.stories.tsx` and `.storybook/preview.tsx` repeat it as a literal. */

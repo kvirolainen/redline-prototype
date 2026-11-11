@@ -35,6 +35,18 @@ export interface Reprice {
   auctionAsFound: number;
 }
 
+/** The sales manager's pickup check, in the order it's ticked. */
+export const READY_CHECKS = [
+  { id: 'lot', label: 'On the lot', missing: 'not on the lot yet' },
+  { id: 'keys', label: 'Both keys', missing: 'second key missing' },
+  { id: 'papers', label: 'Ownership papers', missing: 'ownership papers missing' },
+] as const;
+export type ReadyCheck = (typeof READY_CHECKS)[number]['id'];
+
+/** What's ticked: everything when ready, otherwise the saved partial check. */
+export const checksOf = (c: { ready?: boolean; readyChecks?: string[] }): ReadyCheck[] =>
+  c.ready ? READY_CHECKS.map((r) => r.id) : READY_CHECKS.map((r) => r.id).filter((id) => c.readyChecks?.includes(id));
+
 export interface BackOfficeCar {
   vin: string;
   car: string;
@@ -52,6 +64,8 @@ export interface BackOfficeCar {
   note?: string;
   /** Pickup-day readiness, ticked by the sales manager: on the lot, both keys, ownership papers. */
   ready?: boolean;
+  /** Which of the three checks are ticked while the car isn't fully ready. */
+  readyChecks?: ReadyCheck[];
   /** Priced by a Clutch appraiser after the desk (high km, branded title), not instantly. */
   fromReview?: boolean;
   reprice?: Reprice;
@@ -161,6 +175,7 @@ export const BACK_OFFICE_CARS: BackOfficeCar[] = [
     repriced: false,
     note: 'Second key missing',
     ready: false,
+    readyChecks: ['lot', 'papers'],
     events: [
       { at: 'Tue Nov 10, 16:02', who: 'Maria', text: 'Offer made: $13,900, beats auction by $1,200', kind: 'offer' },
       { at: 'Tue Nov 10, 16:05', who: 'Maria', text: 'Accepted. Joined Thursday’s pickup, Thu Nov 12', kind: 'accept' },
@@ -192,6 +207,7 @@ export const BACK_OFFICE_CARS: BackOfficeCar[] = [
     status: 'awaiting_pickup',
     pickup: NEXT_PICKUP,
     ready: false,
+    readyChecks: ['lot', 'papers'],
     inspected: false,
     repriced: false,
     events: [

@@ -65,13 +65,26 @@ export const C: Story = {
 };
 
 export const B2: Story = {
-  name: 'B2 · Decide and track',
+  name: 'B2 · Two homes · Overview (Dave)',
   render: () => <VariantB2 />,
   parameters: {
     docs: {
       description: {
         story:
-          "B refined for two people on one page. Dave drops in to decide: re-price, expiring offer, and which cars on the next pickup to keep for his own lot. Maria works the car list: a Ready tick per car on the next pickup, and accepting an offer the appraiser priced after the desk. Value is one line here; the full picture (by month, re-prices and why, staff time) sits in the Results tab.",
+          "B split into a home for each person. Overview is Dave's: Needs you holds only his decisions (a re-price from the lot, which cars on the next pickup to keep for his own lot), next to whether Redline is worth it (above auction, days to cash, staff time, re-prices, by month).",
+      },
+    },
+  },
+};
+
+export const B2Pickups: Story = {
+  name: 'B2 · Two homes · Pickups (Maria)',
+  render: () => <VariantB2 initialTab="pickups" />,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Pickups is Maria's: the cars by pickup, opening on the next one. Mark ready opens three checks (on the lot, both keys, ownership papers) and a half-done check shows what's missing. Open offers: refresh an expiring one, accept one an appraiser priced after the desk.",
       },
     },
   },

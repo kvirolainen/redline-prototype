@@ -27,4 +27,4 @@ Who should be the first Redline dealer, and can public data find them?
 1. **Start with Clutch's own data.** The Dealer & Wholesale team works these auctions every week: rank the GTA dealers it sees selling the most.
 2. **Call 10 used-car managers** with three questions: trade-ins to auction a month, net per car after fees, days until paid.
 3. **Price against Canadian Black Book wholesale by VIN**, so Back office's "above auction" is a real number.
-4. **Agree on the scorecard before the first deal:** dollars above auction, re-price rate, days to cash. Back office's Results tab already tracks them.
+4. **Agree on the scorecard before the first deal:** dollars above auction, re-price rate, days to cash. Back office's Overview already tracks them.
