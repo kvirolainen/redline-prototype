@@ -13,6 +13,8 @@ const config: StorybookConfig = {
     "@storybook/addon-mcp"
   ],
   "framework": "@storybook/react-vite",
+  // Previews are opened through a temporary public tunnel on *.trycloudflare.com.
+  "core": { "allowedHosts": [".trycloudflare.com"] },
   // Previews are opened through a temporary public tunnel, so accept any host.
   async viteFinal(config) {
     config.server = { ...config.server, allowedHosts: true };
