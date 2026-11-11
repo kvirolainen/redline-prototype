@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { InspectorVariantA } from '../../modules/inspector/VariantA';
 import { InspectorVariantB } from '../../modules/inspector/VariantB';
 import { InspectorVariantC } from '../../modules/inspector/VariantC';
+import { InspectorVariantC2 } from '../../modules/inspector/VariantC2';
 
 // Sam, Clutch inspector, on a phone in a dealer's lot. Thursday run, three dealers, six cars.
 // The 2019 Honda Civic EX is the mismatch (cracked windshield + repainted rear bumper → $16,950);
@@ -61,6 +62,19 @@ export const C: Story = {
       description: {
         story:
           'Checks grouped into five areas, each collapsed with one "All match" tap; only an area with a difference opens for detail and a photo. Fastest for the common clean car (5 taps); relies on the inspector really walking each area.',
+      },
+    },
+  },
+};
+
+export const C2: Story = {
+  name: 'C2 · Exceptions + wait on Dave',
+  render: () => <InspectorVariantC2 />,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "C's collapsed areas, plus the run as a list of stops, VIN and odometer photos before identity can match, and a re-price that doesn't hold up the truck: Sam moves on to the CX-5 while Dave decides, and the answer comes back on the run screen. Trade-off: two cars can be open at once, so the run screen has to keep the waiting one in view.",
       },
     },
   },
