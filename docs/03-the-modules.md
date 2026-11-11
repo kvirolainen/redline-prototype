@@ -11,6 +11,8 @@ One car, four people. Each module is built around one person's job. The design c
 
 The look and components follow Clutch's own product (colours, type, pill controls, black selected states, pale-yellow notes). They're collected in Storybook under [Foundations](https://redline-storybook.vercel.app/?path=/story/foundations-brand--colours). Each module below notes what it takes from Clutch's existing screens.
 
+The three desk modules open the same way: the page title, a grey line under it with the dealer and next pickup, and tabs on the right when the module has more than one page. They share one content width, so switching people doesn't move the page. Anything that needs someone gets a yellow stripe down its left edge and a yellow label pill. The inspector keeps its own phone header.
+
 ## 1. Trade-in · Maria
 
 _Sales manager · laptop at the sales desk · the customer looks at the same screen_

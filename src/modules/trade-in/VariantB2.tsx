@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Button } from '../../components/ui/Button';
+import { PAGE, PageHeader, SectionHeading } from '../../components/ui/Page';
 import { SegmentedProgress } from '../../components/ui/Stepper';
 import { money } from '../../domain/format';
 import { carName, DEALER, kmLabel, reference } from './fixtures';
@@ -121,15 +122,17 @@ export function TradeInVariantB2({ onOpenBackOffice }: { onOpenBackOffice?: () =
   if (t.outcome && t.quote)
     return (
       <div className="min-h-screen bg-canvas">
-        <Header />
+        <div className={`${PAGE} pt-8`}>
+          <Header />
+        </div>
         <Done t={t} q={t.quote} onOpenBackOffice={onOpenBackOffice} />
       </div>
     );
 
   return (
     <div className="flex min-h-screen flex-col bg-canvas">
-      <Header />
-      <div className="mx-auto w-full max-w-[1400px] space-y-4 px-6 py-4 min-[1400px]:space-y-5 min-[1400px]:px-8 min-[1400px]:py-5 [@media(max-height:940px)]:space-y-3 [@media(max-height:940px)]:py-3">
+      <div className={`${PAGE} space-y-4 pt-8 pb-6 min-[1400px]:space-y-5 [@media(max-height:940px)]:space-y-3 [@media(max-height:940px)]:pb-4`}>
+        <Header />
         {/* The car and its price, across the top: where both people look first. */}
         <div className="grid grid-cols-[1fr_450px] rounded-panel border border-line bg-white min-[1400px]:grid-cols-[1fr_480px]">
           <CarRow t={t} />
@@ -139,7 +142,7 @@ export function TradeInVariantB2({ onOpenBackOffice }: { onOpenBackOffice?: () =
         <div className="grid grid-cols-2 divide-x divide-line-light rounded-panel border border-line bg-white">
           {COLUMNS.map((c) => (
             <section key={c.title} className="px-8 pt-4 pb-5 min-[1400px]:px-10 min-[1400px]:pt-6 min-[1400px]:pb-7 [@media(max-height:940px)]:pt-4 [@media(max-height:940px)]:pb-5">
-              <h2 className="text-caption font-bold tracking-wide text-muted uppercase">{c.title}</h2>
+              <SectionHeading>{c.title}</SectionHeading>
               <div className="mt-3 space-y-5 min-[1400px]:mt-4 min-[1400px]:space-y-6 [@media(max-height:940px)]:mt-3 [@media(max-height:940px)]:space-y-3.5">
                 {c.rows.map((ids) => (
                   <Line key={ids.join()} ids={ids} t={t} />
@@ -153,16 +156,18 @@ export function TradeInVariantB2({ onOpenBackOffice }: { onOpenBackOffice?: () =
   );
 }
 
-/** Slim title bar; the app shell above it already says who is viewing. */
+/** The shared page header; the app shell above it already says who is viewing. */
 function Header() {
   const { dates: DATES } = useTradeInEnv();
   return (
-    <header className="flex h-12 items-center justify-between border-b border-line bg-white px-8">
-      <h1 className="text-base font-bold text-ink">New trade-in</h1>
-      <span className="text-sm text-muted">
-        {DEALER.name} · next pickup <span className="font-medium text-ink">{DATES.pickup}</span>
-      </span>
-    </header>
+    <PageHeader
+      title="New trade-in"
+      context={
+        <>
+          {DEALER.name} · next pickup <span className="font-medium text-ink">{DATES.pickup}</span>
+        </>
+      }
+    />
   );
 }
 

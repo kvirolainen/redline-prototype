@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { PAGE, SectionHeading, SegmentedTabs } from '../../components/ui/Page';
+import { ATTENTION_EDGE, Tag } from '../../components/ui/Tag';
 import { StatusChip } from '../../components/ui/StatusChip';
 import { Button } from '../../components/ui/Button';
 import { money } from '../../domain/format';
@@ -17,8 +19,8 @@ export function VariantD() {
   const [tab, setTab] = useState<Tab>('dealers');
 
   return (
-    <div className="min-h-screen bg-canvas px-4 py-8 sm:px-6 lg:px-10">
-      <div className="mx-auto max-w-[1200px]">
+    <div className="min-h-screen bg-canvas py-8">
+      <div className={PAGE}>
         <ModuleHeader title={tab === 'dealers' ? 'Dealers' : 'Planning'} right={<Tabs tab={tab} onChange={setTab} />} />
         {tab === 'dealers' ? (
           <>
@@ -35,25 +37,15 @@ export function VariantD() {
 }
 
 function Tabs({ tab, onChange }: { tab: Tab; onChange: (t: Tab) => void }) {
-  const items: [Tab, string][] = [
-    ['dealers', 'Dealers'],
-    ['planning', 'Planning'],
-  ];
   return (
-    <div role="tablist" className="inline-flex rounded-pill border border-line bg-white p-1">
-      {items.map(([id, label]) => (
-        <button
-          key={id}
-          type="button"
-          role="tab"
-          aria-selected={tab === id}
-          onClick={() => onChange(id)}
-          className={`h-8 rounded-pill px-4 text-sm font-medium transition-colors ${tab === id ? 'bg-ink text-white' : 'text-body hover:text-ink'}`}
-        >
-          {label}
-        </button>
-      ))}
-    </div>
+    <SegmentedTabs
+      items={[
+        ['dealers', 'Dealers'],
+        ['planning', 'Planning'],
+      ]}
+      value={tab}
+      onChange={onChange}
+    />
   );
 }
 
@@ -105,10 +97,10 @@ function LiveRow({ board, l }: { board: DealerBoard; l: LiveReprice }) {
           <span>
             Waiting on <span className="font-bold">{l.director}</span>
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-pill bg-nudge px-2.5 py-0.5 text-caption font-medium tabular-nums">
+          <Tag className="tabular-nums">
             <span className="size-1.5 animate-pulse rounded-full bg-warning" />
             {waited} min
-          </span>
+          </Tag>
         </p>
         <div className="mt-2 h-1 overflow-hidden rounded-full bg-line-light" aria-hidden>
           <div className="h-full rounded-full bg-warning" style={{ width: `${Math.min(100, (waited / span) * 100)}%` }} />
@@ -155,12 +147,9 @@ function DealerTable({ board }: { board: DealerBoard }) {
   const attention = board.rows.filter((r) => r.flags.length).length;
   return (
     <section className="mt-6">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <h2 className="text-title font-bold text-ink">This week</h2>
-        <p className="text-caption text-muted">
-          {attention ? `${attention} of ${board.rows.length} dealers need a nudge · listed first` : 'Every dealer is on track'} · health over 90 days
-        </p>
-      </div>
+      <SectionHeading aside={`${attention ? `${attention} of ${board.rows.length} dealers need a nudge · listed first` : 'Every dealer is on track'} · health over 90 days`}>
+        This week
+      </SectionHeading>
       <div className="mt-3 overflow-hidden rounded-panel border border-line bg-white">
         <div className={`hidden border-b border-line px-5 py-3 text-caption font-medium text-muted lg:grid lg:gap-4 ${COLS}`}>
           <span>Dealer</span>
@@ -195,7 +184,7 @@ function DealerRowView({ board, row, open, onToggle }: { board: DealerBoard; row
   // The live re-price already leads the page in "On the lot now"; the row only carries week-level items.
   const weekFlags = row.flags.filter((f) => f.kind !== 'live');
   return (
-    <div className={`border-b border-line last:border-b-0 ${row.flags.length ? 'shadow-[inset_3px_0_0_0_var(--color-warning)]' : ''}`}>
+    <div className={`border-b border-line last:border-b-0 ${row.flags.length ? ATTENTION_EDGE : ''}`}>
       <div
         role="button"
         tabIndex={0}
@@ -343,9 +332,9 @@ function FlagLine({ board, row, f }: { board: DealerBoard; row: DealerRow; f: De
     <li className="flex flex-col gap-2 rounded-card border border-line-light bg-white px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0">
         <p className="text-sm text-ink">
-          <span className={`mr-2 inline-block rounded-pill px-2 py-0.5 text-caption font-medium ${f.kind === 'live' ? 'bg-ink text-white' : 'bg-nudge text-ink'}`}>
+          <Tag tone={f.kind === 'live' ? 'dark' : 'attention'} className="mr-2">
             {flagTag[f.kind]}
-          </span>
+          </Tag>
           {f.title}
         </p>
         <p className="mt-0.5 text-caption text-muted">

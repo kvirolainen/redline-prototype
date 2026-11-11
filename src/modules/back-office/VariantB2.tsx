@@ -1,6 +1,8 @@
 import { useState, type ReactNode } from 'react';
 import { Button } from '../../components/ui/Button';
+import { PAGE, PageHeader, SectionHeading, SegmentedTabs } from '../../components/ui/Page';
 import { StatusChip } from '../../components/ui/StatusChip';
+import { ATTENTION_EDGE } from '../../components/ui/Tag';
 import { money } from '../../domain/format';
 import { AUCTION_HOURS_PER_CAR, MONTHS, type BackOfficeCar } from './fixtures';
 import { km } from './format';
@@ -14,21 +16,15 @@ import { AUCTION_DAYS_TO_CASH, computeStats, useBackOffice, useBackOfficeEnv, ty
 type Tab = 'today' | 'results';
 
 function Tabs({ tab, onChange }: { tab: Tab; onChange: (t: Tab) => void }) {
-  const item = (t: Tab, label: string) => (
-    <button
-      type="button"
-      onClick={() => onChange(t)}
-      aria-pressed={tab === t}
-      className={`h-9 rounded-pill px-4 text-sm font-medium ${tab === t ? 'bg-ink text-white' : 'text-body hover:bg-canvas'}`}
-    >
-      {label}
-    </button>
-  );
   return (
-    <div className="flex gap-1 rounded-pill border border-line bg-white p-1">
-      {item('today', 'Cars')}
-      {item('results', 'Results')}
-    </div>
+    <SegmentedTabs
+      items={[
+        ['today', 'Cars'],
+        ['results', 'Results'],
+      ]}
+      value={tab}
+      onChange={onChange}
+    />
   );
 }
 
@@ -60,7 +56,7 @@ function ValueLine({ office, onMore }: { office: BackOffice; onMore: () => void 
 
 function Card({ label, title, onTimeline, done, children }: { label: string; title: string; onTimeline?: () => void; done?: boolean; children: ReactNode }) {
   return (
-    <article className={`rounded-card border bg-white p-5 ${done ? 'border-line' : 'border-warning'}`}>
+    <article className={`rounded-card border border-line bg-white p-5 ${done ? '' : ATTENTION_EDGE}`}>
       <div className="mb-3 flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-caption font-medium text-muted">{done ? 'Done' : label}</p>
@@ -129,10 +125,9 @@ function NeedsYou({ office, onOpen }: { office: BackOffice; onOpen: (vin: string
   const anyReprice = office.needsYou.some((c) => c.status === 'reprice_pending');
   return (
     <section aria-label="Needs you">
-      <h2 className="mb-3 flex items-center gap-2 text-title font-bold text-ink">
+      <SectionHeading count={pending} className="mb-3">
         Needs you
-        {pending > 0 && <span className="grid h-6 min-w-6 place-items-center rounded-pill bg-ink px-2 text-caption font-bold text-white">{pending}</span>}
-      </h2>
+      </SectionHeading>
       <div className="space-y-4">
         {inbox.map((vin) => {
           const car = office.cars.find((c) => c.vin === vin)!;
@@ -235,7 +230,7 @@ function CarGroups({ office, onOpen }: { office: BackOffice; onOpen: (vin: strin
   ];
   return (
     <section aria-label="Cars" className="min-w-0">
-      <h2 className="mb-3 text-title font-bold text-ink">Cars</h2>
+      <SectionHeading className="mb-3">Cars</SectionHeading>
       <div className="space-y-5">
         {groups.map((g) =>
           g.cars.length ? (
@@ -352,7 +347,7 @@ function Results({ office }: { office: BackOffice }) {
 
 /** B2 · Decide and track: Dave's decisions on the left, the cars by pickup on the right, results in a tab. */
 export function VariantB2() {
-  const { dealer: DEALER, today: TODAY } = useBackOfficeEnv();
+  const { dealer: DEALER, nextPickup: NEXT_PICKUP } = useBackOfficeEnv();
   const office = useBackOffice();
   const [tab, setTab] = useState<Tab>('today');
   const [open, setOpen] = useState<string | null>(null);
@@ -360,16 +355,16 @@ export function VariantB2() {
 
   return (
     <div className="min-h-screen bg-canvas">
-      <div className="mx-auto max-w-[1240px] px-8 py-8">
-        <header className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h1 className="text-h4 font-bold text-ink">Cars sold to Clutch</h1>
-            <p className="mt-1 text-sm text-muted">
-              {DEALER} · {TODAY}
-            </p>
-          </div>
-          <Tabs tab={tab} onChange={setTab} />
-        </header>
+      <div className={`${PAGE} py-8`}>
+        <PageHeader
+          title="Cars sold to Clutch"
+          context={
+            <>
+              {DEALER} · next pickup <span className="font-medium text-ink">{NEXT_PICKUP}</span>
+            </>
+          }
+          right={<Tabs tab={tab} onChange={setTab} />}
+        />
 
         {tab === 'today' ? (
           <>

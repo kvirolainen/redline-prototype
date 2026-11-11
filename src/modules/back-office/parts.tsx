@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Button } from '../../components/ui/Button';
 import { StatusChip } from '../../components/ui/StatusChip';
+import { ATTENTION_EDGE, Tag } from '../../components/ui/Tag';
 import { money } from '../../domain/format';
 import { STATUS } from '../../domain/statuses';
 import type { BackOfficeCar, CarEvent, EventKind } from './fixtures';
@@ -194,7 +195,7 @@ export function ExpiryTag({ car }: { car: BackOfficeCar }) {
   const { today } = useBackOfficeEnv();
   if (car.status !== 'offered' || !car.expires) return null;
   return car.expiresSoon ? (
-    <span className="inline-flex h-6 items-center rounded-pill border border-warning bg-nudge px-2.5 text-caption font-medium text-ink">{car.expires === today ? 'Expires today' : 'Expires tomorrow'}</span>
+    <Tag>{car.expires === today ? 'Expires today' : 'Expires tomorrow'}</Tag>
   ) : (
     <span className="text-caption text-muted">Holds until {car.expires}</span>
   );
@@ -267,13 +268,13 @@ export function CarDetail({ car, office }: { car: BackOfficeCar; office: BackOff
       </dl>
 
       {car.status === 'reprice_pending' && (
-        <section className="mt-5 rounded-card border border-warning bg-white p-4">
+        <section className={`mt-5 rounded-card border border-line bg-white p-4 ${ATTENTION_EDGE}`}>
           <h3 className="mb-3 text-base font-bold text-ink">Re-price waiting on you</h3>
           <RepriceDecision car={car} onAccept={() => office.acceptReprice(car.vin)} onDecline={() => office.declineReprice(car.vin)} />
         </section>
       )}
       {car.status === 'offered' && car.expiresSoon && (
-        <section className="mt-5 rounded-card border border-warning bg-white p-4">
+        <section className={`mt-5 rounded-card border border-line bg-white p-4 ${ATTENTION_EDGE}`}>
           <h3 className="mb-2 text-base font-bold text-ink">{expiryLabel(car)}</h3>
           <ExpiringOffer car={car} onRefresh={() => office.refreshOffer(car.vin)} />
         </section>

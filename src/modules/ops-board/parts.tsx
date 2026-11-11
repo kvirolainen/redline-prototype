@@ -1,6 +1,8 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { StatusChip } from '../../components/ui/StatusChip';
 import { Button } from '../../components/ui/Button';
+import { PageHeader } from '../../components/ui/Page';
+import { Tag } from '../../components/ui/Tag';
 import { money } from '../../domain/format';
 import { STATUS, type StatusTone } from '../../domain/statuses';
 import { DAYS, INSPECTORS, type OpsCar, type Route } from './fixtures';
@@ -9,17 +11,10 @@ import { day, dealer, futureDays, inspectorName, type OpsBoard, type OpsExceptio
 
 // Parts shared by the three ops board variants.
 
+/** The shared page header; the context line counts the dealers on weekly pickup. The time sits in the app header. */
 export function ModuleHeader({ title, right }: { title: string; right?: ReactNode }) {
-  const { nowLabel } = useOpsEnv();
-  return (
-    <header className="flex flex-wrap items-end justify-between gap-4">
-      <div>
-        <p className="text-sm text-muted">{nowLabel}</p>
-        <h1 className="mt-1 text-h4 font-bold text-ink">{title}</h1>
-      </div>
-      {right}
-    </header>
-  );
+  const { dealers } = useOpsEnv();
+  return <PageHeader title={title} context={`${dealers.length} dealers · one pickup day a week each`} right={right} />;
 }
 
 const toneDot: Record<StatusTone, string> = {
@@ -193,9 +188,9 @@ export function ExceptionCard({ board, e, compact }: { board: OpsBoard; e: OpsEx
           <h3 className="mt-1 text-base font-bold text-ink">{e.title}</h3>
           <p className="text-sm text-ink">{e.subject}</p>
         </div>
-        <span className={`shrink-0 rounded-pill px-2.5 py-1 text-caption font-medium whitespace-nowrap ${e.kind === 'reprice' || e.kind === 'unassigned' ? 'bg-nudge text-ink' : 'bg-line-light text-body'}`}>
+        <Tag tone={e.kind === 'reprice' || e.kind === 'unassigned' ? 'attention' : 'neutral'} className="shrink-0">
           {e.age}
-        </span>
+        </Tag>
       </div>
       {!compact && <p className="mt-2 text-sm text-muted">{e.detail}</p>}
       {compact && e.kind === 'reprice' && car?.newPrice && (
