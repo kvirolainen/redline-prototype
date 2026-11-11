@@ -204,11 +204,17 @@ export function ExpiryTag({ car }: { car: BackOfficeCar }) {
 export function DecidedNote({ car }: { car: BackOfficeCar }) {
   const { dealer: DEALER } = useBackOfficeEnv();
   const text =
-    car.status === 'confirmed'
+    car.status === 'confirmed' || car.status === 'picked_up'
       ? `Accepted at ${money(car.offer)}. Sam loads it today; payment within 2 business days.`
-      : car.status === 'declined'
-        ? `Declined. The car stays with ${DEALER}.`
-        : `Refreshed. ${money(car.offer)} holds until ${car.expires}.`;
+      : car.status === 'paid'
+        ? `Paid ${money(car.offer)} to ${DEALER}.`
+        : car.status === 'declined'
+          ? `Declined. The car stays with ${DEALER}.`
+          : car.status === 'expired'
+            ? 'The offer ran out. Refresh it from the car’s timeline.'
+            : car.status === 'awaiting_pickup'
+              ? `Accepted at ${money(car.offer)}. Joined the ${car.pickup} pickup.`
+              : `Refreshed. ${money(car.offer)} holds until ${car.expires}.`;
   return (
     <div className="flex items-start gap-3">
       <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-success" aria-hidden>

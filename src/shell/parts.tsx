@@ -5,6 +5,8 @@ import { Button } from '../components/ui/Button';
 import { clockAmPm, shortDate } from '../domain/calendar';
 import { MODULES, persona, type ModuleId, type PersonaId } from '../domain/personas';
 import { BackOfficeLive } from '../live/BackOfficeLive';
+import { InspectorLive } from '../live/InspectorLive';
+import { OpsLive } from '../live/OpsLive';
 import { TradeInLive } from '../live/TradeInLive';
 import { useDemoNow, useHasBackend, useWorld, WorldProvider } from '../live/world';
 import { VariantB2 as BackOfficeB2 } from '../modules/back-office/VariantB2';
@@ -39,7 +41,8 @@ function PickedScreen({ module, onSwitch }: { module: ModuleId; onSwitch: (id: P
 function Live({ module, children }: { module: ModuleId; children: ReactNode }) {
   if (module === 'trade-in') return <TradeInLive>{children}</TradeInLive>;
   if (module === 'back-office') return <BackOfficeLive>{children}</BackOfficeLive>;
-  return <>{children}</>;
+  if (module === 'ops-board') return <OpsLive>{children}</OpsLive>;
+  return <InspectorLive>{children}</InspectorLive>;
 }
 
 /** One person's module: live in the app, on fixtures in Storybook. */

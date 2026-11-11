@@ -118,8 +118,12 @@ function KeepOrSend({ office, onOpen }: { office: BackOffice; onOpen: (vin: stri
 }
 
 function NeedsYou({ office, onOpen }: { office: BackOffice; onOpen: (vin: string) => void }) {
-  // Cards stay after a decision, showing what happened, until the page is left.
-  const [inbox] = useState(() => office.needsYou.map((c) => c.vin));
+  // Cards stay after a decision, showing what happened, until the page is left. New ones (a re-price sent from the
+  // lot while the page is open) join at the top.
+  const [seen, setSeen] = useState(() => office.needsYou.map((c) => c.vin));
+  const fresh = office.needsYou.map((c) => c.vin).filter((v) => !seen.includes(v));
+  if (fresh.length) setSeen([...fresh, ...seen]);
+  const inbox = fresh.length ? [...fresh, ...seen] : seen;
   const pending = office.needsYou.length;
   const anyReprice = office.needsYou.some((c) => c.status === 'reprice_pending');
   return (
@@ -202,6 +206,11 @@ function CarRow({ car, office, onOpen, mode }: { car: BackOfficeCar; office: Bac
           </Button>
         )}
         {mode === 'offer' && car.status === 'offered' && !car.fromReview && <ExpiryTag car={car} />}
+        {mode === 'offer' && car.status === 'expired' && (
+          <Button variant="dark-small" onClick={() => office.refreshOffer(car.vin)}>
+            Refresh offer
+          </Button>
+        )}
         {mode === 'status' && <StatusChip status={car.status} />}
       </span>
       <span className="text-subtle" aria-hidden>
@@ -219,7 +228,7 @@ function CarGroups({ office, onOpen }: { office: BackOffice; onOpen: (vin: strin
   const groups: { title: string; hint?: string; cars: BackOfficeCar[]; mode: 'ready' | 'offer' | 'status' }[] = [
     { title: `Next pickup · ${NEXT_PICKUP}`, hint: `${readyCount} of ${going} ready`, cars: next, mode: 'ready' },
     { title: `Today’s pickup · ${TODAY}`, cars: office.cars.filter((c) => c.pickup === TODAY && c.status !== 'declined'), mode: 'status' },
-    { title: 'Open offers', hint: 'not accepted yet', cars: office.cars.filter((c) => c.status === 'offered' || c.status === 'appraising'), mode: 'offer' },
+    { title: 'Open offers', hint: 'not accepted yet', cars: office.cars.filter((c) => c.status === 'offered' || c.status === 'appraising' || c.status === 'expired'), mode: 'offer' },
     { title: 'Paid', cars: office.cars.filter((c) => c.status === 'paid'), mode: 'status' },
     { title: 'Stayed with you', cars: office.cars.filter((c) => c.status === 'declined' || (c.status === 'kept' && c.pickup !== NEXT_PICKUP)), mode: 'status' },
   ];
