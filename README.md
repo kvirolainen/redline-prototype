@@ -7,14 +7,15 @@ inspector confirms or re-prices it at pickup, and the dealership is paid.
 > Work in progress. Live link and demo path will be added here.
 
 ## Docs
-- [Concept](docs/01-concept.md): business context, users, the end state, and the slice this prototype covers
+- [Concept](docs/01-concept.md): the problem, what we learned in the room, and what this prototype builds
 - [Desk or online?](docs/02-desk-or-online.md): where the trade-in happens
-- [The app](docs/03-the-app.md): the screens and who uses each
-- [Clutch's look](docs/04-clutchs-look.md): the visual language the screens follow
-- [Prototypes](docs/05-prototypes.md): design variants and the picks
-- [Architecture](docs/06-architecture.md): the system, simplified
-- [Test report](docs/07-test-report.md): what was tested and what changed
-- [Decisions](docs/decisions.md): running log of decisions and why
+- [The modules](docs/03-the-modules.md): who each module is for, what matters to them, and the design calls
+- [Architecture](docs/04-architecture.md): the system, what's faked on purpose, how it was tested
+
+More:
+- [Demo](docs/demo.md): the path through all four modules, step by step
+- [Process](docs/process.md): how it was made, from the whiteboard to a live app
+- [Dealer research](docs/dealer-research.md): who to sign as the first dealer
 
 ## Run locally
 Requires Node 22 (`.nvmrc`).

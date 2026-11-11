@@ -91,7 +91,7 @@ function DocPanel({ id }: { id: DocId }) {
   );
 }
 
-/** One entry in the list: its number in the process (none for the appendix), label, and "soon" while empty. */
+/** One entry in the list: its number (none below the line), label, and "soon" while empty. */
 function DocLink({ doc, active, onPick }: { doc: Doc; active: boolean; onPick: (id: DocId) => void }) {
   const empty = isEmpty(doc.body);
   return (
@@ -118,7 +118,7 @@ interface Props {
   onSelect?: (id: DocId) => void;
 }
 
-/** Docs: the repo's documents in process order, numbered, with the decisions log as an appendix.
+/** Docs: the four main documents, numbered, then the extras under "More".
  *  The list sits on the left (on top below 1024px). */
 export function DocsViewer({ initial = 'concept', selected, onSelect }: Props) {
   const [own, setOwn] = useState<DocId>(initial);
@@ -132,11 +132,16 @@ export function DocsViewer({ initial = 'concept', selected, onSelect }: Props) {
       <nav className="border-b border-line bg-white px-6 py-4 lg:border-r lg:border-b-0 lg:px-3 lg:py-8" aria-label={DOCS_TAB_LABEL}>
         <p className="hidden px-3 text-caption font-bold tracking-wide text-muted uppercase lg:block">{DOCS_TAB_LABEL}</p>
         <ul className="flex flex-wrap gap-1 lg:mt-3 lg:block lg:space-y-1">
-          {DOCS.map((d) => (
-            <li key={d.id} className={d.n === undefined ? 'lg:mt-4 lg:border-t lg:border-line-light lg:pt-4' : undefined}>
-              <DocLink doc={d} active={d.id === current} onPick={pick} />
-            </li>
-          ))}
+          {DOCS.map((d, i) => {
+            // The first doc without a number starts the "More" group below the line.
+            const firstExtra = d.n === undefined && DOCS[i - 1]?.n !== undefined;
+            return (
+              <li key={d.id} className={firstExtra ? 'lg:mt-4 lg:border-t lg:border-line-light lg:pt-4' : undefined}>
+                {firstExtra && <p className="hidden px-3 pb-1 text-caption font-bold tracking-wide text-muted uppercase lg:block">More</p>}
+                <DocLink doc={d} active={d.id === current} onPick={pick} />
+              </li>
+            );
+          })}
         </ul>
       </nav>
       <div className="min-w-0 bg-white px-6 py-8 lg:px-12 lg:py-10">

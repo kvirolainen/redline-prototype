@@ -1,44 +1,31 @@
 import concept from '../../docs/01-concept.md?raw';
 import deskOrOnline from '../../docs/02-desk-or-online.md?raw';
-import theApp from '../../docs/03-the-app.md?raw';
-import clutchsLook from '../../docs/04-clutchs-look.md?raw';
-import prototypes from '../../docs/05-prototypes.md?raw';
-import architecture from '../../docs/06-architecture.md?raw';
-import testReport from '../../docs/07-test-report.md?raw';
-import dealerResearch from '../../docs/08-dealer-research.md?raw';
-import decisions from '../../docs/decisions.md?raw';
+import theModules from '../../docs/03-the-modules.md?raw';
+import architecture from '../../docs/04-architecture.md?raw';
+import demo from '../../docs/demo.md?raw';
+import process from '../../docs/process.md?raw';
+import dealerResearch from '../../docs/dealer-research.md?raw';
 
-export type DocId =
-  | 'concept'
-  | 'desk-or-online'
-  | 'the-app'
-  | 'clutchs-look'
-  | 'prototypes'
-  | 'architecture'
-  | 'test-report'
-  | 'dealer-research'
-  | 'decisions';
+export type DocId = 'concept' | 'desk-or-online' | 'modules' | 'architecture' | 'demo' | 'process' | 'dealer-research';
 
 export interface Doc {
   id: DocId;
   label: string;
   file: string;
   body: string;
-  /** Position in the process; the decisions log has none and sits at the end as an appendix. */
+  /** Position in the main reading order. Docs without one sit below the line, under "More". */
   n?: number;
 }
 
-/** The documents in reading order. The list is the process: each one is written at its step. */
+/** The documents in reading order: the four main ones, then the extras below the line. */
 export const DOCS: Doc[] = [
   { id: 'concept', n: 1, label: 'Concept', file: '01-concept.md', body: concept },
   { id: 'desk-or-online', n: 2, label: 'Desk or online?', file: '02-desk-or-online.md', body: deskOrOnline },
-  { id: 'the-app', n: 3, label: 'The app', file: '03-the-app.md', body: theApp },
-  { id: 'clutchs-look', n: 4, label: 'Clutch’s look', file: '04-clutchs-look.md', body: clutchsLook },
-  { id: 'prototypes', n: 5, label: 'Prototypes', file: '05-prototypes.md', body: prototypes },
-  { id: 'architecture', n: 6, label: 'Architecture', file: '06-architecture.md', body: architecture },
-  { id: 'test-report', n: 7, label: 'Test report', file: '07-test-report.md', body: testReport },
-  { id: 'dealer-research', n: 8, label: 'Dealer research', file: '08-dealer-research.md', body: dealerResearch },
-  { id: 'decisions', label: 'Decisions log', file: 'decisions.md', body: decisions },
+  { id: 'modules', n: 3, label: 'The modules', file: '03-the-modules.md', body: theModules },
+  { id: 'architecture', n: 4, label: 'Architecture', file: '04-architecture.md', body: architecture },
+  { id: 'demo', label: 'Demo', file: 'demo.md', body: demo },
+  { id: 'process', label: 'Process', file: 'process.md', body: process },
+  { id: 'dealer-research', label: 'Dealer research', file: 'dealer-research.md', body: dealerResearch },
 ];
 
 /** A doc is "empty" until it has more than its title and a placeholder line. */

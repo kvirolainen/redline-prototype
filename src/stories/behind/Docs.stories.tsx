@@ -15,13 +15,11 @@ type Story = StoryObj<typeof meta>;
 // One story per document in docs/, in reading order. Empty ones show "Coming next".
 export const Concept: Story = { args: { initial: 'concept' } };
 export const DeskOrOnline: Story = { name: 'Desk or online?', args: { initial: 'desk-or-online' } };
-export const TheApp: Story = { name: 'The app', args: { initial: 'the-app' } };
-export const ClutchsLook: Story = { name: 'Clutch’s look', args: { initial: 'clutchs-look' } };
-export const Prototypes: Story = { args: { initial: 'prototypes' } };
+export const TheModules: Story = { name: 'The modules', args: { initial: 'modules' } };
 export const Architecture: Story = { args: { initial: 'architecture' } };
-export const TestReport: Story = { name: 'Test report', args: { initial: 'test-report' } };
+export const Demo: Story = { args: { initial: 'demo' } };
+export const Process: Story = { args: { initial: 'process' } };
 export const DealerResearch: Story = { name: 'Dealer research', args: { initial: 'dealer-research' } };
-export const DecisionsLog: Story = { name: 'Decisions log', args: { initial: 'decisions' } };
 
 const DEMO = `# Embeds demo
 

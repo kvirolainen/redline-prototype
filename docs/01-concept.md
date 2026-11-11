@@ -25,3 +25,9 @@ From the whiteboard session with Clutch:
 ## The idea in one line
 
 At the desk, the sales manager gets Clutch's offer instead of haggling. Clutch picks the car up on the dealer's regular pickup day, checks it against what was declared and pays. If the check finds a difference, the car is re-priced and the director decides.
+
+## What this prototype builds
+
+- **One car's whole path, not one screen.** Redline lives in the hand-offs: a re-price at inspection, a car not ready on pickup day, the director's call. A single screen can't show those.
+- **A working app on a live backend, not click-through mockups.** Sam's re-price on his phone shows up on Dave's screen as it happens; that hand-off is the core of the demo.
+- **A person switcher instead of sign-in.** One click moves the reviewer to the next person in the story.
