@@ -60,6 +60,7 @@ export function TradeInLive({ children }: { children: ReactNode }) {
           auction: s.quote.auctionNet,
           declared: declared(s),
           review: s.mode === 'review-sent' ? s.reviewReasons : undefined,
+          demo: LIVE_DEMO_CARS.some((c) => c.vin === s.car.vin),
         });
         return null;
       } catch (e) {

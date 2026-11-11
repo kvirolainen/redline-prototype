@@ -82,7 +82,7 @@ const HINT: Partial<Record<QuestionId, string>> = {
   exterior: 'minor is under a golf ball',
 };
 
-/** Pale-yellow notes under an answer, after Clutch's own flow, worded for both people at the desk. */
+/** Notes on an answer (shown as a hover tip beside its label), after Clutch's own flow, worded for both people at the desk. */
 function noteFor(t: TradeIn, id: QuestionId): string | null {
   const picked = t.answers[id] ?? [];
   if (!t.car) return null;
@@ -208,6 +208,15 @@ function CarRow({ t }: { t: TradeIn }) {
             <span className="font-bold text-ink">{carName(t.car)}</span> · {t.car.colour} · {t.car.transmission}
           </p>
           {note && <span className="ml-auto shrink-0 rounded-card bg-nudge px-2.5 py-1 text-caption text-body">{note}</span>}
+          {FULL_QUESTIONS.some((q) => !t.answers[q.id]?.length) && (
+            <button
+              type="button"
+              onClick={t.fillDemo}
+              className={`${note ? '' : 'ml-auto'} shrink-0 text-caption text-muted underline hover:text-ink`}
+            >
+              Fill in demo answers
+            </button>
+          )}
         </div>
       ) : (
         <p className="mt-2 h-7 truncate text-caption leading-7 text-muted">
@@ -258,7 +267,7 @@ function Input({
         {/* Inside the field, so an error never adds a line and moves the questions below. */}
         {error && (
           <span className="ml-3 shrink-0 text-sm font-medium text-error" title={error}>
-            Not found, check it
+            {error.startsWith('We couldn') ? 'Not found, check it' : error.includes('already with Clutch') ? 'Already with Clutch' : 'Couldn’t save'}
           </span>
         )}
       </span>
@@ -266,22 +275,33 @@ function Input({
   );
 }
 
-function Note({ children }: { children: ReactNode }) {
-  return <p className="mt-2 rounded-card bg-nudge px-3 py-2 text-caption text-body min-[1400px]:text-sm">{children}</p>;
+/** A note on an answer: a small icon beside the label, the text on hover or focus, so nothing below moves. */
+function NoteTip({ text }: { text: string }) {
+  return (
+    <span className="group relative ml-1.5 inline-flex align-middle">
+      <button
+        type="button"
+        aria-label={text}
+        className="grid size-5 place-items-center rounded-full bg-nudge text-[12px] font-bold leading-none text-body ring-1 ring-black/10 outline-none focus-visible:ring-ink"
+      >
+        i
+      </button>
+      <span
+        role="tooltip"
+        className="pointer-events-none invisible absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 rounded-card bg-ink px-3 py-2 text-caption font-normal text-white opacity-0 shadow-lg transition-opacity group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100"
+      >
+        {text}
+      </span>
+    </span>
+  );
 }
 
 /** Label above, answers as pills below, one left edge for everything. Black = picked, as in Clutch's flow. */
 function Line({ ids, t }: { ids: QuestionId[]; t: TradeIn }) {
-  const notes = ids.map((id) => noteFor(t, id)).filter(Boolean) as string[];
   return (
-    <div>
-      <div className="grid grid-cols-2 gap-x-6">
-        {ids.map((id) => (
-          <Answer key={id} q={Q(id)} t={t} wide={ids.length === 1} />
-        ))}
-      </div>
-      {notes.map((n) => (
-        <Note key={n}>{n}</Note>
+    <div className="grid grid-cols-2 gap-x-6">
+      {ids.map((id) => (
+        <Answer key={id} q={Q(id)} t={t} wide={ids.length === 1} />
       ))}
     </div>
   );
@@ -289,12 +309,14 @@ function Line({ ids, t }: { ids: QuestionId[]; t: TradeIn }) {
 
 function Answer({ q, t, wide }: { q: Question; t: TradeIn; wide: boolean }) {
   const picked = t.answers[q.id] ?? [];
+  const note = noteFor(t, q.id);
   return (
     <fieldset id={`q-${q.id}`} className={`scroll-mt-24 rounded-card ${wide ? 'col-span-2' : ''}`}>
       <legend className="text-base font-medium text-ink">
         {LABEL[q.id] ?? q.label}
         {q.multi && <span className="font-normal text-subtle"> · all that apply</span>}
         {HINT[q.id] && <span className="font-normal text-subtle"> · {HINT[q.id]}</span>}
+        {note && <NoteTip text={note} />}
       </legend>
       <div className="mt-2 flex flex-wrap gap-2 [@media(max-height:940px)]:mt-1.5">
         {q.options.map((o) => {

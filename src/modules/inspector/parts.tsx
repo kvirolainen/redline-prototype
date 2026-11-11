@@ -5,6 +5,7 @@ import { money } from '../../domain/format';
 import { useInspectorEnv } from './env';
 import { NOT_READY_REASONS, type InspectionCar } from './fixtures';
 import type { Difference, Outcome } from './useRun';
+import { photoFor } from '../../domain/photos';
 
 /** A difference as the summary shows it: from the phone's own answers, or from the re-price as it was sent. */
 type DifferenceRow = Pick<Difference, 'declared' | 'finding' | 'note' | 'adjustment' | 'photos'> & { item: { id: string } };
@@ -86,21 +87,26 @@ export function CarLine({ car }: { car: InspectionCar }) {
   );
 }
 
-/** Photo placeholders: tapping "Take photo" adds a tile, as a camera would. */
+/** Tapping "Take photo" adds a tile, as a camera would: a real defect photo where the demo has one, else a placeholder. */
 export function PhotoStrip({ count, label, onAdd, required }: { count: number; label: string; onAdd: () => void; required?: boolean }) {
+  const src = photoFor(label);
   return (
     <div>
       <div className="flex flex-wrap gap-2">
-        {Array.from({ length: count }, (_, i) => (
-          <div key={i} className="grid h-20 w-24 place-items-center rounded-card border border-line bg-photo-bg text-center">
-            <div className="text-warm-grey">
-              <Icon name="camera" className="mx-auto size-5" />
-              <p className="mt-1 px-1 text-caption leading-tight">
-                {label} {i + 1}
-              </p>
+        {Array.from({ length: count }, (_, i) =>
+          src ? (
+            <img key={i} src={src} alt={`${label} ${i + 1}`} className="h-20 w-24 rounded-card border border-line object-cover" />
+          ) : (
+            <div key={i} className="grid h-20 w-24 place-items-center rounded-card border border-line bg-photo-bg text-center">
+              <div className="text-warm-grey">
+                <Icon name="camera" className="mx-auto size-5" />
+                <p className="mt-1 px-1 text-caption leading-tight">
+                  {label} {i + 1}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
+          ),
+        )}
         <button
           type="button"
           onClick={onAdd}

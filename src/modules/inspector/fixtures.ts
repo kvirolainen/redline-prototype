@@ -143,7 +143,7 @@ export const CARS: InspectionCar[] = [
     vin: '2HGFC2F69KH512345', km: 68400, keys: 2, offer: 17850, spot: 'Back row, spot 14',
     script: {
       glass: { finding: 0, note: 'Crack across the lower windshield, driver side, about 25 cm' },
-      body: { finding: 0, note: 'Rear bumper repainted, colour mismatch and overspray on the trim' },
+      body: { finding: 0, note: 'Rear wheel arch repainted, the new paint is lifting' },
     },
   },
   {

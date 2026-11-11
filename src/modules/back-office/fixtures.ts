@@ -100,9 +100,9 @@ export const BACK_OFFICE_CARS: BackOfficeCar[] = [
       auctionAsFound: 15600,
       items: [
         { label: 'Windshield', declared: 'No damage', found: 'Crack, about 20 cm, driver side', amount: -550 },
-        { label: 'Accident history', declared: 'No accidents, clean', found: 'Rear bumper repainted, overspray on trim', amount: -350 },
+        { label: 'Accident history', declared: 'No accidents, clean', found: 'Rear wheel arch repainted, paint lifting', amount: -350 },
       ],
-      photos: ['Windshield, driver side', 'Rear bumper, left corner'],
+      photos: ['Windshield, driver side', 'Rear wheel arch, left side'],
     },
     events: [
       { at: 'Mon Nov 9, 11:05', who: 'Maria', text: 'Offer made: $17,850, beats auction by $1,450', kind: 'offer' },

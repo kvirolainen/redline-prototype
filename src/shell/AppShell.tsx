@@ -11,6 +11,7 @@ import { MODULES, PERSONAS, persona, personaLine, type PersonaId } from '../doma
 import { BEHIND_TABS, DOCS_TAB_LABEL, type BackOfficeTab, type BehindTab, type View } from './views';
 import { DemoModule, EmptyWorld, WorldProvider } from './parts';
 import { useHasBackend } from '../live/world';
+import { ResetDemoMenuItem } from './ResetDemo';
 
 function Chevron() {
   return (
@@ -92,6 +93,7 @@ function ViewSwitcher({ view, onChange }: { view: View; onChange: (v: View) => v
             {PERSONAS.map((p) => item(p.id))}
             <div className="mx-2 my-2 border-t border-line-light" />
             {item('behind')}
+            <ResetDemoMenuItem />
           </div>
         </>
       )}

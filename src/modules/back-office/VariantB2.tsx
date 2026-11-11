@@ -60,6 +60,8 @@ function ReadyCheck({ car, office }: { car: BackOfficeCar; office: BackOffice })
   const saved = checksOf(car);
   const savedKey = saved.join();
   const [open, setOpen] = useState(false);
+  // Opens upward when the car sits near the bottom of the window and there's more room above.
+  const [up, setUp] = useState(false);
   const [ticks, setTicks] = useState<ReadyCheckId[]>(saved);
   const trigger = useRef<HTMLButtonElement>(null);
   const close = () => {
@@ -93,6 +95,8 @@ function ReadyCheck({ car, office }: { car: BackOfficeCar; office: BackOffice })
         type="button"
         onClick={() => {
           setTicks(saved);
+          const r = trigger.current?.getBoundingClientRect();
+          setUp(!!r && window.innerHeight - r.bottom < 360 && r.top > window.innerHeight - r.bottom);
           setOpen(!open);
         }}
         aria-expanded={open}
@@ -107,7 +111,7 @@ function ReadyCheck({ car, office }: { car: BackOfficeCar; office: BackOffice })
       {open && (
         <>
           <button type="button" aria-label="Close" tabIndex={-1} className="fixed inset-0 z-20 cursor-default" onClick={close} />
-          <div role="dialog" aria-label={`Ready check: ${car.car}`} className="absolute top-full right-0 z-30 mt-2 w-80 rounded-panel border border-line bg-white p-5 text-left shadow-overlay">
+          <div role="dialog" aria-label={`Ready check: ${car.car}`} className={`absolute right-0 z-30 w-80 ${up ? 'bottom-full mb-2' : 'top-full mt-2'} rounded-panel border border-line bg-white p-5 text-left shadow-overlay`}>
             <p className="text-base font-bold text-ink">Ready for {car.pickup}?</p>
             <p className="mt-0.5 truncate text-sm text-muted">{car.car}</p>
             <ul className="mt-3 space-y-1">

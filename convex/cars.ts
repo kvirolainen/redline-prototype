@@ -31,9 +31,11 @@ export const submitTradeIn = mutation({
     declared: v.record(v.string(), v.string()),
     /** Set when the car can't be priced instantly: why, for the appraiser. */
     review: v.optional(v.array(v.string())),
+    /** One of the listed demo cars: everyone shares one demo, so these can be entered again. */
+    demo: v.optional(v.boolean()),
   },
-  handler: async (ctx, a) => {
-    const open = (await ctx.db
+  handler: async (ctx, { demo, ...a }) => {
+    const open = demo ? undefined : (await ctx.db
       .query('cars')
       .withIndex('by_vin', (q) => q.eq('vin', a.vin))
       .collect()).find((c) => !CLOSED.includes(c.status));

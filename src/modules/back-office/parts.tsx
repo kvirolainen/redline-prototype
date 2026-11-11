@@ -7,6 +7,7 @@ import { STATUS } from '../../domain/statuses';
 import type { BackOfficeCar, CarEvent, EventKind } from './fixtures';
 import { km } from './format';
 import { AUCTION_DAYS_TO_CASH, useBackOfficeEnv, type BackOffice, type Stats } from './useBackOffice';
+import { photoFor } from '../../domain/photos';
 
 
 // ───────────────────────── Header ─────────────────────────
@@ -81,15 +82,22 @@ export function Timeline({ events }: { events: CarEvent[] }) {
 // ───────────────────────── Re-price decision ─────────────────────────
 
 export function PhotoPlaceholder({ caption, small }: { caption: string; small?: boolean }) {
+  const src = photoFor(caption);
   return (
     <figure className="min-w-0 flex-1">
-      <div className={`grid place-items-center rounded-card border border-line bg-photo-bg text-warm-grey ${small ? 'h-20' : 'h-28'}`}>
-        <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
-          <rect x="3" y="6" width="18" height="13" rx="2" />
-          <circle cx="12" cy="12.5" r="3.5" />
-          <path d="M8 6l1.5-2h5L16 6" />
-        </svg>
-      </div>
+      {src ? (
+        <a href={src} target="_blank" rel="noreferrer" className="block">
+          <img src={src} alt={caption} className={`w-full rounded-card border border-line object-cover ${small ? 'h-20' : 'h-28'}`} />
+        </a>
+      ) : (
+        <div className={`grid place-items-center rounded-card border border-line bg-photo-bg text-warm-grey ${small ? 'h-20' : 'h-28'}`}>
+          <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
+            <rect x="3" y="6" width="18" height="13" rx="2" />
+            <circle cx="12" cy="12.5" r="3.5" />
+            <path d="M8 6l1.5-2h5L16 6" />
+          </svg>
+        </div>
+      )}
       <figcaption className="mt-1.5 truncate text-caption text-muted">{caption}</figcaption>
     </figure>
   );

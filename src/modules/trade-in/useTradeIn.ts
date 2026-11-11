@@ -58,6 +58,20 @@ export function useTradeIn(scope: Question[] = QUESTIONS, start: 'demo' | 'blank
     });
   }
 
+  /** Demo shortcut: answers a typical well-kept car would get (cheapest answer each, a few minor scratches, good overall). */
+  function fillDemo() {
+    const typical: Record<string, string> = { exterior: 'minor', condition: 'good' };
+    setAnswers(
+      Object.fromEntries(
+        all.map((q) => {
+          const ok = q.options.filter((o) => !o.review);
+          const pick = ok.find((o) => o.value === typical[q.id]) ?? [...ok].sort((a, b) => (a.deduct ?? 0) - (b.deduct ?? 0))[0];
+          return [q.id, [pick.value]];
+        }),
+      ),
+    );
+  }
+
   function reset() {
     setVin(startVin);
     setKmText(startKm);
@@ -86,7 +100,7 @@ export function useTradeIn(scope: Question[] = QUESTIONS, start: 'demo' | 'blank
 
   return {
     vin, setVin, kmText, setKmText, km, car, vinError, lookup, pick, clearCar,
-    answers, answer, quote, outcome, setOutcome, submitting, reset,
+    answers, answer, fillDemo, quote, outcome, setOutcome, submitting, reset,
   };
 }
 
