@@ -428,71 +428,81 @@ function Done({ t, q, onOpenBackOffice }: { t: TradeIn; q: Quote; onOpenBackOffi
         { icon: <IconDollar />, title: 'Within 2 business days', text: `${DEALER.name} is paid` },
       ];
   return (
-    <div className="mx-auto max-w-[720px] px-6 py-10 text-center">
-      <span className="mx-auto grid size-12 place-items-center rounded-full bg-success text-white">
-        <svg viewBox="0 0 12 12" className="size-6" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
-          <path d="M2.5 6.5l2.5 2.5 4.5-5" />
-        </svg>
-      </span>
-      <h2 className="mt-4 text-h3 font-bold text-ink">{review ? 'Sent to Clutch' : 'Offer accepted'}</h2>
-
-      <div className="mt-8 overflow-hidden rounded-card border border-brand/15 bg-white text-left shadow-[0_12px_32px_-12px_rgba(255,70,76,0.25)]">
-        <div className="border-b border-brand/15 px-6 py-7 text-center">
-          <p className="text-base text-ink">{review ? 'Offer' : 'Total value of vehicle'}</p>
-          {review ? (
-            <p className="mt-2 text-h4 font-bold text-ink">Coming by {DATES.firmBy}</p>
-          ) : (
-            <p className="mt-2 text-price font-bold text-ink tabular-nums">{money(q.firm)}</p>
-          )}
+    <div className={`${PAGE} pt-6 pb-8`}>
+      {/* Outcome and the two next actions on one line, so neither button sits below the fold. */}
+      <div className="flex items-center justify-between gap-6">
+        <div className="flex items-center gap-3">
+          <span className="grid size-10 place-items-center rounded-full bg-success text-white">
+            <svg viewBox="0 0 12 12" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
+              <path d="M2.5 6.5l2.5 2.5 4.5-5" />
+            </svg>
+          </span>
+          <h2 className="text-h3 font-bold text-ink">{review ? 'Sent to Clutch' : 'Offer accepted'}</h2>
         </div>
-        <dl className="grid grid-cols-2 gap-x-8 gap-y-5 px-8 py-6 text-base">
-          {[
-            ['Make/Model', carName(car)],
-            ['VIN', car.vin],
-            ['Mileage', kmLabel(t.km)],
-            ['Reference code', reference(car)],
-          ].map(([k, v]) => (
-            <div key={k}>
-              <dt className="font-medium text-ink">{k}</dt>
-              <dd className="mt-1 text-muted">{v}</dd>
-            </div>
-          ))}
-        </dl>
-        {review && (
-          <ul className="space-y-2 border-t border-brand/15 px-8 py-5">
-            {reasons.map((r) => (
-              <li key={r} className="rounded-card bg-nudge px-3 py-2 text-sm text-body">
-                {r}
-              </li>
-            ))}
-          </ul>
-        )}
+        <div className="flex items-center gap-3">
+          <Button variant="outline" {...(onOpenBackOffice ? navClick('/back-office', onOpenBackOffice) : {})}>
+            Open Back office
+          </Button>
+          <Button className="px-8" onClick={t.reset}>
+            Start another trade-in
+          </Button>
+        </div>
       </div>
 
-      <h3 className="mt-12 text-h4 font-bold text-ink">What happens next</h3>
-      <ol className="mt-6 grid grid-cols-3 gap-4">
-        {steps.map((s, i) => (
-          <li key={i} className="relative">
-            {i > 0 && <span className="absolute top-6 right-1/2 mr-8 h-px w-[calc(100%-48px)] bg-line" aria-hidden />}
-            <span className="relative mx-auto grid size-12 place-items-center rounded-full bg-brand-tint text-brand">{s.icon}</span>
-            <p className="mt-3 text-sm font-bold text-ink">{s.title}</p>
-            <p className="mt-1 text-sm text-muted">{s.text}</p>
-          </li>
-        ))}
-      </ol>
-      {!review && (
-        <p className="mx-auto mt-6 max-w-[600px] text-sm text-muted">
-          If something differs at pickup, Clutch sends a new price with the reason, and the dealership decides.
-        </p>
-      )}
+      <div className="mt-6 grid grid-cols-2 items-start gap-6">
+        <div className="overflow-hidden rounded-card border border-brand/15 bg-white shadow-[0_12px_32px_-12px_rgba(255,70,76,0.25)]">
+          <div className="border-b border-brand/15 px-8 py-5">
+            <p className="text-base text-ink">{review ? 'Offer' : 'Total value of vehicle'}</p>
+            {review ? (
+              <p className="mt-1 text-h4 font-bold text-ink">Coming by {DATES.firmBy}</p>
+            ) : (
+              <p className="mt-1 text-price font-bold text-ink tabular-nums">{money(q.firm)}</p>
+            )}
+          </div>
+          <dl className="grid grid-cols-2 gap-x-8 gap-y-4 px-8 py-5 text-base">
+            {[
+              ['Make/Model', carName(car)],
+              ['VIN', car.vin],
+              ['Mileage', kmLabel(t.km)],
+              ['Reference code', reference(car)],
+            ].map(([k, v]) => (
+              <div key={k}>
+                <dt className="font-medium text-ink">{k}</dt>
+                <dd className="mt-1 text-muted">{v}</dd>
+              </div>
+            ))}
+          </dl>
+          {review && (
+            <ul className="space-y-2 border-t border-brand/15 px-8 py-5">
+              {reasons.map((r) => (
+                <li key={r} className="rounded-card bg-nudge px-3 py-2 text-sm text-body">
+                  {r}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
 
-      <div className="mt-10 flex flex-col items-center gap-4">
-        <Button className="px-10" onClick={t.reset}>
-          Start another trade-in
-        </Button>
-        <button type="button" {...(onOpenBackOffice ? navClick('/back-office', onOpenBackOffice) : {})} className="text-base font-bold text-brand hover:underline">
-          Open Back office
-        </button>
+        <section className="rounded-card border border-line bg-white px-8 py-5">
+          <h3 className="text-h4 font-bold text-ink">What happens next</h3>
+          <ol className="mt-4">
+            {steps.map((s, i) => (
+              <li key={i} className="relative flex gap-4 pb-5 last:pb-0">
+                {i < steps.length - 1 && <span className="absolute top-11 bottom-1 left-5 w-px bg-line" aria-hidden />}
+                <span className="grid size-10 shrink-0 place-items-center rounded-full bg-brand-tint text-brand">{s.icon}</span>
+                <div className="pt-0.5">
+                  <p className="text-sm font-bold text-ink">{s.title}</p>
+                  <p className="mt-0.5 text-sm text-muted">{s.text}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+          {!review && (
+            <p className="mt-5 border-t border-line-light pt-4 text-sm text-muted">
+              If something differs at pickup, Clutch sends a new price with the reason, and the dealership decides.
+            </p>
+          )}
+        </section>
       </div>
     </div>
   );
