@@ -153,6 +153,8 @@ export function AppShell({ initialView = 'behind', initialTab = 'car-journey', i
     const next = { ...route, ...patch };
     setRoute(next);
     if (routed && toPath(next) !== window.location.pathname) window.history.pushState(null, '', toPath(next));
+    // A new screen opens at its top, not at the scroll position of the one before (Back office tabs keep it).
+    if (next.view !== route.view || next.tab !== route.tab || next.doc !== route.doc) window.scrollTo(0, 0);
   };
   // Back and forward in the browser move between screens.
   useEffect(() => {
@@ -160,7 +162,10 @@ export function AppShell({ initialView = 'behind', initialTab = 'car-journey', i
     // An unknown or partial path opened a fallback screen: show that screen's own path.
     const own = toPath(fromPath(window.location.pathname));
     if (own !== window.location.pathname) window.history.replaceState(null, '', own);
-    const onPop = () => setRoute(fromPath(window.location.pathname));
+    const onPop = () => {
+      setRoute(fromPath(window.location.pathname));
+      window.scrollTo(0, 0);
+    };
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
   }, [routed]);

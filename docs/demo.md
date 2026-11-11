@@ -8,7 +8,7 @@ Reset first, so you start from the same story as everyone else. It starts on Thu
 
 1. **Trade-in.** Demo cars → **2020 Honda HR-V**. Answer the questions in any order; the price appears once all are in. **Accept offer**: it joins the Nov 19 pickup.
 2. **Back office** (Open Back office on the confirmation; it opens on **Pickups**). The HR-V is on the Nov 19 pickup → **Mark ready** → tick on the lot, both keys, ownership papers.
-3. **Clutch inspector.** Open the **Civic** → take the VIN and odometer photos → open one area → **Different** → add a finding and photo → **Send re-price to Dave**.
+3. **Clutch inspector.** Open the **Civic** → take the VIN and odometer photos → **All match** → on **Exterior & glass**, **Doesn't match** → **Different** on Bodywork → pick a finding and take a photo → **Done, the rest matches** → **All match** on the other areas → **Send re-price to Dave**.
 4. **Back office.** The Civic's row is marked on **Pickups**; on the **Overview** tab the re-price leads **Needs you** → **Accept**.
 5. **Clutch inspector.** The Civic → **Loaded on the truck**. Its timeline in Back office shows the payment going out within 2 business days.
 

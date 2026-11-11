@@ -57,7 +57,7 @@ export interface DealerRow {
   health: DealerHealth;
   nextRun: Day | null;
   nextRunCars: number;
-  counts: { ready: number; unconfirmed: number; notOnLot: number; expiring: number };
+  counts: { ready: number; unconfirmed: number; notOnLot: number; expiring: number; notReady: number };
   cars: OpsCar[];
   flags: DealerFlag[];
   /** Dispatch-owned issue, shown as one quiet line. */
@@ -115,6 +115,7 @@ export function readiness(c: OpsCar, env: Pick<OpsEnv, 'dateOf' | 'today'>): Rea
   if (CLOSED.includes(c.status)) return 'closed';
   if (c.status === 'not_ready') return 'not_ready';
   if (c.status === 'offered') return c.expiresOn && c.expiresOn < env.dateOf(c.day) ? 'expiring' : 'offer';
+  if (c.status === 'appraising') return 'offer';
   if (c.onLotFrom && c.onLotFrom > env.today) return 'not_on_lot';
   // Accepted and on the lot, but the dealer's sales manager hasn't confirmed keys and papers yet (Back office check).
   if (c.status === 'awaiting_pickup' && c.ready === false) return 'unconfirmed';
@@ -178,7 +179,9 @@ export function useDealerBoard() {
     const health = env.health[dl.id];
     const cars = board.cars.filter((c) => c.dealerId === dl.id && upcoming(c));
     const open = cars.filter((c) => !DONE.includes(c.status) && !CLOSED.includes(c.status));
-    const nextRun = env.days.find((d) => d.state !== 'done' && d.weekday === dl.runDay) ?? null;
+    // Today's run counts as the next pickup only while it still has cars to collect; once it's done, the week after.
+    const runs = env.days.filter((d) => d.state !== 'done' && d.weekday === dl.runDay);
+    const nextRun = runs.find((d) => d.state !== 'today' || open.some((c) => c.day === d.id)) ?? runs[0] ?? null;
     const contact = firstName(dl.contact);
     const flags: DealerFlag[] = [];
 
@@ -263,12 +266,14 @@ export function useDealerBoard() {
       dealer: dl,
       health,
       nextRun,
-      nextRunCars: nextRun ? open.filter((c) => c.day === nextRun.id).length : 0,
+      // Cars sold onto that run; open offers aren't on a truck until the dealer takes them.
+      nextRunCars: nextRun ? open.filter((c) => c.day === nextRun.id && c.status !== 'offered' && c.status !== 'appraising').length : 0,
       counts: {
         ready: open.filter((c) => ready(c) === 'ready').length,
         unconfirmed: open.filter((c) => ready(c) === 'unconfirmed').length,
         notOnLot: open.filter((c) => ready(c) === 'not_on_lot').length,
         expiring: open.filter((c) => ready(c) === 'expiring').length,
+        notReady: open.filter((c) => ready(c) === 'not_ready').length,
       },
       cars,
       flags,

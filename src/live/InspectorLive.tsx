@@ -118,7 +118,7 @@ export function InspectorLive({ children }: { children: ReactNode }) {
           found: d.note ? `${d.finding}. ${d.note}` : d.finding,
           amount: d.adjustment,
         })),
-        photos: diffs.flatMap((d) => Array.from({ length: d.photos }, (_, i) => `${d.item.question} ${i + 1}`)),
+        photos: diffs.flatMap((d) => Array.from({ length: d.photos }, (_, i) => `${d.item.question}, photo ${i + 1}`)),
       }),
     notReady: (key, reason) => void m.markNotReady({ key, who: WHO, reason }),
     reopen: (key) => void m.reopenInspection({ key, who: WHO }),

@@ -29,7 +29,7 @@ export function ValueStrip({ stats, dense }: { stats: Stats; dense?: boolean }) 
   const items: [string, string, string][] = [
     ['Cars sold to Clutch', String(stats.sold), 'last 90 days'],
     ['Above auction', money(stats.aboveAuction), 'vs estimated auction net'],
-    ['Days to cash', `${stats.daysToCash} days`, `auction: ~${AUCTION_DAYS_TO_CASH} days`],
+    ['Days to cash', `${stats.daysToCash} ${stats.daysToCash === 1 ? 'day' : 'days'}`, `auction: ~${AUCTION_DAYS_TO_CASH} days`],
     ['Offers accepted', `${stats.acceptance}%`, 'of offers you decided on'],
     ['Re-priced at pickup', `${stats.repriceRate}%`, 'of cars inspected'],
   ];

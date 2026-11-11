@@ -284,7 +284,7 @@ export function OutcomeC2({
     title = `${name} is on ${truck}`;
     body = (
       <p>
-        Picked up. {dealer} is paid {money(car.offer)}.
+        Picked up. {dealer} is paid {money(car.offer)} within 2 business days.
       </p>
     );
   } else if (outcome.kind === 'reprice') {
@@ -344,7 +344,7 @@ export function OutcomeC2({
   }
 
   return (
-    <div className="flex min-h-[70vh] flex-col">
+    <div className="flex min-h-[calc(var(--phone-h,100vh)-106px)] flex-col">
       <div className="flex-1 pt-6 text-center">
         {mark}
         <p className="mt-5 text-h4 font-bold text-ink">{title}</p>

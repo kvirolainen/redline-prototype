@@ -61,7 +61,15 @@ export function useRun() {
   const patchDifferent = (carId: string, itemId: string, patch: Partial<{ finding: number; note: string; photos: number }>) => {
     const cur = answersFor(carId)[itemId];
     if (cur?.result !== 'different') return;
-    setAnswer(carId, itemId, { ...cur, ...patch });
+    const next = { ...cur, ...patch };
+    // The scripted note describes the scripted finding: it goes when Sam picks another finding and comes
+    // back when he returns to it, unless he has written his own note.
+    const s = carById(carId).script?.[itemId];
+    if (s && patch.finding !== undefined && patch.note === undefined) {
+      if (patch.finding !== s.finding && cur.note === s.note) next.note = '';
+      if (patch.finding === s.finding && cur.note === '') next.note = s.note;
+    }
+    setAnswer(carId, itemId, next);
   };
 
   const differences = (carId: string): Difference[] => {

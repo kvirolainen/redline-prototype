@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { Suspense, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { MODULES, type ModuleId } from '../domain/personas';
 import { ArchitectureDiagram } from './Architecture';
@@ -62,7 +62,7 @@ function DeviceFrame({ module, variant, maxWidth, maxHeight }: { module: ModuleI
       <div className="relative overflow-hidden border border-line-light bg-canvas" style={{ width: w, height: h, borderRadius: FRAME_RADIUS[d.kind] * Math.max(scale, 0.4) }}>
         <div
           className="absolute top-0 left-0 overflow-x-hidden overflow-y-auto"
-          style={{ width: d.width, height: d.height, transform: `scale(${scale})`, transformOrigin: '0 0' }}
+          style={{ width: d.width, height: d.height, transform: `scale(${scale})`, transformOrigin: '0 0', '--phone-h': `${d.height}px` } as CSSProperties}
         >
           <Suspense fallback={<div className="grid h-full place-items-center text-sm text-muted">Loading screen…</div>}>
             <Component />

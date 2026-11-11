@@ -55,9 +55,9 @@ export const CARS: CarSeed[] = [
   car({ key: 'camry12', dealer: 'yorkdale', vin: '4T1BF1FK5CU153367', car: '2012 Toyota Camry LE', trim: 'Sedan · Automatic', colour: 'Classic Silver', km: 214000, offer: 5600, auction: 4900, status: 'offered', expiresOn: addDays(TODAY, 6), fromReview: true, reviewReasons: ['Over 200,000 km'] }),
   car({ key: 'sportage', dealer: 'yorkdale', vin: 'KNDPM3AC7K7562219', car: '2019 Kia Sportage LX', trim: 'AWD · Automatic', colour: 'Clear White', km: 77000, offer: 15700, auction: 14650, status: 'offered', expiresOn: addDays(TODAY, 5) }),
   // Yorkdale: history
-  car({ key: 'escape', dealer: 'yorkdale', vin: '1FMCU9GD4JUA44312', car: '2018 Ford Escape SE', km: 88900, offer: 12600, auction: 11500, status: 'paid', runDate: addDays(TODAY, -7), paidOn: addDays(TODAY, -3), daysToCash: 6 }),
-  car({ key: 'jetta', dealer: 'yorkdale', vin: '3VWD17AJ5FM233901', car: '2015 Volkswagen Jetta Comfortline', km: 138000, offer: 7900, auction: 7000, status: 'paid', runDate: addDays(TODAY, -14), paidOn: addDays(TODAY, -13), daysToCash: 5 }),
-  car({ key: 'tucson19', dealer: 'yorkdale', vin: 'KM8J33A49KU914275', car: '2019 Hyundai Tucson Preferred', km: 72000, offer: 17300, auction: 16050, status: 'paid', runDate: addDays(TODAY, -21), paidOn: addDays(TODAY, -20), daysToCash: 7 }),
+  car({ key: 'escape', dealer: 'yorkdale', vin: '1FMCU9GD4JUA44312', car: '2018 Ford Escape SE', km: 88900, offer: 12600, auction: 11500, status: 'paid', runDate: addDays(TODAY, -7), paidOn: addDays(TODAY, -3), daysToCash: 2 }),
+  car({ key: 'jetta', dealer: 'yorkdale', vin: '3VWD17AJ5FM233901', car: '2015 Volkswagen Jetta Comfortline', km: 138000, offer: 7900, auction: 7000, status: 'paid', runDate: addDays(TODAY, -14), paidOn: addDays(TODAY, -13), daysToCash: 1 }),
+  car({ key: 'tucson19', dealer: 'yorkdale', vin: 'KM8J33A49KU914275', car: '2019 Hyundai Tucson Preferred', km: 72000, offer: 17300, auction: 16050, status: 'paid', runDate: addDays(TODAY, -21), paidOn: addDays(TODAY, -20), daysToCash: 1 }),
   car({ key: 'cherokee', dealer: 'yorkdale', vin: '1C4PJMCS3HW603318', car: '2017 Jeep Cherokee North', km: 110400, offer: 11800, auction: 10900, status: 'declined', runDate: addDays(TODAY, -21), repriced: true, note: 'Re-price declined. Went to auction' }),
 
   // ---- Vaughan Ford: today, after Yorkdale ---------------------------------------------------------------------

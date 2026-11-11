@@ -255,7 +255,7 @@ export const BACK_OFFICE_CARS: BackOfficeCar[] = [
     pickup: 'Thu Nov 5',
     inspected: true,
     repriced: false,
-    daysToCash: 6,
+    daysToCash: 2,
     events: [
       { at: 'Mon Nov 2, 10:10', who: 'Maria', text: 'Offer made: $12,600, beats auction by $1,100', kind: 'offer' },
       { at: 'Mon Nov 2, 10:12', who: 'Maria', text: 'Accepted. Joined Thursday’s pickup, Thu Nov 5', kind: 'accept' },
@@ -273,7 +273,7 @@ export const BACK_OFFICE_CARS: BackOfficeCar[] = [
     pickup: 'Thu Oct 29',
     inspected: true,
     repriced: false,
-    daysToCash: 5,
+    daysToCash: 1,
     events: [
       { at: 'Mon Oct 26, 15:40', who: 'Maria', text: 'Offer made: $7,900, beats auction by $900', kind: 'offer' },
       { at: 'Mon Oct 26, 15:41', who: 'Maria', text: 'Accepted. Joined Thursday’s pickup, Thu Oct 29', kind: 'accept' },
@@ -291,7 +291,7 @@ export const BACK_OFFICE_CARS: BackOfficeCar[] = [
     pickup: 'Thu Oct 22',
     inspected: true,
     repriced: false,
-    daysToCash: 7,
+    daysToCash: 1,
     events: [
       { at: 'Fri Oct 16, 12:00', who: 'Maria', text: 'Offer made: $17,300, beats auction by $1,250', kind: 'offer' },
       { at: 'Fri Oct 16, 12:02', who: 'Maria', text: 'Accepted. Joined Thursday’s pickup, Thu Oct 22', kind: 'accept' },
@@ -321,9 +321,9 @@ export const BACK_OFFICE_CARS: BackOfficeCar[] = [
 
 /** Earlier months for the Results view (demo history; the current month comes from the cars above). */
 export const MONTHS: { month: string; sold: number; aboveAuction: number; daysToCash: number; repriced: number }[] = [
-  { month: 'Aug', sold: 3, aboveAuction: 3300, daysToCash: 7, repriced: 1 },
-  { month: 'Sep', sold: 5, aboveAuction: 5900, daysToCash: 6, repriced: 1 },
-  { month: 'Oct', sold: 7, aboveAuction: 8100, daysToCash: 6, repriced: 1 },
+  { month: 'Aug', sold: 3, aboveAuction: 3300, daysToCash: 3, repriced: 1 },
+  { month: 'Sep', sold: 5, aboveAuction: 5900, daysToCash: 2, repriced: 1 },
+  { month: 'Oct', sold: 7, aboveAuction: 8100, daysToCash: 2, repriced: 1 },
 ];
 /** Staff time an auction sale takes per car (listing, transport, paperwork). An assumption to confirm with the dealer. */
 export const AUCTION_HOURS_PER_CAR = 1.5;

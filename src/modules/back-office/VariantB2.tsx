@@ -346,7 +346,7 @@ function Results({ office }: { office: BackOffice }) {
   const { months, total, cars, repriced, daysToCash } = results(office);
   const max = Math.max(...months.map((m) => m.aboveAuction));
   const stats: [string, string, string][] = [
-    ['Cars sold', String(cars), 'picked up by Clutch'],
+    ['Cars sold', String(cars), 'offers accepted, incl. upcoming pickups'],
     ['Vs auction estimate', `+${money(total)}`, 'total, vs estimated auction net'],
     ['Days to payment', String(daysToCash), 'average, pickup to payment'],
     ['Re-priced at pickup', `${repriced} of ${cars}`, 'inspection changed the price'],

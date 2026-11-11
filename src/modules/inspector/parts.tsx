@@ -49,7 +49,7 @@ export function Screen({
   children: ReactNode;
 }) {
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col bg-canvas">
+    <div className="mx-auto flex min-h-(--phone-h,100vh) w-full max-w-[430px] flex-col bg-canvas">
       <header className="sticky top-0 z-10 flex min-h-16 items-center gap-2 border-b border-line bg-white px-2 shadow-header">
         {onBack ? (
           <button type="button" onClick={onBack} aria-label="Back" className="grid size-12 shrink-0 place-items-center rounded-pill text-ink hover:bg-canvas">
@@ -156,7 +156,7 @@ export function Sheet({ title, onClose, children }: { title: string; onClose: ()
   return (
     <div className="fixed inset-0 z-30">
       <button type="button" aria-label="Close" onClick={onClose} className="absolute inset-0 bg-black/50" />
-      <div className="absolute inset-x-0 bottom-0 mx-auto max-h-[90vh] w-full max-w-[430px] overflow-y-auto rounded-t-panel bg-white px-4 pt-3 pb-6">
+      <div className="absolute inset-x-0 bottom-0 mx-auto max-h-[calc(var(--phone-h,100vh)*0.9)] w-full max-w-[430px] overflow-y-auto rounded-t-panel bg-white px-4 pt-3 pb-6">
         <div className="mx-auto mb-4 h-1.5 w-12 rounded-pill bg-line-light" />
         <p className="mb-4 text-h4 font-bold text-ink">{title}</p>
         {children}
@@ -254,7 +254,7 @@ export function OutcomeView({
       title = 'Picked up';
       body = (
         <p>
-          On {truck}. {dealer} is paid {money(car.offer)}.
+          On {truck}. {dealer} is paid {money(car.offer)} within 2 business days.
         </p>
       );
     }
@@ -306,7 +306,7 @@ export function OutcomeView({
   }
 
   return (
-    <div ref={top} className="flex min-h-[70vh] flex-col">
+    <div ref={top} className="flex min-h-[calc(var(--phone-h,100vh)*0.7)] flex-col">
       <div className="flex-1 pt-6 text-center">
         {mark}
         <p className="mt-5 text-h4 font-bold text-ink">{title}</p>

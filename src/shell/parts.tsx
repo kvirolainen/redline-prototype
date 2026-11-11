@@ -1,4 +1,4 @@
-import { Suspense, type ReactNode } from 'react';
+import { Suspense, type CSSProperties, type ReactNode } from 'react';
 import { useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { Button } from '../components/ui/Button';
@@ -25,8 +25,15 @@ function PhoneFrame({ children }: { children: ReactNode }) {
   return (
     <div className="mx-auto w-[414px] rounded-[44px] border border-line bg-white p-3">
       <div className="mx-auto mb-3 h-1.5 w-20 rounded-pill bg-line-light" />
-      {/* As tall as a phone, but never taller than the window, so the whole device stays in view on a laptop. */}
-      <div className="h-[min(780px,calc(100vh-184px))] min-h-[560px] overflow-y-auto rounded-[32px] border border-line-light bg-canvas">{children}</div>
+      {/* As tall as a phone, but never taller than the window, so the whole device stays in view on a laptop.
+          --phone-h tells the screen inside how tall "full height" is (the window in Storybook, this frame here), and
+          the transform makes the frame the box that bottom sheets anchor to, so they open inside the phone. */}
+      <div
+        className="relative h-[calc(var(--phone-h)+2px)] overflow-hidden rounded-[32px] border border-line-light bg-canvas [transform:translateZ(0)]"
+        style={{ '--phone-h': 'max(558px, min(778px, calc(100vh - 186px)))' } as CSSProperties}
+      >
+        <div className="h-full overflow-y-auto">{children}</div>
+      </div>
     </div>
   );
 }

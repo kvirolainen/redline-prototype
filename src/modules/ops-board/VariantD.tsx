@@ -167,7 +167,7 @@ function TodayRow({ board, dealerId, dayId }: { board: DealerBoard; dealerId: st
       <div className="min-w-0">
         <p className="text-base font-medium text-ink">{dl.name}</p>
         <p className="text-sm text-muted">
-          {inspector ? `${inspector} on site` : 'No inspector yet'} · {cars.length} {cars.length === 1 ? 'car' : 'cars'}
+          {inspector ? `${inspector} ${cars.some((c) => c.status === 'awaiting_pickup' || c.status === 'reprice_pending' || c.status === 'confirmed') ? 'on site' : 'done here'}` : 'No inspector yet'} · {cars.length} {cars.length === 1 ? 'car' : 'cars'}
         </p>
       </div>
       <div className="min-w-0">
@@ -324,7 +324,8 @@ const readinessDot: Record<Readiness, string> = {
   expiring: 'bg-warning',
   not_ready: 'bg-warning',
   offer: 'bg-white border border-subtle',
-  done: 'bg-success',
+  // Picked up reads as finished, apart from the green ready dot it used to share.
+  done: 'bg-muted',
   closed: 'bg-line',
 };
 
@@ -338,6 +339,7 @@ function ReadinessCounts({ counts }: { counts: DealerRow['counts'] }) {
     ['unconfirmed', counts.unconfirmed, 'not confirmed by the dealer'],
     ['not_on_lot', counts.notOnLot, 'not on the lot yet'],
     ['expiring', counts.expiring, 'offer ends before run'],
+    ['not_ready', counts.notReady, 'not ready on the last run'],
   ];
   const shown = items.filter(([, n]) => n > 0);
   if (!shown.length) return <p className="text-caption text-subtle">No open cars</p>;
@@ -464,10 +466,14 @@ function PlanRow({ board, dealerId }: { board: DealerBoard; dealerId: string }) 
         const rs = cars.map(board.readiness);
         const notOnLot = rs.filter((r) => r === 'not_on_lot').length;
         const needs = rs.filter((r) => r === 'expiring' || r === 'not_ready').length;
+        // Cars sold onto the run, picked up ones included; offers still out are dots, counted apart.
+        const offers = rs.filter((r) => r === 'offer' || r === 'expiring').length;
+        const sold = cars.length - offers;
         return (
           <div key={d.id} className={`border-b border-l border-line px-3 py-4 sm:px-4 ${today}`}>
             <p className="text-sm font-bold text-ink">
-              {cars.length} {cars.length === 1 ? 'car' : 'cars'}
+              {sold} {sold === 1 ? 'car' : 'cars'}
+              {offers > 0 && <span className="font-normal text-muted"> · {offers} {offers === 1 ? 'offer' : 'offers'} out</span>}
             </p>
             <p className="mt-2 flex flex-wrap gap-1.5">
               {cars.map((c, i) => (
@@ -476,7 +482,7 @@ function PlanRow({ board, dealerId }: { board: DealerBoard; dealerId: string }) 
             </p>
             {(notOnLot > 0 || needs > 0) && (
               <p className="mt-2 text-caption text-body">
-                {[notOnLot && `${notOnLot} not on the lot`, needs && `${needs} needs the dealer`].filter(Boolean).join(' · ')}
+                {[notOnLot && `${notOnLot} not on the lot`, needs && `${needs} ${needs === 1 ? 'needs' : 'need'} the dealer`].filter(Boolean).join(' · ')}
               </p>
             )}
           </div>
