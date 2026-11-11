@@ -62,9 +62,14 @@ export function FlowNode({ icon, label, sub, shape = 'circle', size = 'lg', tone
 }
 
 /** Horizontal connector, vertically centred on the node next to it. */
-export function Connector({ size = 'lg', arrow, label, dashed, quiet }: { size?: 'lg' | 'sm'; arrow?: boolean; label?: string; dashed?: boolean; quiet?: boolean }) {
+export function Connector({ size = 'lg', arrow, both, label, dashed, quiet }: { size?: 'lg' | 'sm'; arrow?: boolean; both?: boolean; label?: string; dashed?: boolean; quiet?: boolean }) {
   return (
     <div className={`relative flex min-w-3 flex-1 items-center justify-self-stretch lg:min-w-10 ${size === 'lg' ? 'h-14 lg:h-20' : 'h-12 lg:h-14'}`} aria-hidden>
+      {both && (
+        <svg viewBox="0 0 8 10" className="-mr-px h-2.5 w-2 text-subtle" fill="currentColor">
+          <path d="M8 0L0 5l8 5z" />
+        </svg>
+      )}
       <span className={`h-0 flex-1 border-t ${dashed ? 'border-dashed border-subtle' : 'border-line'}`} />
       {arrow && (
         <svg viewBox="0 0 8 10" className="-ml-px h-2.5 w-2 text-subtle" fill="currentColor">
