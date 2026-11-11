@@ -6,7 +6,7 @@ Everyone opens the same app in a browser, and it talks straight to one live back
 
 ## Stack and why
 
-Picked for speed in 48 hours.
+Picked for speed, given the limited time.
 
 | Part | Picked | Why |
 |---|---|---|
