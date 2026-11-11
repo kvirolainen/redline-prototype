@@ -2,7 +2,7 @@
 
 Clutch buys used cars from dealerships ("Redline"). This repo is a working prototype of one car's
 path: dealer trade-in → instant offer → recurring pickup day → inspection (confirm or re-price) →
-director approval → payment, plus a dealer back office and a Clutch ops board.
+director approval → payment, plus the dealer's Back office and Clutch ops.
 
 ## Read first
 - `docs/01-concept.md` — what we're building and why
@@ -21,8 +21,9 @@ director approval → payment, plus a dealer back office and a Clutch ops board.
   Font: Figtree (substitute for Circular). Inside product flows the primary button is a black pill and
   selected states are black; the red CTA gradient (`bg-cta`) is for marketing CTAs only. Flow inputs are
   56px with an 8px radius and a `#EEEEEE` outline. Reuse `src/components/ui/` and the Foundations stories.
-- Personas: Maria (Sales Manager, Yorkdale Honda), Dave (Sales Director, Yorkdale Honda),
-  Sam (Clutch Inspector, phone layout), Jordan (Clutch Ops).
+- Modules and personas, always in the car's order: Trade-in (Maria, Sales Manager, Yorkdale Honda) →
+  Clutch ops (Jordan, Operations) → Clutch inspector (Sam, Inspector, phone layout) → Back office (Dave,
+  Sales Director, Yorkdale Honda).
 - Pricing is a labelled placeholder for Clutch's real valuation engine — keep it isolated in one module.
 - Every car state change writes an event, so each car has a full timeline.
 - Commit messages: imperative, say what changed and why.

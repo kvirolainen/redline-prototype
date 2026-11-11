@@ -102,8 +102,8 @@ function ScreensPointer({ onPick }: { onPick: (id: PersonaId) => void }) {
           </p>
           {/* Heading and pills share one left edge. Module first, then the person. */}
           <div className="mt-3 grid gap-1.5">
-            {SCREEN_ORDER.map((id) => {
-              const p = persona(id);
+            {PERSONAS.map((p) => {
+              const id = p.id;
               return (
                 <button
                   key={id}
@@ -128,9 +128,6 @@ function ScreensPointer({ onPick }: { onPick: (id: PersonaId) => void }) {
     </div>
   );
 }
-
-// The four modules in the order the car meets them.
-const SCREEN_ORDER: PersonaId[] = ['maria', 'jordan', 'sam', 'dave'];
 
 interface Props {
   initialView?: View;

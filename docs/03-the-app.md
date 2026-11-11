@@ -2,11 +2,11 @@
 
 One car, followed across four people:
 
-| Who | Screen |
+| Who | Module |
 |---|---|
 | Maria, Sales Manager | **Trade-in**: car details → offer |
-| Jordan, Clutch ops | **Clutch ops**: pickup runs and what's stuck |
-| Sam, Clutch inspector | **Clutch inspector** (phone): check vs declared → confirm, re-price or not ready |
+| Jordan, Operations | **Clutch ops**: pickup runs and what's stuck |
+| Sam, Inspector | **Clutch inspector** (phone): check vs declared → confirm, re-price or not ready |
 | Dave, Sales Director | **Back office**: the dealer's cars, re-price decisions, value vs auction |
 
 **Faked on purpose:** pricing (a stub where Clutch's calculator plugs in), sign-in (a person switcher), payments and notifications.
