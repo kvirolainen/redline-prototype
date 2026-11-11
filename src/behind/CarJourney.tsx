@@ -36,9 +36,9 @@ const ARROW_DOWN = (
 );
 
 /** Small node on the detour: the re-price step. */
-const ForkNode = ({ className = '' }: { className?: string }) => (
-  <span className={`grid size-8 place-items-center rounded-full border border-line bg-white text-ink ${className}`}>
-    <Icon name="pencil" className="size-4" />
+const ForkNode = ({ small, className = '' }: { small?: boolean; className?: string }) => (
+  <span className={`grid place-items-center rounded-full border bg-white ${small ? 'size-6 border-line-light text-muted' : 'size-8 border-line text-ink'} ${className}`}>
+    <Icon name="pencil" className={small ? 'size-3' : 'size-4'} />
   </span>
 );
 
@@ -52,18 +52,19 @@ function ForkArc({ up, step, down, exit, style }: { up: string; step: string; do
   if (style === 'arc') {
     return (
       <div className="flex w-full flex-col items-center px-[52px] lg:px-[66px]">
-        <p className="text-center text-caption leading-[17px] whitespace-nowrap">
-          <span className="block font-medium text-ink">{step}</span>
-          <span className="block text-muted">{exit}</span>
+        <p className="text-center text-caption leading-[17px] whitespace-nowrap text-muted">
+          {step}
+          <br />
+          <span className="text-subtle">{exit}</span>
         </p>
-        <ForkNode className="relative z-10 mt-2" />
-        <div className="relative -mt-4 h-11 w-full lg:h-12">
+        <ForkNode small className="relative z-10 mt-1.5" />
+        <div className="relative -mt-3 h-11 w-full lg:h-12">
           <svg viewBox="0 0 100 40" preserveAspectRatio="none" className="absolute inset-0 size-full overflow-visible text-subtle" aria-hidden>
             <path d="M0 40C0 12 22 0 50 0C78 0 100 12 100 37" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" vectorEffect="non-scaling-stroke" />
           </svg>
           {ARROW_DOWN}
-          <span className={`${side} top-1/2 right-full mr-2`}>{up}</span>
-          <span className={`${side} top-1/2 left-full ml-2`}>{down}</span>
+          <span className={`${side} top-1/2 right-full mr-2 text-subtle!`}>{up}</span>
+          <span className={`${side} top-1/2 left-full ml-2 text-subtle!`}>{down}</span>
         </div>
       </div>
     );
@@ -102,7 +103,7 @@ export function JourneyDiagram({ shape = 'circle', fork = 'arc', onPick }: Props
     <FlowNode
       icon={ICONS[s.id]}
       label={s.title}
-      sub={s.detail}
+      sub={<span className="whitespace-nowrap">{s.detail}</span>}
       shape={shape}
       foot={<ModuleChip owner={s.owner} />}
       onClick={onPick ? () => onPick(s.owner) : undefined}
