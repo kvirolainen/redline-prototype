@@ -4,7 +4,7 @@ import { MODULES, type ModuleId } from '../domain/personas';
 import { ArchitectureDiagram } from './Architecture';
 import { Icon } from './icons';
 import { MILESTONES, type MilestoneState } from './milestones';
-import { DEVICE, SCREENS, isModule, isVariant, screenCaption, type Device, type VariantKey } from './screens';
+import { DEVICE, isModule, isVariant, screen, screenCaption, type Device, type VariantKey } from './screens';
 
 // Block embeds for the docs. A directive sits on its own line in the markdown:
 //   ::screen[trade-in/B]   one live screen variant in a device frame
@@ -27,9 +27,9 @@ function useWidth<T extends HTMLElement>() {
   return [ref, width] as const;
 }
 
-const FRAME_PAD: Record<Device['kind'], number> = { phone: 10, ipad: 12, desktop: 0 };
-const FRAME_RADIUS: Record<Device['kind'], number> = { phone: 36, ipad: 20, desktop: 8 };
-const BEZEL_RADIUS: Record<Device['kind'], number> = { phone: 46, ipad: 32, desktop: 10 };
+const FRAME_PAD: Record<Device['kind'], number> = { phone: 10, desktop: 0 };
+const FRAME_RADIUS: Record<Device['kind'], number> = { phone: 36, desktop: 8 };
+const BEZEL_RADIUS: Record<Device['kind'], number> = { phone: 46, desktop: 10 };
 /** Height of the fake browser bar on desktop frames. */
 const BAR = 24;
 
@@ -44,7 +44,7 @@ function DeviceFrame({ module, variant, maxWidth, maxHeight }: { module: ModuleI
   const bar = d.kind === 'desktop' ? BAR : 0;
   const scale = Math.min(1, (maxWidth - 2 * pad) / d.width, (maxHeight - 2 * pad - bar) / d.height);
   if (!(scale > 0)) return null;
-  const { Component } = SCREENS[module][variant];
+  const { Component } = screen(module, variant);
   const w = d.width * scale;
   const h = d.height * scale;
   return (
@@ -132,7 +132,7 @@ function ScreenCard({ module, variant, maxHeight, small }: { module: ModuleId; v
           {small ? (
             <>
               <span className="block text-caption font-medium text-muted">{MODULES[module].label} · {variant}</span>
-              {SCREENS[module][variant].name}
+              {screen(module, variant).name}
             </>
           ) : (
             caption
@@ -185,7 +185,7 @@ export function Milestones() {
 export function Embed({ name, arg, raw }: { name: string; arg: string; raw: string }) {
   if (name === 'screen') {
     const [m, v] = arg.split('/');
-    if (!m || !v || !isModule(m) || !isVariant(v)) return <Missing what={raw} />;
+    if (!m || !v || !isModule(m) || !isVariant(m, v)) return <Missing what={raw} />;
     return (
       <Block>
         <ScreenCard module={m} variant={v} maxHeight={DEVICE[m].kind === 'phone' ? 600 : 560} />

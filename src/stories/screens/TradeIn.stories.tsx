@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { TradeInVariantA } from '../../modules/trade-in/VariantA';
 import { TradeInVariantB } from '../../modules/trade-in/VariantB';
+import { TradeInVariantB2 } from '../../modules/trade-in/VariantB2';
 import { TradeInVariantC } from '../../modules/trade-in/VariantC';
 
 const meta = {
@@ -10,14 +11,26 @@ const meta = {
     docs: {
       description: {
         component:
-          'Maria, Sales Manager at Yorkdale Honda, on an iPad at the sales desk with the customer sitting there. Goal: a firm offer in under two minutes, sent to next Thursday’s pickup. Try the 2019 Civic for the firm offer, and the 2013 F-150 (over 200,000 km) for the guaranteed floor.',
+          'Maria, Sales Manager at Yorkdale Honda, on the laptop at the sales desk, with the customer looking at the same screen. Goal: a firm offer in under two minutes. B2 is the picked version; A, B and C are the three explored first, kept for the record. Try the 2019 Civic for a firm offer and the 2013 F-150 (over 200,000 km) for a car Clutch prices by hand.',
       },
     },
   },
-  globals: { viewport: { value: 'ipadLandscape', isRotated: false } },
 } satisfies Meta;
 export default meta;
 type Story = StoryObj<typeof meta>;
+
+export const OneScreen: Story = {
+  name: 'B2 · One screen',
+  render: () => <TradeInVariantB2 />,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'B, refined. Every question on one row in a fixed place, so a manager who does this daily works from memory; nothing scrolls at 1280 × 800. The offer panel is the part both people read: estimate, then firm offer, one action. Nothing on screen is meant only for the dealer, so the auction comparison moved to Back office. Cars Clutch can’t price instantly get an estimate and an offer by 3:00 pm today.',
+      },
+    },
+  },
+};
 
 export const StepByStep: Story = {
   name: 'A · Step by step',

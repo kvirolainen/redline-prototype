@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { CIVIC, decodeVin, type DecodedCar } from './fixtures';
 import { QUESTIONS, quote as priceQuote, type Answers, type Question, type QuestionId } from './pricing';
 
-export type Outcome = null | 'accepted' | 'floor-accepted';
+export type Outcome = null | 'accepted' | 'floor-accepted' | 'review-sent';
 
 /** Local state for one trade-in: VIN, km, answers, the live quote and the outcome. Shared by all variants. */
-export function useTradeIn(scope: Question[] = QUESTIONS) {
-  const [vin, setVin] = useState(CIVIC.vin);
-  const [kmText, setKmText] = useState(CIVIC.listKm.toLocaleString('en-CA'));
+export function useTradeIn(scope: Question[] = QUESTIONS, start: 'demo' | 'blank' = 'demo') {
+  const startVin = start === 'demo' ? CIVIC.vin : '';
+  const startKm = start === 'demo' ? CIVIC.listKm.toLocaleString('en-CA') : '';
+  const [vin, setVin] = useState(startVin);
+  const [kmText, setKmText] = useState(startKm);
   const [car, setCar] = useState<DecodedCar | null>(null);
   const [vinError, setVinError] = useState<string | null>(null);
   const [answers, setAnswers] = useState<Answers>({});
@@ -48,8 +50,8 @@ export function useTradeIn(scope: Question[] = QUESTIONS) {
   }
 
   function reset() {
-    setVin(CIVIC.vin);
-    setKmText(CIVIC.listKm.toLocaleString('en-CA'));
+    setVin(startVin);
+    setKmText(startKm);
     setCar(null);
     setAnswers({});
     setOutcome(null);

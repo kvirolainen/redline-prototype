@@ -4,19 +4,26 @@ Each screen was explored as **three deliberately different versions**, built as 
 
 All twelve share the same demo moment: **Thu Nov 12**, pickup day, when Sam's inspection re-prices the 2019 Civic from **$17,850 to $16,950**. Click through each one below.
 
-## 1. Trade-in · Maria, iPad at the sales desk
+## 1. Trade-in · Maria, laptop at the sales desk
 
-**Job:** a firm offer in under two minutes, with the customer sitting there.
+**Job:** a firm offer in under two minutes, on a screen Maria and the customer look at together.
 
 - **A · Step by step.** Clutch's own sell flow (Basic info › Features › Condition › Offer). Familiar and thorough, but four screens before a number.
 - **B · One page, live offer.** Every question on one scroll; the offer narrows from a range to a firm number as she answers. Fastest for a regular user, denser for a first-timer.
 - **C · Quick quote first.** VIN and km give a range in seconds; five price-moving questions firm it up and the rest is assumed. Quickest to a number, more re-price risk on pickup day.
 
-All three handle the hard case the same way: a car that needs a closer look gets a guaranteed floor now and a firm offer the same day. (The picked version drops the floor for a plain "firm offer by 3 p.m.". See *Desk or online?*)
-
 ::screens[trade-in]
 
-**Picked:** _pending_
+**Picked: B, refined into B2 · One screen.**
+
+::screen[trade-in/B2]
+
+Why B: Maria prices trade-ins every week. For someone who repeats a task, one screen where every answer sits in the same place beats a guided flow: she works from memory, in any order, and the customer watches the number settle. What changed from B:
+
+- **Fits one laptop screen** (1280 × 800) with no scrolling. Each question is one row of short answers, and nothing moves as she answers.
+- **Every word is fine for the customer to read.** The auction comparison and "beats auction by" are the dealer's business, so they moved to Back office. Notes under an answer speak to both people ("It's checked at pickup").
+- **No "guaranteed floor".** A car Clutch can't price instantly shows an estimate and "Offer by 3:00 pm today"; the offer lands in Back office to accept.
+- **No "today's trade-ins" list.** Nothing in this MVP knows the dealer's trade-ins before Maria types the VIN; pulling them from the dealer's sales system is a later integration. A full VIN looks the car up on its own.
 
 ## 2. Clutch ops · Jordan, Clutch ops, desktop
 

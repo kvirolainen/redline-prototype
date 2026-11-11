@@ -1,21 +1,22 @@
 import { lazy, type ComponentType, type LazyExoticComponent } from 'react';
 import { MODULES, type ModuleId } from '../domain/personas';
 
-export type VariantKey = 'A' | 'B' | 'C';
+/** A, B, C are the three explored versions; B2 is the picked one, refined. */
+export type VariantKey = 'A' | 'B' | 'C' | 'B2';
+type Explored = 'A' | 'B' | 'C';
 
 /** The size each screen was designed for; previews scale this box down to fit. */
 export interface Device {
-  kind: 'phone' | 'ipad' | 'desktop';
+  kind: 'phone' | 'desktop';
   width: number;
   height: number;
 }
 
 const PHONE: Device = { kind: 'phone', width: 390, height: 844 };
-const IPAD: Device = { kind: 'ipad', width: 1024, height: 768 };
 const DESKTOP: Device = { kind: 'desktop', width: 1280, height: 800 };
 
 export const DEVICE: Record<ModuleId, Device> = {
-  'trade-in': IPAD,
+  'trade-in': DESKTOP,
   'ops-board': DESKTOP,
   inspector: PHONE,
   'back-office': DESKTOP,
@@ -30,11 +31,12 @@ interface Entry {
 }
 
 /** Every screen variant, loaded on first use. Names match the Screens stories. */
-export const SCREENS: Record<ModuleId, Record<VariantKey, Entry>> = {
+export const SCREENS: Record<ModuleId, Record<Explored, Entry> & Partial<Record<VariantKey, Entry>>> = {
   'trade-in': {
     A: { name: 'Step by step', Component: named(() => import('../modules/trade-in/VariantA'), 'TradeInVariantA') },
     B: { name: 'One page, live offer', Component: named(() => import('../modules/trade-in/VariantB'), 'TradeInVariantB') },
     C: { name: 'Quick quote first', Component: named(() => import('../modules/trade-in/VariantC'), 'TradeInVariantC') },
+    B2: { name: 'One screen', Component: named(() => import('../modules/trade-in/VariantB2'), 'TradeInVariantB2') },
   },
   'ops-board': {
     A: { name: 'Week grid', Component: named(() => import('../modules/ops-board/VariantA'), 'VariantA') },
@@ -54,7 +56,9 @@ export const SCREENS: Record<ModuleId, Record<VariantKey, Entry>> = {
 };
 
 export const isModule = (s: string): s is ModuleId => s in SCREENS;
-export const isVariant = (s: string): s is VariantKey => s === 'A' || s === 'B' || s === 'C';
+export const isVariant = (m: ModuleId, s: string): s is VariantKey => s in SCREENS[m];
+
+export const screen = (m: ModuleId, v: VariantKey) => SCREENS[m][v]!;
 
 /** "Trade-in · B · One page, live offer" */
-export const screenCaption = (m: ModuleId, v: VariantKey) => `${MODULES[m].label} · ${v} · ${SCREENS[m][v].name}`;
+export const screenCaption = (m: ModuleId, v: VariantKey) => `${MODULES[m].label} · ${v} · ${screen(m, v).name}`;
