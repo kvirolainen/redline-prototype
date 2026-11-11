@@ -6,7 +6,7 @@ Reset first, so you start from the same story as everyone else. It starts on Thu
 
 ## Showcase: one car, one re-price
 
-1. **Trade-in.** Demo cars → **2020 Honda HR-V**. Answer the questions in any order; the price appears once all are in. **Accept offer**: it joins the Nov 19 pickup.
+1. **Trade-in.** Demo cars → **2020 Honda HR-V**. Answer the questions in any order, or **Fill in demo answers**; the price appears once all are in. **Accept offer**: it joins the Nov 19 pickup.
 2. **Back office** (Open Back office on the confirmation; it opens on **Pickups**). The HR-V is on the Nov 19 pickup → **Mark ready** → tick on the lot, both keys, ownership papers.
 3. **Clutch inspector.** Open the **Civic**: one area per screen, each a checklist. Take the VIN and odometer photos → **Same** on both → **Next** → on **Exterior & glass**, **Different** on Bodywork → pick a finding and take a photo → **Same** on the rest → **Next** through the other areas → **Send re-price to Dave**.
 4. **Back office.** The Civic's row is marked on **Pickups**; on the **Overview** tab the re-price leads **Needs you** → **Accept**.
