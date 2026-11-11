@@ -8,9 +8,13 @@ inspector confirms or re-prices it at pickup, and the dealership is paid.
 
 ## Docs
 - [Concept](docs/01-concept.md): business context, users, the end state, and the slice this prototype covers
-- [Prototypes](docs/02-prototypes.md): design variants and the picks
-- [Build plan](docs/03-build-plan.md): data model, car statuses, milestones
-- [Test report](docs/04-test-report.md): what was tested and what changed
+- [Desk or online?](docs/02-desk-or-online.md): where the trade-in happens
+- [The app](docs/03-the-app.md): the screens and who uses each
+- [Clutch's look](docs/04-clutchs-look.md): the visual language the screens follow
+- [Prototypes](docs/05-prototypes.md): design variants and the picks
+- [Architecture](docs/06-architecture.md): the system, simplified
+- [Build plan](docs/07-build-plan.md): data model, car statuses, milestones
+- [Test report](docs/08-test-report.md): what was tested and what changed
 - [Decisions](docs/decisions.md): running log of decisions and why
 
 ## Run locally

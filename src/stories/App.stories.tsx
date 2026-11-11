@@ -9,7 +9,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'One shell. The switcher at the top right picks Behind the build (the landing) or one of four working screens, one per role. Behind the build renders the same Car journey, Process, Architecture and Docs components as the Behind the build stories. Clickable throughout.',
+          'One shell. The switcher at the top right picks Behind the build (the landing) or one of four working screens, one per role. Behind the build renders the same Car journey and The thinking (docs) components as the Behind the build stories. Clickable throughout.',
       },
     },
   },
@@ -18,6 +18,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Landing: Story = { name: 'Landing', args: { initialView: 'behind', initialTab: 'car-journey' } };
+export const Docs: Story = { name: 'Landing · The thinking', args: { initialView: 'behind', initialTab: 'docs', coach: false } };
 export const Maria: Story = { name: 'Trade-in · Maria', args: { initialView: 'maria' } };
 export const Jordan: Story = { name: 'Ops board · Jordan', args: { initialView: 'jordan' } };
 export const Sam: Story = { name: 'Inspector · Sam', args: { initialView: 'sam' } };

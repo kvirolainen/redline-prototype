@@ -1,0 +1,60 @@
+import { lazy, type ComponentType, type LazyExoticComponent } from 'react';
+import { MODULES, type ModuleId } from '../domain/personas';
+
+export type VariantKey = 'A' | 'B' | 'C';
+
+/** The size each screen was designed for; previews scale this box down to fit. */
+export interface Device {
+  kind: 'phone' | 'ipad' | 'desktop';
+  width: number;
+  height: number;
+}
+
+const PHONE: Device = { kind: 'phone', width: 390, height: 844 };
+const IPAD: Device = { kind: 'ipad', width: 1024, height: 768 };
+const DESKTOP: Device = { kind: 'desktop', width: 1280, height: 800 };
+
+export const DEVICE: Record<ModuleId, Device> = {
+  'trade-in': IPAD,
+  'ops-board': DESKTOP,
+  inspector: PHONE,
+  'back-office': DESKTOP,
+};
+
+type Lazy = LazyExoticComponent<ComponentType>;
+const named = <K extends string>(load: () => Promise<Record<K, ComponentType>>, key: K): Lazy => lazy(() => load().then((m) => ({ default: m[key] })));
+
+interface Entry {
+  name: string;
+  Component: Lazy;
+}
+
+/** Every screen variant, loaded on first use. Names match the Screens stories. */
+export const SCREENS: Record<ModuleId, Record<VariantKey, Entry>> = {
+  'trade-in': {
+    A: { name: 'Step by step', Component: named(() => import('../modules/trade-in/VariantA'), 'TradeInVariantA') },
+    B: { name: 'One page, live offer', Component: named(() => import('../modules/trade-in/VariantB'), 'TradeInVariantB') },
+    C: { name: 'Quick quote first', Component: named(() => import('../modules/trade-in/VariantC'), 'TradeInVariantC') },
+  },
+  'ops-board': {
+    A: { name: 'Week grid', Component: named(() => import('../modules/ops-board/VariantA'), 'VariantA') },
+    B: { name: 'Today’s runs', Component: named(() => import('../modules/ops-board/VariantB'), 'VariantB') },
+    C: { name: 'Exceptions first', Component: named(() => import('../modules/ops-board/VariantC'), 'VariantC') },
+  },
+  inspector: {
+    A: { name: 'Run, car, checklist', Component: named(() => import('../modules/inspector/VariantA'), 'InspectorVariantA') },
+    B: { name: 'One car at a time', Component: named(() => import('../modules/inspector/VariantB'), 'InspectorVariantB') },
+    C: { name: 'Exceptions only', Component: named(() => import('../modules/inspector/VariantC'), 'InspectorVariantC') },
+  },
+  'back-office': {
+    A: { name: 'Table first', Component: named(() => import('../modules/back-office/VariantA'), 'VariantA') },
+    B: { name: 'Needs you inbox', Component: named(() => import('../modules/back-office/VariantB'), 'VariantB') },
+    C: { name: 'Pipeline board', Component: named(() => import('../modules/back-office/VariantC'), 'VariantC') },
+  },
+};
+
+export const isModule = (s: string): s is ModuleId => s in SCREENS;
+export const isVariant = (s: string): s is VariantKey => s === 'A' || s === 'B' || s === 'C';
+
+/** "Trade-in · B · One page, live offer" */
+export const screenCaption = (m: ModuleId, v: VariantKey) => `${MODULES[m].label} · ${v} · ${SCREENS[m][v].name}`;

@@ -1,14 +1,12 @@
 import { useState } from 'react';
 import { Lockup } from '../components/brand/Lockup';
-import { Architecture } from '../behind/Architecture';
 import { CarJourney } from '../behind/CarJourney';
 import type { DocId } from '../behind/docs';
 import { DocsViewer } from '../behind/DocsViewer';
 import { Icon } from '../behind/icons';
-import { Process } from '../behind/Process';
 import { MODULE_ICON } from '../behind/moduleIcons';
 import { MODULES, PERSONAS, persona, personaLine, type PersonaId } from '../domain/personas';
-import { BEHIND_TABS, type BehindTab, type View } from './views';
+import { BEHIND_TABS, DOCS_TAB_LABEL, type BehindTab, type View } from './views';
 import { DemoModule } from './parts';
 
 function Chevron() {
@@ -33,7 +31,7 @@ const buttonLabel = (view: View) => (view === 'behind' ? 'Behind the build' : `$
 
 /** Menu item: module name in bold, the person on the second line. */
 function MenuLine({ view, active }: { view: View; active?: boolean }) {
-  const [title, sub] = view === 'behind' ? ['Behind the build', 'Car journey, process, architecture, docs'] : [MODULES[persona(view).module].label, personaLine(persona(view))];
+  const [title, sub] = view === 'behind' ? ['Behind the build', `Car journey, ${DOCS_TAB_LABEL.toLowerCase()}`] : [MODULES[persona(view).module].label, personaLine(persona(view))];
   return (
     <span className="flex min-w-0 items-center gap-3 text-left">
       <ViewIcon view={view} active={active} />
@@ -156,10 +154,6 @@ export function AppShell({ initialView = 'behind', initialTab = 'car-journey', i
     hideCoach();
   };
   const showPerson = (id: PersonaId) => go(id);
-  const openDoc = (id: DocId) => {
-    setDoc(id);
-    setTab('docs');
-  };
   // The pointer belongs to the landing page; on the other tabs it would sit over the content.
   const pointerOn = showCoach && view === 'behind' && tab === 'car-journey';
 
@@ -196,10 +190,6 @@ export function AppShell({ initialView = 'behind', initialTab = 'car-journey', i
           <DemoModule key={view} personaId={view} />
         ) : tab === 'car-journey' ? (
           <CarJourney onPick={showPerson} />
-        ) : tab === 'process' ? (
-          <Process onOpenDoc={openDoc} />
-        ) : tab === 'architecture' ? (
-          <Architecture />
         ) : (
           <DocsViewer selected={doc} onSelect={setDoc} />
         )}

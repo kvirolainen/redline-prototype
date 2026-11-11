@@ -1,7 +1,18 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Markdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { DOCS, isEmptyDoc, type DocId } from './docs';
+import { DOCS, isEmptyDoc, type Doc, type DocId } from './docs';
+import { DOCS_TAB_LABEL } from '../shell/views';
+import { splitDirectives } from './directives';
+import { Embed } from './embeds';
+
+// Images live in docs/img/ and are referenced from the markdown as `img/<file>`.
+const IMAGES = import.meta.glob<string>('../../docs/img/*', { eager: true, query: '?url', import: 'default' });
+const imageUrl = (src?: string) => {
+  if (!src) return undefined;
+  const file = src.replace(/^\.?\//, '').replace(/^img\//, '');
+  return IMAGES[`../../docs/img/${file}`] ?? src;
+};
 
 const isEmpty = isEmptyDoc;
 
@@ -22,6 +33,13 @@ const md: Components = {
   ),
   blockquote: ({ children }) => <blockquote className="mt-4 border-l-2 border-ink pl-4 text-muted">{children}</blockquote>,
   code: ({ children }) => <code className="rounded-xs bg-line-light px-1.5 py-0.5 font-mono text-[0.875em] text-ink">{children}</code>,
+  // Markdown wraps a lone image in a paragraph; render that paragraph as a figure so the caption isn't nested in <p>.
+  img: ({ src, alt }) => (
+    <span className="mt-6 block">
+      <img src={imageUrl(typeof src === 'string' ? src : undefined)} alt={alt ?? ''} className="block w-full rounded-card border border-line" loading="lazy" />
+      {alt && <span className="mt-2 block text-caption text-muted">{alt}</span>}
+    </span>
+  ),
   hr: () => <hr className="my-8 border-line" />,
   table: ({ children }) => (
     <div className="mt-6 overflow-x-auto rounded-card border border-line">
@@ -33,12 +51,20 @@ const md: Components = {
   td: ({ children }) => <td className="border-b border-line-light px-4 py-3 align-top leading-[22px] text-body">{children}</td>,
 };
 
+/** A document's markdown, with block directives (`::screen[…]`, `::screens[…]`, `::diagram[…]`, `::milestones`) rendered as embeds. */
 export function DocBody({ body }: { body: string }) {
+  const segments = useMemo(() => splitDirectives(body), [body]);
   return (
     <article className="max-w-[720px]">
-      <Markdown remarkPlugins={[remarkGfm]} components={md}>
-        {body}
-      </Markdown>
+      {segments.map((s, i) =>
+        s.kind === 'md' ? (
+          <Markdown key={i} remarkPlugins={[remarkGfm]} components={md}>
+            {s.text}
+          </Markdown>
+        ) : (
+          <Embed key={i} name={s.name} arg={s.arg} raw={s.raw} />
+        ),
+      )}
     </article>
   );
 }
@@ -64,15 +90,35 @@ function DocPanel({ id }: { id: DocId }) {
   );
 }
 
+/** One entry in the list: its number in the process (none for the appendix), label, and "soon" while empty. */
+function DocLink({ doc, active, onPick }: { doc: Doc; active: boolean; onPick: (id: DocId) => void }) {
+  const empty = isEmpty(doc.body);
+  return (
+    <button
+      type="button"
+      onClick={() => onPick(doc.id)}
+      aria-current={active ? 'page' : undefined}
+      className={`flex w-full items-center gap-2 rounded-pill px-3 py-2 text-left text-sm whitespace-nowrap ${
+        active ? 'bg-ink font-medium text-white' : empty ? 'text-subtle hover:bg-canvas' : 'text-ink hover:bg-canvas'
+      }`}
+    >
+      {doc.n !== undefined && <span className={`w-3 shrink-0 text-right text-caption tabular-nums ${active ? 'text-white/70' : 'text-subtle'}`}>{doc.n}</span>}
+      <span className="flex-1">{doc.label}</span>
+      {empty && !active && <span className="text-caption">soon</span>}
+    </button>
+  );
+}
+
 interface Props {
   /** Doc open on first render (uncontrolled). */
   initial?: DocId;
-  /** Controlled selection, e.g. set by the shell when a Process step's "Read" chip is clicked. */
+  /** Controlled selection (the shell keeps it, so the open doc survives switching tabs). */
   selected?: DocId;
   onSelect?: (id: DocId) => void;
 }
 
-/** Docs: the repo's documents with a list on the left (on top below 1024px). */
+/** Docs: the repo's documents in process order, numbered, with the decisions log as an appendix.
+ *  The list sits on the left (on top below 1024px). */
 export function DocsViewer({ initial = 'concept', selected, onSelect }: Props) {
   const [own, setOwn] = useState<DocId>(initial);
   const current = selected ?? own;
@@ -82,28 +128,14 @@ export function DocsViewer({ initial = 'concept', selected, onSelect }: Props) {
   };
   return (
     <div className="grid min-h-full flex-1 lg:grid-cols-[220px_1fr]">
-      <nav className="border-b border-line bg-white px-6 py-4 lg:border-r lg:border-b-0 lg:px-3 lg:py-8" aria-label="Docs">
-        <p className="hidden px-3 text-caption font-bold tracking-wide text-muted uppercase lg:block">Docs</p>
+      <nav className="border-b border-line bg-white px-6 py-4 lg:border-r lg:border-b-0 lg:px-3 lg:py-8" aria-label={DOCS_TAB_LABEL}>
+        <p className="hidden px-3 text-caption font-bold tracking-wide text-muted uppercase lg:block">{DOCS_TAB_LABEL}</p>
         <ul className="flex flex-wrap gap-1 lg:mt-3 lg:block lg:space-y-1">
-          {DOCS.map((d) => {
-            const empty = isEmpty(d.body);
-            const active = d.id === current;
-            return (
-              <li key={d.id}>
-                <button
-                  type="button"
-                  onClick={() => pick(d.id)}
-                  aria-current={active ? 'page' : undefined}
-                  className={`flex w-full items-center justify-between gap-2 rounded-pill px-3 py-2 text-left text-sm whitespace-nowrap ${
-                    active ? 'bg-ink font-medium text-white' : empty ? 'text-subtle hover:bg-canvas' : 'text-ink hover:bg-canvas'
-                  }`}
-                >
-                  {d.label}
-                  {empty && !active && <span className="text-caption">soon</span>}
-                </button>
-              </li>
-            );
-          })}
+          {DOCS.map((d) => (
+            <li key={d.id} className={d.n === undefined ? 'lg:mt-4 lg:border-t lg:border-line-light lg:pt-4' : undefined}>
+              <DocLink doc={d} active={d.id === current} onPick={pick} />
+            </li>
+          ))}
         </ul>
       </nav>
       <div className="min-w-0 bg-white px-6 py-8 lg:px-12 lg:py-10">
