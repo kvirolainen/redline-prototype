@@ -193,6 +193,8 @@ function DealerTable({ board }: { board: DealerBoard }) {
 function DealerRowView({ board, row, open, onToggle }: { board: DealerBoard; row: DealerRow; open: boolean; onToggle: () => void }) {
   const { dealer: dl, health, nextRun, counts } = row;
   const flaggedCars = new Set(row.flags.map((f) => f.carId).filter(Boolean));
+  // The live re-price already leads the page in "On the lot now"; the row only carries week-level items.
+  const weekFlags = row.flags.filter((f) => f.kind !== 'live');
   return (
     <div className={`border-b border-line last:border-b-0 ${row.flags.length ? 'shadow-[inset_3px_0_0_0_var(--color-warning)]' : ''}`}>
       <div
@@ -228,9 +230,9 @@ function DealerRowView({ board, row, open, onToggle }: { board: DealerBoard; row
         <Chevron open={open} className="hidden justify-self-end lg:block" />
       </div>
 
-      {(row.flags.length > 0 || row.dispatchNote) && (
+      {(weekFlags.length > 0 || row.dispatchNote) && (
         <ul className="space-y-2 px-5 pb-4">
-          {row.flags.map((f) => (
+          {weekFlags.map((f) => (
             <FlagLine key={f.key} board={board} row={row} f={f} />
           ))}
           {row.dispatchNote && (
@@ -334,9 +336,9 @@ function FlagLine({ board, row, f }: { board: DealerBoard; row: DealerRow; f: De
         <Check /> Reminded {sent}
       </span>
     ) : (
-      <Button variant="dark-small" onClick={() => board.remind(f.key, f.who, row.dealer.name)}>
+      <OutlinePill onClick={() => board.remind(f.key, f.who, row.dealer.name)}>
         {f.kind === 'rolls' ? `Confirm date with ${f.who}` : `Remind ${f.who}`}
-      </Button>
+      </OutlinePill>
     );
   return (
     <li className="flex flex-col gap-2 rounded-card border border-line-light bg-white px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between">
