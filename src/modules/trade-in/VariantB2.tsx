@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react';
 import { navClick } from '../../shell/link';
 import { Button } from '../../components/ui/Button';
 import { PAGE, PageHeader, SectionHeading } from '../../components/ui/Page';
