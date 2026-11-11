@@ -12,8 +12,7 @@ import {
   shortDealer,
 } from "./c2-model";
 import {
-  DeclaredItem,
-  DeclaredRow,
+  CompactItem,
   DemoDave,
   IdentityPhotos,
   NotReadyC2,
@@ -24,7 +23,6 @@ import { useInspectorEnv } from "./env";
 import {
   AREAS,
   CHECKS,
-  declaredFor,
   type AreaId,
   type InspectionCar,
   type Stop,
@@ -392,13 +390,31 @@ function CarScreen({
   onBack: () => void;
   onUndo: () => void;
 }) {
-  const [open, setOpen] = useState<AreaId>();
   const [notReady, setNotReady] = useState(false);
   const env = useInspectorEnv();
   const stop = env.stopOf(car);
   const outcome = run.outcomes[car.id];
   const answers = run.answersFor(car.id);
   const diffs = run.differences(car.id);
+  // Which area is on screen (AREAS.length = the summary), and whether its items are open.
+  // Starts on the first area still to check, so coming back to a car resumes where Sam left off.
+  const [step, setStep] = useState(() => {
+    const i = AREAS.findIndex(
+      (a) =>
+        !CHECKS.filter((c) => c.area === a.id).every((c) => answers[c.id]) ||
+        (a.id === "identity" && !(photos.odometer && photos.vin)),
+    );
+    return i < 0 ? AREAS.length : i;
+  });
+  // Each area starts at the top: the phone frame scrolls, not the window.
+  const top = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    let el: HTMLElement | null = top.current?.parentElement ?? null;
+    while (el) {
+      if (el.scrollTop > 0) el.scrollTop = 0;
+      el = el.parentElement;
+    }
+  }, [step]);
   const banner = others.length > 0 && (
     <div className="mb-4 space-y-2">{others}</div>
   );
@@ -431,20 +447,70 @@ function CarScreen({
   const itemsIn = (a: AreaId) => CHECKS.filter((c) => c.area === a);
   const resolved = (a: AreaId) =>
     itemsIn(a).every((i) => answers[i.id]) && (a !== "identity" || photosDone);
-  const left = AREAS.filter((a) => !resolved(a.id)).length;
   const price = run.suggestedPrice(car.id);
   const missingPhoto = diffs.some((d) => d.photos === 0);
+  const REVIEW = AREAS.length;
+  const firstOpen = () => {
+    const i = AREAS.findIndex((a) => !resolved(a.id));
+    return i < 0 ? REVIEW : i;
+  };
+  const goTo = (i: number) => setStep(i);
+  const advance = () => {
+    // Next area still to check, after this one; the summary when there is none.
+    const after = AREAS.findIndex((a, i) => i > step && !resolved(a.id));
+    goTo(after >= 0 ? after : firstOpen());
+  };
+  const area = step < REVIEW ? AREAS[step] : undefined;
+  const identity = area?.id === "identity";
 
-  const allMatch = (a: AreaId) => {
-    itemsIn(a).forEach((i) => run.setAnswer(car.id, i.id, { result: "match" }));
-    setOpen(undefined);
-  };
-  const doneWith = (a: AreaId) => {
-    itemsIn(a).forEach(
-      (i) => !answers[i.id] && run.setAnswer(car.id, i.id, { result: "match" }),
-    );
-    setOpen(undefined);
-  };
+  // The walk-around, one area per screen: what the dealer declared, then two answers at thumb height.
+  const strip = (
+    <ol className="-mt-1 mb-3 grid grid-cols-5 gap-1.5" aria-label="Areas">
+      {AREAS.map((a, i) => {
+        const hasDiff = diffs.some((d) => d.item.area === a.id);
+        const done = resolved(a.id);
+        const tone = i === step ? "bg-ink" : hasDiff ? "bg-warning" : done ? "bg-success" : "bg-line";
+        return (
+          <li key={a.id}>
+            <button type="button" onClick={() => goTo(i)} aria-label={a.label} aria-current={i === step ? "step" : undefined} className="block w-full py-2">
+              <span className={`block h-1.5 rounded-pill ${tone}`} />
+            </button>
+          </li>
+        );
+      })}
+    </ol>
+  );
+
+  const areaLeft = area ? itemsIn(area.id).filter((i) => !answers[i.id]).length : 0;
+  const nextLabel2 = step + 1 < REVIEW ? `Next: ${AREAS[step + 1].label}` : "Review";
+  const footer = area ? (
+    <BigButton disabled={areaLeft > 0 || (identity && !photosDone)} onClick={advance}>
+      {identity && !photosDone
+        ? "Take both photos first"
+        : areaLeft > 0
+          ? `${areaLeft} left on this screen`
+          : nextLabel2}
+    </BigButton>
+  ) : (
+    <div className="space-y-3">
+      <div className="flex items-baseline justify-between">
+        <span className="text-sm text-muted">{diffs.length ? "Suggested price" : "Offer"}</span>
+        <span className="flex items-baseline gap-2">
+          {diffs.length > 0 && <span className="text-sm text-muted line-through">{money(car.offer)}</span>}
+          <span className="text-h4 font-bold text-ink">{money(price)}</span>
+        </span>
+      </div>
+      {firstOpen() < REVIEW ? (
+        <BigButton onClick={() => goTo(firstOpen())}>Check {AREAS[firstOpen()].label}</BigButton>
+      ) : diffs.length === 0 ? (
+        <BigButton onClick={() => run.confirm(car.id)}>Confirm at {money(car.offer)}</BigButton>
+      ) : (
+        <BigButton disabled={missingPhoto} onClick={() => run.sendReprice(car.id)}>
+          {missingPhoto ? "Add a photo to every difference" : `Send re-price to ${env.directorOf(car)}`}
+        </BigButton>
+      )}
+    </div>
+  );
 
   return (
     <Screen
@@ -460,209 +526,88 @@ function CarScreen({
           Not ready
         </button>
       }
-      footer={
-        <div className="space-y-3">
-          <div className="flex items-baseline justify-between">
-            <span className="text-sm text-muted">
-              {diffs.length ? "Suggested price" : "Offer"}
-            </span>
-            <span className="flex items-baseline gap-2">
-              {diffs.length > 0 && (
-                <span className="text-sm text-muted line-through">
-                  {money(car.offer)}
-                </span>
-              )}
-              <span className="text-h4 font-bold text-ink">{money(price)}</span>
+      footer={footer}
+    >
+      <span ref={top} hidden />
+      {banner}
+      {strip}
+
+      {area ? (
+        <>
+          <div className="flex items-baseline justify-between gap-3">
+            <h3 className="text-title font-bold text-ink">{area.label}</h3>
+            <span className="shrink-0 text-caption text-muted">
+              {step + 1} of {AREAS.length}
             </span>
           </div>
-          {left > 0 ? (
-            <BigButton disabled>
-              {left} {left === 1 ? "area" : "areas"} left to check
-            </BigButton>
-          ) : diffs.length === 0 ? (
-            <BigButton onClick={() => run.confirm(car.id)}>
-              Confirm at {money(car.offer)}
-            </BigButton>
-          ) : (
-            <BigButton
-              disabled={missingPhoto}
-              onClick={() => run.sendReprice(car.id)}
-            >
-              {missingPhoto
-                ? "Add a photo to every difference"
-                : `Send re-price to ${env.directorOf(car)}`}
-            </BigButton>
-          )}
-        </div>
-      }
-    >
-      {banner}
-      <p className="mb-4 text-base text-body">
-        Walk around the car. If an area is what {stop.contact.split(",")[0]}{" "}
-        declared, tap <span className="font-bold text-ink">All match</span>.
-        Open an area only when something's different.
-      </p>
 
-      <div className="space-y-3">
-        {AREAS.map((area) => {
-          const items = itemsIn(area.id);
-          const areaDiffs = diffs.filter((d) => d.item.area === area.id);
-          const isOpen = open === area.id;
-          const done = resolved(area.id);
-          const identity = area.id === "identity";
-
-          if (!isOpen && done)
-            return (
-              <button
-                key={area.id}
-                type="button"
-                onClick={() => setOpen(area.id)}
-                className={`flex w-full items-center gap-3 rounded-card border px-4 py-4 text-left ${
-                  areaDiffs.length
-                    ? "border-warning bg-nudge"
-                    : "border-line bg-white"
-                }`}
-              >
-                {areaDiffs.length ? (
-                  <span className="grid size-7 shrink-0 place-items-center rounded-full bg-warning text-sm font-bold text-ink">
-                    !
-                  </span>
-                ) : (
-                  <span className="grid size-7 shrink-0 place-items-center rounded-full bg-success text-white">
-                    <Icon name="check" className="size-4" />
-                  </span>
-                )}
-                <span className="min-w-0 flex-1">
-                  <span className="block text-base font-medium text-ink">
-                    {area.label}
-                  </span>
-                  <span className="block text-sm text-muted">
-                    {areaDiffs.length
-                      ? areaDiffs
-                          .map((d) =>
-                            `${d.finding} ${d.adjustment ? `−${money(-d.adjustment)}` : ""}`.trim(),
-                          )
-                          .join(" · ")
-                      : identity
-                        ? "Matches declared · 2 photos"
-                        : "All matches declared"}
-                  </span>
-                </span>
-                <span className="text-sm font-medium text-muted">Change</span>
-              </button>
-            );
-
-          if (!isOpen)
-            return (
-              <div
-                key={area.id}
-                className="rounded-card border border-line bg-white p-4"
-              >
-                <p className="text-base font-medium text-ink">{area.label}</p>
-                <p className="mt-0.5 text-sm text-muted">
-                  {items
-                    .map((i) => `${i.question}: ${declaredFor(i, car)}`)
-                    .join(" · ")}
-                </p>
-                {identity && (
-                  <div className="mt-3">
-                    <IdentityPhotos
-                      odometer={photos.odometer}
-                      vin={photos.vin}
-                      onTake={onPhoto}
-                    />
-                  </div>
-                )}
-                <div className="mt-4 grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setOpen(area.id)}
-                    className="h-12 rounded-pill border border-line bg-white px-3 text-sm font-bold text-ink hover:border-ink"
-                  >
-                    Doesn't match
-                  </button>
-                  {/* Same weight as "Doesn't match" on purpose: a filled button would make
-                      the clean answer the easy one and invite tapping through unchecked. */}
-                  <button
-                    type="button"
-                    onClick={() => allMatch(area.id)}
-                    disabled={identity && !photosDone}
-                    className="inline-flex h-12 items-center justify-center gap-1.5 rounded-pill border border-line bg-white px-3 text-sm font-bold text-ink hover:border-ink disabled:border-line-light disabled:text-subtle"
-                  >
-                    <Icon name="check" className="size-4" /> All match
-                  </button>
-                </div>
-                {identity && !photosDone && (
-                  <p className="mt-2 text-caption text-muted">
-                    Take both photos first, then tap All match.
-                  </p>
-                )}
-              </div>
-            );
-
-          return (
-            <div
-              key={area.id}
-              className="overflow-hidden rounded-card border border-ink bg-white"
-            >
-              <p className="border-b border-line px-4 py-3 text-base font-bold text-ink">
-                {area.label}: what's different?
-              </p>
-              {identity && (
-                <div className="border-b border-line-light px-4 py-4">
-                  <IdentityPhotos
-                    odometer={photos.odometer}
-                    vin={photos.vin}
-                    onTake={onPhoto}
-                  />
-                </div>
-              )}
-              {items.map((item) => {
-                const isDiff = answers[item.id]?.result === "different";
-                return (
-                  <div
-                    key={item.id}
-                    className={`border-b border-line-light px-4 last:border-b-0 ${isDiff ? "bg-nudge py-4" : "py-3"}`}
-                  >
-                    {isDiff ? (
-                      <DeclaredItem
-                        car={car}
-                        item={item}
-                        answer={answers[item.id]}
-                        onSame={() =>
-                          run.setAnswer(car.id, item.id, { result: "match" })
-                        }
-                        onDifferent={() => run.markDifferent(car, item.id)}
-                        onClear={() =>
-                          run.setAnswer(car.id, item.id, undefined)
-                        }
-                        onPatch={(p) => run.patchDifferent(car.id, item.id, p)}
-                      />
-                    ) : (
-                      <DeclaredRow
-                        car={car}
-                        item={item}
-                        onDifferent={() => run.markDifferent(car, item.id)}
-                      />
-                    )}
-                  </div>
-                );
-              })}
-              <div className="border-t border-line px-4 py-3">
-                <BigButton
-                  variant="outline"
-                  disabled={identity && !photosDone}
-                  onClick={() => doneWith(area.id)}
-                >
-                  {identity && !photosDone
-                    ? "Take both photos first"
-                    : "Done, the rest matches"}
-                </BigButton>
-              </div>
+          {identity && (
+            <div className="mt-2.5">
+              <IdentityPhotos odometer={photos.odometer} vin={photos.vin} onTake={onPhoto} />
             </div>
-          );
-        })}
-      </div>
+          )}
+
+          <div className="mt-2.5 divide-y divide-line-light overflow-hidden rounded-card border border-line bg-white">
+              {itemsIn(area.id).map((item) => (
+                <CompactItem
+                  key={item.id}
+                  car={car}
+                  item={item}
+                  answer={answers[item.id]}
+                  onDifferent={() => run.markDifferent(car, item.id)}
+                  onSame={() => run.setAnswer(car.id, item.id, { result: "match" })}
+                  onClear={() => run.setAnswer(car.id, item.id, undefined)}
+                  onPatch={(p) => run.patchDifferent(car.id, item.id, p)}
+                />
+              ))}
+            </div>
+        </>
+      ) : (
+        <>
+          <h3 className="text-h4 font-bold text-ink">Walk-around done</h3>
+          <p className="mt-0.5 text-sm text-muted">Tap an area to change it.</p>
+          <div className="mt-3 space-y-1.5">
+            {AREAS.map((a, i) => {
+              const areaDiffs = diffs.filter((d) => d.item.area === a.id);
+              const done = resolved(a.id);
+              return (
+                <button
+                  key={a.id}
+                  type="button"
+                  onClick={() => goTo(i)}
+                  className={`flex w-full items-center gap-3 rounded-card border px-4 py-2 text-left ${
+                    areaDiffs.length ? "border-warning bg-nudge" : "border-line bg-white"
+                  }`}
+                >
+                  {areaDiffs.length ? (
+                    <span className="grid size-7 shrink-0 place-items-center rounded-full bg-warning text-sm font-bold text-ink">!</span>
+                  ) : done ? (
+                    <span className="grid size-7 shrink-0 place-items-center rounded-full bg-success text-white">
+                      <Icon name="check" className="size-4" />
+                    </span>
+                  ) : (
+                    <span className="size-7 shrink-0 rounded-full border border-dashed border-subtle" />
+                  )}
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-base font-medium text-ink">{a.label}</span>
+                    <span className="block text-sm text-muted">
+                      {areaDiffs.length
+                        ? areaDiffs
+                            .map((d) => `${d.finding} ${d.adjustment ? `−${money(-d.adjustment)}` : ""}`.trim())
+                            .join(" · ")
+                        : !done
+                          ? "Not checked yet"
+                          : a.id === "identity"
+                            ? "Matches declared · 2 photos"
+                            : "All matches declared"}
+                    </span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
 
       {notReady && (
         <NotReadyC2

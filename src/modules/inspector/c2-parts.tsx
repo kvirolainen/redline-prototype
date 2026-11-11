@@ -3,6 +3,7 @@ import { OptionCard } from '../../components/ui/OptionCard';
 import { money } from '../../domain/format';
 import { useC2Demo } from './c2-demo';
 import { DifferenceEditor } from './DifferenceEditor';
+import { photoFor } from '../../domain/photos';
 import { useInspectorEnv } from './env';
 import { declaredFor, type CheckItem, type InspectionCar } from './fixtures';
 import { BigButton, DifferenceList, Icon, PriceChange, Sheet } from './parts';
@@ -368,5 +369,104 @@ function Mark({ tone, icon }: { tone: 'done' | 'attention'; icon: 'check' | 'tru
     <span className={`mx-auto grid size-16 place-items-center rounded-full ${tone === 'done' ? 'bg-success text-white' : 'bg-nudge text-ink'}`}>
       <Icon name={icon} className="size-8" />
     </span>
+  );
+}
+
+/** One line of an area's checklist, compact enough that a whole area fits the phone screen: what the dealer declared
+ *  and Same / Different; once different, the findings as chips, a one-line note and small photo tiles. */
+export function CompactItem({
+  car,
+  item,
+  answer,
+  onDifferent,
+  onSame,
+  onClear,
+  onPatch,
+}: {
+  car: InspectionCar;
+  item: CheckItem;
+  answer: Answer | undefined;
+  onDifferent: () => void;
+  onSame: () => void;
+  onClear: () => void;
+  onPatch: (p: Partial<{ finding: number; note: string; photos: number }>) => void;
+}) {
+  const diff = answer?.result === 'different' ? answer : undefined;
+  const same = answer?.result === 'match';
+  const src = photoFor(item.question);
+  return (
+    <div className={`px-3.5 py-2.5 ${diff ? 'bg-nudge' : ''}`}>
+      <div className="flex items-center gap-3">
+        <span className="min-w-0 flex-1">
+          <span className="block text-caption text-muted">{item.question}</span>
+          <span className="block text-sm leading-snug font-medium text-ink">{declaredFor(item, car)}</span>
+        </span>
+        {/* A checklist: every item gets its own answer, same weight both ways, so nothing is ticked by default. */}
+        <span className="flex shrink-0 gap-1.5">
+          <button
+            type="button"
+            aria-pressed={same}
+            onClick={same ? onClear : onSame}
+            className={`inline-flex h-8 items-center gap-1 rounded-pill border px-2.5 text-caption font-bold ${same ? 'border-success bg-success text-white' : 'border-line bg-white text-ink hover:border-ink'}`}
+          >
+            <Icon name="check" className="size-3.5" /> Same
+          </button>
+          <button
+            type="button"
+            aria-pressed={!!diff}
+            onClick={diff ? onClear : onDifferent}
+            className={`h-8 rounded-pill border px-2.5 text-caption font-bold ${diff ? 'border-ink bg-ink text-white' : 'border-line bg-white text-ink hover:border-ink'}`}
+          >
+            Different
+          </button>
+        </span>
+      </div>
+      {diff && (
+        <div className="mt-2 space-y-2">
+          <div className="flex flex-wrap gap-1.5">
+            {item.findings.map((f, i) => {
+              const on = diff.finding === i;
+              return (
+                <button
+                  key={f.label}
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => onPatch({ finding: i })}
+                  className={`h-8 rounded-pill border px-2.5 text-caption ${on ? 'border-ink bg-ink font-medium text-white' : 'border-line bg-white text-ink hover:border-ink'}`}
+                >
+                  {f.label}
+                  <span className={on ? 'text-white/70' : 'text-muted'}> {f.adjustment === 0 ? '· call ops' : `−${money(-f.adjustment)}`}</span>
+                </button>
+              );
+            })}
+          </div>
+          <input
+            value={diff.note}
+            onChange={(e) => onPatch({ note: e.target.value })}
+            placeholder="Note for the dealer: where and how big"
+            className="h-9 w-full rounded-card border border-line-light bg-white px-3 text-sm text-ink outline-none placeholder:text-subtle hover:border-body focus:border-ink"
+          />
+          <div className="flex items-center gap-1.5">
+            {Array.from({ length: diff.photos }, (_, i) =>
+              src ? (
+                <img key={i} src={src} alt={`${item.question} ${i + 1}`} className="h-10 w-14 rounded-card border border-line object-cover" />
+              ) : (
+                <span key={i} className="grid h-10 w-14 place-items-center rounded-card border border-line bg-photo-bg text-warm-grey">
+                  <Icon name="camera" className="size-4" />
+                </span>
+              ),
+            )}
+            <button
+              type="button"
+              onClick={() => onPatch({ photos: diff.photos + 1 })}
+              className="inline-flex h-10 items-center gap-1.5 rounded-card border border-dashed border-subtle bg-white px-3 text-caption font-medium text-ink hover:border-ink"
+            >
+              <Icon name="camera" className="size-4" /> {diff.photos ? 'Add' : 'Take photo'}
+            </button>
+            {diff.photos === 0 && <span className="text-caption font-medium text-error">Needed</span>}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
