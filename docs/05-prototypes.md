@@ -18,12 +18,16 @@ All twelve share the same demo moment: **Thu Nov 12**, pickup day, when Sam's in
 
 ::screen[trade-in/B2]
 
-Why B: Maria prices trade-ins every week. For someone who repeats a task, one screen where every answer sits in the same place beats a guided flow: she works from memory, in any order, and the customer watches the number settle. What changed from B:
+Why B: Maria prices trade-ins every week. For someone who repeats a task, one screen where every answer sits in the same place beats a guided flow: she works from memory, in any order. What changed from B:
 
-- **Fits one laptop screen** (1280 × 800) with no scrolling. Each question is one row of short answers, and nothing moves as she answers.
-- **Every word is fine for the customer to read.** The auction comparison and "beats auction by" are the dealer's business, so they moved to Back office. Notes under an answer speak to both people ("It's checked at pickup").
-- **No "guaranteed floor".** A car Clutch can't price instantly shows an estimate and "Offer by 3:00 pm today"; the offer lands in Back office to accept.
+- **Clutch's full question list.** The 15 questions from Clutch's sell flow that apply to a dealer (disclosures, accidents, exterior, rust, interior, mechanical, driveable, overall condition, loan or lease, keys, features, factory rims, tire sets, tire type, when the all-seasons were replaced). Dropped: ownership, sell or trade, and when you plan to sell, because the dealership is the seller and it sells now. Transmission and colour come from the VIN.
+- **Fits one screen** (1440 × 900 and 1280 × 800) with no scrolling: two columns, short questions two to a line, and every answer starting on one of two edges.
+- **Answer in any order**, even before the VIN.
+- **The price appears once.** Until every answer is in, the panel shows progress, not a number, so the customer never watches it move.
+- **Every word is fine for the customer to read.** The auction comparison is the dealer's business and moved to Back office. Clutch's honesty notes stay, worded for both people ("It's checked at pickup").
+- **No "guaranteed floor".** A car Clutch can't price instantly says why (over 200,000 km, a branded title) and when the offer comes (by 3:00 pm today); it lands in Back office to accept.
 - **No "today's trade-ins" list.** Nothing in this MVP knows the dealer's trade-ins before Maria types the VIN; pulling them from the dealer's sales system is a later integration. A full VIN looks the car up on its own.
+- **The confirmation follows Clutch's own firm-offer card**, then what happens next (pickup, inspection, payment) and two ways on: another trade-in, or Back office.
 
 ## 2. Clutch ops · Jordan, Clutch ops, desktop
 

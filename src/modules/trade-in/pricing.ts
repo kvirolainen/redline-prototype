@@ -26,7 +26,9 @@ export interface Question {
   options: Option[];
 }
 
-export type QuestionId = 'keys' | 'title' | 'features' | 'exterior' | 'accidents' | 'mechanical' | 'interior' | 'tires';
+export type QuestionId =
+  | 'keys' | 'title' | 'features' | 'exterior' | 'accidents' | 'mechanical' | 'interior' | 'tires'
+  | 'payout' | 'rust' | 'driveable' | 'condition' | 'tireSets' | 'tireType' | 'rims';
 export type Answers = Partial<Record<QuestionId, string[]>>;
 
 export const QUESTIONS: Question[] = [
@@ -97,6 +99,96 @@ export const QUESTIONS: Question[] = [
   },
 ];
 
+/**
+ * Clutch's full sell-flow question list, adapted for a dealer at the desk. Dropped: ownership,
+ * sell-or-trade and "when do you plan to sell" (the dealership is the seller, and it sells now);
+ * transmission and colour come from the VIN. Same price stub: a clean Civic still comes out at $17,850.
+ */
+const byId = (id: QuestionId) => QUESTIONS.find((q) => q.id === id)!;
+export const FULL_QUESTIONS: Question[] = [
+  {
+    id: 'title', step: 'vehicle', label: 'Any additional disclosures?', multi: true,
+    options: [
+      { value: 'none', title: 'Nothing to disclose' },
+      { value: 'rebuilt', title: 'Salvage, rebuilt or total loss', review: true },
+      { value: 'flood', title: 'Fire or flood damage', review: true },
+      { value: 'stolen', title: 'Previously stolen', review: true },
+    ],
+  },
+  byId('accidents'),
+  {
+    id: 'payout', step: 'vehicle', label: 'Is there a loan or lease on it?',
+    options: [
+      { value: 'no', title: 'No' },
+      { value: 'loan', title: 'Loan' },
+      { value: 'lease', title: 'Lease' },
+    ],
+  },
+  byId('exterior'),
+  {
+    id: 'rust', step: 'condition', label: 'Any rust?',
+    options: [
+      { value: 'no', title: 'No' },
+      { value: 'yes', title: 'Yes', deduct: 600 },
+    ],
+  },
+  byId('mechanical'),
+  byId('interior'),
+  {
+    id: 'driveable', step: 'condition', label: 'Is it driveable?',
+    options: [
+      { value: 'yes', title: 'Yes' },
+      { value: 'no', title: 'No', deduct: 1500 },
+    ],
+  },
+  {
+    id: 'condition', step: 'condition', label: 'Overall condition',
+    options: [
+      { value: 'poor', title: 'Poor', helper: 'Several problems that need repair or replacement', deduct: 1200 },
+      { value: 'good', title: 'Good', helper: 'Some normal wear or a few scratches, no major problems' },
+      { value: 'exceptional', title: 'Exceptional', helper: 'Looks brand new inside and out' },
+    ],
+  },
+  {
+    id: 'features', step: 'features', label: 'Any additional features or modifications?', multi: true,
+    options: [
+      { value: 'none', title: 'None' },
+      { value: 'rims', title: 'Aftermarket rims', deduct: 150 },
+      { value: 'cosmetic', title: 'Cosmetic modifications', deduct: 150 },
+      { value: 'wrap', title: 'Coloured wrap', deduct: 200 },
+      { value: 'suspension', title: 'Suspension', deduct: 250 },
+      { value: 'exhaust', title: 'Exhaust', deduct: 150 },
+      { value: 'stereo', title: 'Stereo', deduct: 50 },
+      { value: 'performance', title: 'Performance upgrades', deduct: 300 },
+      { value: 'software', title: 'Manufacturer software upgrades' },
+    ],
+  },
+  byId('keys'),
+  {
+    id: 'rims', step: 'condition', label: 'Original factory rims?',
+    options: [
+      { value: 'yes', title: 'Yes' },
+      { value: 'no', title: 'No', deduct: 200 },
+    ],
+  },
+  {
+    id: 'tireSets', step: 'condition', label: 'Sets of tires with the car',
+    options: [
+      { value: '1', title: '1 set' },
+      { value: '2', title: '2 sets' },
+      { value: '3', title: '3 or more' },
+    ],
+  },
+  {
+    id: 'tireType', step: 'condition', label: 'Tires on it now',
+    options: [
+      { value: 'all', title: 'All-season' },
+      { value: 'winter', title: 'Winter' },
+    ],
+  },
+  byId('tires'),
+];
+
 export const question = (id: QuestionId) => QUESTIONS.find((q) => q.id === id)!;
 export const MOVERS = QUESTIONS.filter((q) => q.mover);
 
@@ -127,9 +219,9 @@ export interface Quote {
  * @param scope which questions count for "complete"; the quick flow passes only the movers and
  *   fills the rest with their assumed answers.
  */
-export function quote(car: DecodedCar, km: number, answers: Answers, scope: Question[] = QUESTIONS): Quote {
+export function quote(car: DecodedCar, km: number, answers: Answers, scope: Question[] = QUESTIONS, all: Question[] = QUESTIONS): Quote {
   const filled: Answers = { ...answers };
-  for (const q of QUESTIONS) if (!scope.includes(q) && !filled[q.id]?.length && q.assumed) filled[q.id] = [q.assumed];
+  for (const q of all) if (!scope.includes(q) && !filled[q.id]?.length && q.assumed) filled[q.id] = [q.assumed];
 
   let firm = car.baseFirm - round50((km - car.listKm) * 0.05);
   let auctionNet = car.auctionNet - round50((km - car.listKm) * 0.045);
@@ -137,7 +229,7 @@ export function quote(car: DecodedCar, km: number, answers: Answers, scope: Ques
   let unansweredSwing = 0;
   let answered = 0;
 
-  for (const q of QUESTIONS) {
+  for (const q of all) {
     const picked = filled[q.id] ?? [];
     if (scope.includes(q)) {
       if (picked.length) answered++;

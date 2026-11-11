@@ -26,7 +26,7 @@ export const OneScreen: Story = {
     docs: {
       description: {
         story:
-          'B, refined. Every question on one row in a fixed place, so a manager who does this daily works from memory; nothing scrolls at 1280 × 800. The offer panel is the part both people read: estimate, then firm offer, one action. Nothing on screen is meant only for the dealer, so the auction comparison moved to Back office. Cars Clutch can’t price instantly get an estimate and an offer by 3:00 pm today.',
+          'B, refined. Clutch’s full sell-flow question list (15 that apply to a dealer), each always in the same place, in two columns that fit 1440 × 900 and 1280 × 800 with no scroll. Answer in any order, even before the VIN. The price appears once, when everything is in, so nobody watches it move. Nothing on screen is meant only for the dealer. A car Clutch can’t price instantly says why and when the offer comes. The confirmation follows Clutch’s firm-offer card and links on to Back office.',
       },
     },
   },

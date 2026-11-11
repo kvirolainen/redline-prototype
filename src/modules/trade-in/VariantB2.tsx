@@ -3,93 +3,133 @@ import { Button } from '../../components/ui/Button';
 import { SegmentedProgress } from '../../components/ui/Stepper';
 import { money } from '../../domain/format';
 import { carName, DATES, DEALER, KNOWN_CARS, kmLabel, reference } from './fixtures';
-import { INSTANT_KM_LIMIT, QUESTIONS, type Question, type Quote } from './pricing';
+import { FULL_QUESTIONS, INSTANT_KM_LIMIT, type Question, type QuestionId, type Quote } from './pricing';
 import { useTradeIn, type TradeIn } from './useTradeIn';
 
-// B2 · One screen. B, refined for a manager who does this many times a week, on a laptop that both
-// she and the customer look at: every question is always in the same place, nothing scrolls at
-// 1280 × 800, and every word on screen is fine for the customer to read.
+// B2 · One screen. B, refined for a manager who does this many times a week, on the desk computer
+// that she and the customer both look at. Clutch's full question list, every question always in
+// the same place, no scrolling at 1440 × 900. The price shows once, when every answer is in, so
+// nobody watches a number move while they answer.
 
-/** Short answer labels so each question fits on one row. Anything missing falls back to the full title. */
+/** Two columns: the car's history and body, and what comes with it. Short questions sit two to a line,
+ *  on the column's half-way mark, so every answer starts on one of two edges. */
+const COLUMNS: { title: string; rows: QuestionId[][] }[] = [
+  { title: 'History and condition', rows: [['title'], ['accidents', 'rust'], ['exterior'], ['interior'], ['mechanical', 'driveable'], ['condition']] },
+  { title: 'Equipment', rows: [['payout', 'keys'], ['features'], ['rims', 'tireSets'], ['tireType', 'tires']] },
+];
+
+const Q = (id: QuestionId) => FULL_QUESTIONS.find((q) => q.id === id)!;
+
+/** Short labels so each question fits on one line. Anything missing falls back to the full text. */
+const LABEL: Partial<Record<QuestionId, string>> = {
+  title: 'Disclosures',
+  accidents: 'Accidents or claims',
+  payout: 'Loan or lease',
+  exterior: 'Exterior damage',
+  rust: 'Rust',
+  mechanical: 'Mechanical or lights',
+  interior: 'Interior damage',
+  driveable: 'Driveable',
+  keys: 'Keys',
+  features: 'Features or modifications',
+  rims: 'Factory rims',
+  tireSets: 'Sets of tires',
+  tireType: 'Tires on it now',
+  tires: 'All-seasons replaced',
+  condition: 'Overall condition',
+};
+
 const SHORT: Record<string, string> = {
-  'title:clean': 'Clean',
-  'title:rebuilt': 'Salvage or rebuilt',
+  'title:none': 'None',
+  'title:rebuilt': 'Salvage, rebuilt or total loss',
   'title:flood': 'Fire or flood',
-  'title:stolen': 'Was stolen',
-  'keys:2': '2 or more',
-  'keys:1': '1 key',
-  'features:none': 'None',
-  'features:rims': 'Aftermarket rims',
-  'features:cosmetic': 'Wrap or cosmetic',
-  'features:performance': 'Performance',
-  'exterior:none': 'None',
-  'exterior:minor': 'Small scratches',
-  'exterior:moderate': 'Dents',
-  'exterior:bodywork': 'Repainted',
-  'exterior:glass': 'Chipped glass',
+  'title:stolen': 'Stolen',
   'accidents:none': 'None',
   'accidents:yes': '1 or more',
+  'exterior:none': 'None',
+  'exterior:minor': 'Minor, under a golf ball',
+  'exterior:moderate': 'Over a golf ball',
+  'exterior:bodywork': 'Cracked body',
+  'exterior:glass': 'Glass chip',
   'mechanical:no': 'None',
-  'mechanical:yes': 'Issue or warning light',
+  'mechanical:yes': 'Yes',
   'interior:none': 'None',
-  'interior:stains': 'Stains or odours',
+  'interior:stains': 'Stains',
   'interior:rips': 'Rips or tears',
-  'interior:dash': 'Damaged dash',
-  'tires:new': 'Within a year',
-  'tires:old': 'Over a year ago',
+  'interior:dash': 'Dash or panels',
+  'keys:2': '2 or more',
+  'keys:1': '1',
+  'features:none': 'None',
+  'features:cosmetic': 'Cosmetic',
+  'features:wrap': 'Wrap',
+  'features:performance': 'Performance',
+  'features:software': 'Software upgrades',
+  'tires:new': 'Under 12 months',
+  'tires:old': 'Over a year',
 };
 
-/** Short row labels, same order as Clutch's sell flow. */
-const LABEL: Record<string, string> = {
-  title: 'Title history',
-  keys: 'Keys',
-  features: 'Modifications',
-  exterior: 'Exterior damage',
-  accidents: 'Accidents or claims',
-  mechanical: 'Mechanical issues',
-  interior: 'Interior damage',
-  tires: 'Tires replaced',
-};
-
-/** Plain notes under an answer, worded for both people at the desk. */
-function noteFor(t: TradeIn, q: Question): string | null {
-  const picked = t.answers[q.id] ?? [];
+/** Pale-yellow notes under an answer, after Clutch's own flow, worded for both people at the desk. */
+function noteFor(t: TradeIn, id: QuestionId): string | null {
+  const picked = t.answers[id] ?? [];
   if (!t.car) return null;
-  if (q.id === 'exterior' && picked.includes('none'))
+  if (id === 'exterior' && picked.includes('none'))
     return `Only about 1 in 10 cars from ${t.car.year} has none. It’s checked at pickup.`;
-  if (q.id === 'accidents' && picked.includes('none'))
-    return 'Paint and panels are checked at pickup. A repair mentioned now keeps this price.';
+  if (id === 'accidents' && picked.includes('none'))
+    return 'Paint and panels are checked at pickup. A repair mentioned now keeps the offer.';
+  if (id === 'tires' && picked.length)
+    return 'Replaced in the last 12 months usually means 6 mm of tread or more.';
   return null;
 }
 
 function kmNote(t: TradeIn): string | null {
   if (!t.car || !t.km) return null;
-  if (t.km > INSTANT_KM_LIMIT) return `Over ${INSTANT_KM_LIMIT.toLocaleString('en-CA')} km, Clutch prices the car by hand. The offer comes by ${DATES.firmBy}.`;
+  if (t.km > INSTANT_KM_LIMIT) return `Over ${INSTANT_KM_LIMIT.toLocaleString('en-CA')} km, a Clutch appraiser prices the car. The offer comes by ${DATES.firmBy}.`;
   const age = 2026 - t.car.year;
-  if (t.km > age * 40000 || t.km < age * 3000) return 'That looks unusual for the car’s age. Worth checking the odometer.';
+  if (t.km > age * 40000) return 'That looks high for this car’s age. Check the odometer so the offer is right.';
+  if (t.km < age * 3000) return 'That looks low for this car’s age. Check the odometer so the offer is right.';
   return null;
 }
 
-export function TradeInVariantB2() {
-  const t = useTradeIn(QUESTIONS, 'blank');
+/** Every reason the offer needs a person, in plain words. */
+function reviewReasons(t: TradeIn): string[] {
+  const out: string[] = [];
+  if (t.km > INSTANT_KM_LIMIT) out.push(`Over ${INSTANT_KM_LIMIT.toLocaleString('en-CA')} km. High-mileage cars are priced by an appraiser.`);
+  for (const q of FULL_QUESTIONS)
+    for (const v of t.answers[q.id] ?? []) {
+      const o = q.options.find((x) => x.value === v);
+      if (o?.review) out.push(`${o.title} declared. These cars are priced by an appraiser.`);
+    }
+  return out;
+}
+
+/** @param onOpenBackOffice the app shell switches to Back office; Storybook leaves it empty. */
+export function TradeInVariantB2({ onOpenBackOffice }: { onOpenBackOffice?: () => void } = {}) {
+  const t = useTradeIn(FULL_QUESTIONS, 'blank', FULL_QUESTIONS);
 
   if (t.outcome && t.quote)
     return (
       <div className="min-h-screen bg-canvas">
         <Header />
-        <Done t={t} q={t.quote} />
+        <Done t={t} q={t.quote} onOpenBackOffice={onOpenBackOffice} />
       </div>
     );
 
   return (
     <div className="min-h-screen bg-canvas">
       <Header />
-      <div className="mx-auto grid max-w-[1200px] grid-cols-[1fr_340px] gap-6 px-8 py-5 xl:grid-cols-[1fr_380px]">
+      <div className="mx-auto grid max-w-[1320px] grid-cols-[1fr_300px] gap-5 px-6 py-4 xl:grid-cols-[1fr_340px]">
         <div className="rounded-panel border border-line bg-white">
           <CarRow t={t} />
-          <div className={t.car ? '' : 'pointer-events-none opacity-40'} aria-disabled={!t.car}>
-            {QUESTIONS.map((q) => (
-              <AnswerRow key={q.id} q={q} t={t} />
+          <div className="grid grid-cols-2 divide-x divide-line-light">
+            {COLUMNS.map((c) => (
+              <section key={c.title} className="px-5 py-3">
+                <h2 className="text-caption font-bold tracking-wide text-muted uppercase">{c.title}</h2>
+                <div className="mt-3 space-y-3">
+                  {c.rows.map((ids) => (
+                    <Line key={ids.join()} ids={ids} t={t} />
+                  ))}
+                </div>
+              </section>
             ))}
           </div>
         </div>
@@ -117,7 +157,7 @@ function Header() {
 function CarRow({ t }: { t: TradeIn }) {
   const note = kmNote(t);
   return (
-    <div className="border-b border-line px-6 py-4">
+    <div className="border-b border-line px-5 py-3">
       <div className="grid grid-cols-[1fr_200px] gap-3">
         <Input
           label="VIN"
@@ -128,6 +168,7 @@ function CarRow({ t }: { t: TradeIn }) {
             const vin = v.toUpperCase();
             t.setVin(vin);
             if (vin.length === 17) t.lookup(vin);
+            else if (t.car) t.clearCar();
           }}
           error={t.vinError}
         />
@@ -140,9 +181,9 @@ function CarRow({ t }: { t: TradeIn }) {
           onBlur={() => t.km && t.setKmText(t.km.toLocaleString('en-CA'))}
         />
       </div>
-      {note && <p className="mt-2 text-sm text-body">{note}</p>}
+      {note && <Note>{note}</Note>}
       {!t.car && (
-        <p className="mt-3 text-caption text-muted">
+        <p className="mt-2 text-caption text-muted">
           Demo cars:{' '}
           {KNOWN_CARS.map((c, i) => (
             <span key={c.vin}>
@@ -175,7 +216,7 @@ function Input({
     <label className="block">
       <span className="mb-1 block text-caption font-medium text-muted">{label}</span>
       <span
-        className={`flex h-11 items-center rounded-card border bg-white px-3 ${
+        className={`flex h-10 items-center rounded-card border bg-white px-3 ${
           error ? 'border-error' : 'border-line hover:border-body focus-within:border-ink'
         }`}
       >
@@ -193,46 +234,62 @@ function Input({
   );
 }
 
-/** One question on one row: label left, answers as pills right. Black = picked, as in Clutch's flow. */
-function AnswerRow({ q, t }: { q: Question; t: TradeIn }) {
-  const picked = t.answers[q.id] ?? [];
-  const note = noteFor(t, q);
+function Note({ children }: { children: ReactNode }) {
+  return <p className="mt-1.5 rounded-card bg-nudge px-3 py-1.5 text-caption text-body">{children}</p>;
+}
+
+/** Label above, answers as pills below, one left edge for everything. Black = picked, as in Clutch's flow. */
+function Line({ ids, t }: { ids: QuestionId[]; t: TradeIn }) {
+  const notes = ids.map((id) => noteFor(t, id)).filter(Boolean) as string[];
   return (
-    <fieldset className="grid grid-cols-[150px_1fr] items-start gap-4 border-b border-line-light px-6 py-2.5 last:border-b-0">
-      <legend className="sr-only">{q.label}</legend>
-      <span className="pt-1.5 text-sm font-medium text-ink" aria-hidden>
-        {LABEL[q.id]}
-        {q.multi && <span className="block text-caption font-normal text-subtle">Pick all that apply</span>}
-      </span>
-      <div>
-        <div className="flex flex-wrap gap-2">
-          {q.options.map((o) => {
-            const on = picked.includes(o.value);
-            return (
-              <button
-                key={o.value}
-                type="button"
-                aria-pressed={on}
-                title={o.helper ?? o.title}
-                onClick={() => t.answer(q.id, o.value)}
-                className={`h-9 rounded-pill border px-3.5 text-sm transition-colors ${
-                  on ? 'border-ink bg-ink font-medium text-white' : 'border-line bg-white text-ink hover:border-ink'
-                }`}
-              >
-                {SHORT[`${q.id}:${o.value}`] ?? o.title}
-              </button>
-            );
-          })}
-        </div>
-        {note && <p className="mt-1.5 text-caption text-muted">{note}</p>}
+    <div>
+      <div className="grid grid-cols-2 gap-x-4">
+        {ids.map((id) => (
+          <Answer key={id} q={Q(id)} t={t} wide={ids.length === 1} />
+        ))}
+      </div>
+      {notes.map((n) => (
+        <Note key={n}>{n}</Note>
+      ))}
+    </div>
+  );
+}
+
+function Answer({ q, t, wide }: { q: Question; t: TradeIn; wide: boolean }) {
+  const picked = t.answers[q.id] ?? [];
+  return (
+    <fieldset className={wide ? 'col-span-2' : ''}>
+      <legend className="text-sm font-medium text-ink">
+        {LABEL[q.id] ?? q.label}
+        {q.multi && <span className="font-normal text-subtle"> · all that apply</span>}
+      </legend>
+      <div className="mt-1 flex flex-wrap gap-1.5">
+        {q.options.map((o) => {
+          const on = picked.includes(o.value);
+          return (
+            <button
+              key={o.value}
+              type="button"
+              aria-pressed={on}
+              title={o.helper ?? o.title}
+              onClick={() => t.answer(q.id, o.value)}
+              className={`h-7 rounded-pill border px-3 text-sm transition-colors ${
+                on ? 'border-ink bg-ink font-medium text-white' : 'border-line bg-white text-ink hover:border-ink'
+              }`}
+            >
+              {SHORT[`${q.id}:${o.value}`] ?? o.title}
+            </button>
+          );
+        })}
       </div>
     </fieldset>
   );
 }
 
-/** The part both people read: the car, the number, and the one action. */
+/** The part both people read: the car, then either progress or the one result. */
 function OfferPanel({ t }: { t: TradeIn }) {
   const q = t.quote;
+  const reasons = reviewReasons(t);
   return (
     <div className="rounded-panel border border-line bg-white p-6">
       {t.car ? (
@@ -244,26 +301,59 @@ function OfferPanel({ t }: { t: TradeIn }) {
           </p>
         </div>
       ) : (
-        <p className="text-sm text-muted">Enter the VIN and odometer. The offer builds here as you answer.</p>
+        <p className="text-sm text-muted">Answer in any order. The offer appears here once the VIN, odometer and every question are in.</p>
       )}
-      {t.car && !q && <p className="pt-4 text-sm text-muted">Add the odometer reading to see an offer.</p>}
-      {q && (q.review ? <ByHand t={t} q={q} /> : <Instant t={t} q={q} />)}
+      {!q && <Waiting t={t} />}
+      {q && (reasons.length ? <ByHand t={t} q={q} reasons={reasons} /> : <Instant t={t} q={q} />)}
+    </div>
+  );
+}
+
+/** Before there is a quote: how many answers are in, and what is still missing. */
+function Waiting({ t }: { t: TradeIn }) {
+  const answered = FULL_QUESTIONS.filter((x) => t.answers[x.id]?.length).length;
+  const missing = !t.car ? 'Enter the VIN to see the offer' : 'Add the odometer reading';
+  return (
+    <>
+      <Progress q={{ answered, total: FULL_QUESTIONS.length }} />
+      <Button className="w-full" disabled>
+        {missing}
+      </Button>
+    </>
+  );
+}
+
+function Progress({ q }: { q: Pick<Quote, 'answered' | 'total'> }) {
+  return (
+    <div className="py-6">
+      <p className="text-center text-sm text-muted">
+        {q.answered} of {q.total} answered
+      </p>
+      <div className="mt-3">
+        <SegmentedProgress total={q.total} done={q.answered} />
+      </div>
     </div>
   );
 }
 
 function Instant({ t, q }: { t: TradeIn; q: Quote }) {
-  const left = q.total - q.answered;
+  if (!q.complete)
+    return (
+      <>
+        <Progress q={q} />
+        <Button className="w-full" disabled>
+          Answer all to see the offer
+        </Button>
+      </>
+    );
   return (
     <>
-      <BigNumber
-        label={q.complete ? 'Firm offer' : 'Estimate'}
-        value={q.complete ? money(q.firm) : `${money(q.low)} – ${money(q.high)}`}
-        small={!q.complete}
-        sub={q.complete ? `Holds until ${DATES.validUntil}` : `${left} ${left === 1 ? 'question' : 'questions'} left to a firm offer`}
-      />
-      <SegmentedProgress total={q.total} done={q.answered} />
-      <Button className="mt-5 w-full" disabled={!q.complete} onClick={() => t.setOutcome('accepted')}>
+      <div className="py-6 text-center">
+        <p className="text-sm text-muted">Clutch’s firm offer</p>
+        <p className="mt-1 text-[40px] leading-[48px] font-bold text-ink tabular-nums">{money(q.firm)}</p>
+        <p className="mt-1 text-caption text-muted">Holds until {DATES.validUntil}</p>
+      </div>
+      <Button className="w-full" onClick={() => t.setOutcome('accepted')}>
         Accept offer
       </Button>
       <p className="mt-3 text-center text-caption text-muted">Clutch picks the car up {DATES.pickup}</p>
@@ -271,61 +361,148 @@ function Instant({ t, q }: { t: TradeIn; q: Quote }) {
   );
 }
 
-function ByHand({ t, q }: { t: TradeIn; q: Quote }) {
+/** No instant offer: say why, what happens next, and when. */
+function ByHand({ t, q, reasons }: { t: TradeIn; q: Quote; reasons: string[] }) {
   return (
     <>
-      <BigNumber label={`Offer by ${DATES.firmBy}`} value={`${money(q.review!.floor)} – ${money(q.firm)}`} small sub="Estimate. A Clutch appraiser sets the final number." />
-      <SegmentedProgress total={q.total} done={q.answered} />
-      <Button className="mt-5 w-full" disabled={!q.complete} onClick={() => t.setOutcome('review-sent')}>
+      <div className="pt-5">
+        <p className="text-title font-bold text-ink">A Clutch appraiser prices this one</p>
+        <p className="mt-1 text-sm text-muted">The offer comes by {DATES.firmBy}. Why:</p>
+        <ul className="mt-3 space-y-2">
+          {reasons.map((r) => (
+            <li key={r} className="rounded-card bg-nudge px-3 py-2 text-sm text-body">
+              {r}
+            </li>
+          ))}
+        </ul>
+      </div>
+      <Progress q={q} />
+      <Button className="w-full" disabled={!q.complete} onClick={() => t.setOutcome('review-sent')}>
         {q.complete ? 'Send to Clutch' : 'Answer all to send'}
       </Button>
-      <p className="mt-3 text-center text-caption text-muted">Picked up {DATES.pickup} once accepted</p>
+      <p className="mt-3 text-center text-caption text-muted">The offer shows up in Back office to accept</p>
     </>
   );
 }
 
-function BigNumber({ label, value, sub, small }: { label: string; value: string; sub: string; small?: boolean }) {
+/** After the action, in Clutch's own offer-card style: the result, what happens next, two ways on. */
+function Done({ t, q, onOpenBackOffice }: { t: TradeIn; q: Quote; onOpenBackOffice?: () => void }) {
+  const car = t.car!;
+  const review = t.outcome === 'review-sent';
+  const reasons = reviewReasons(t);
+  const steps = review
+    ? [
+        { icon: <IconClock />, title: `By ${DATES.firmBy}`, text: 'A Clutch appraiser sets the offer' },
+        { icon: <IconCheck />, title: 'In Back office', text: 'The dealership accepts it or passes' },
+        { icon: <IconTruck />, title: DATES.pickup, text: `Picked up with ${DEALER.name}’s regular run` },
+      ]
+    : [
+        { icon: <IconTruck />, title: DATES.pickup, text: `Picked up with ${DEALER.name}’s regular run` },
+        { icon: <IconCheck />, title: 'About 15 minutes', text: 'A Clutch inspector checks it against these answers' },
+        { icon: <IconDollar />, title: 'Within 2 business days', text: `${DEALER.name} is paid` },
+      ];
   return (
-    <div className="py-6 text-center">
-      <p className="text-sm text-muted">{label}</p>
-      <p className={`mt-1 font-bold whitespace-nowrap text-ink tabular-nums ${small ? 'text-[30px] leading-[48px]' : 'text-[40px] leading-[48px]'}`}>{value}</p>
-      <p className="mt-1 text-caption text-muted">{sub}</p>
+    <div className="mx-auto max-w-[720px] px-6 py-10 text-center">
+      <span className="mx-auto grid size-12 place-items-center rounded-full bg-success text-white">
+        <svg viewBox="0 0 12 12" className="size-6" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
+          <path d="M2.5 6.5l2.5 2.5 4.5-5" />
+        </svg>
+      </span>
+      <h2 className="mt-4 text-h3 font-bold text-ink">{review ? 'Sent to Clutch' : 'Offer accepted'}</h2>
+
+      <div className="mt-8 overflow-hidden rounded-card border border-brand/15 bg-white text-left shadow-[0_12px_32px_-12px_rgba(255,70,76,0.25)]">
+        <div className="border-b border-brand/15 px-6 py-7 text-center">
+          <p className="text-base text-ink">{review ? 'Offer' : 'Total value of vehicle'}</p>
+          {review ? (
+            <p className="mt-2 text-h4 font-bold text-ink">Coming by {DATES.firmBy}</p>
+          ) : (
+            <p className="mt-2 text-price font-bold text-ink tabular-nums">{money(q.firm)}</p>
+          )}
+        </div>
+        <dl className="grid grid-cols-2 gap-x-8 gap-y-5 px-8 py-6 text-base">
+          {[
+            ['Make/Model', carName(car)],
+            ['VIN', car.vin],
+            ['Mileage', kmLabel(t.km)],
+            ['Reference code', reference(car)],
+          ].map(([k, v]) => (
+            <div key={k}>
+              <dt className="font-medium text-ink">{k}</dt>
+              <dd className="mt-1 text-muted">{v}</dd>
+            </div>
+          ))}
+        </dl>
+        {review && (
+          <ul className="space-y-2 border-t border-brand/15 px-8 py-5">
+            {reasons.map((r) => (
+              <li key={r} className="rounded-card bg-nudge px-3 py-2 text-sm text-body">
+                {r}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <h3 className="mt-12 text-h4 font-bold text-ink">What happens next</h3>
+      <ol className="mt-6 grid grid-cols-3 gap-4">
+        {steps.map((s, i) => (
+          <li key={i} className="relative">
+            {i > 0 && <span className="absolute top-6 right-1/2 mr-8 h-px w-[calc(100%-48px)] bg-line" aria-hidden />}
+            <span className="relative mx-auto grid size-12 place-items-center rounded-full bg-brand-tint text-brand">{s.icon}</span>
+            <p className="mt-3 text-sm font-bold text-ink">{s.title}</p>
+            <p className="mt-1 text-sm text-muted">{s.text}</p>
+          </li>
+        ))}
+      </ol>
+      {!review && (
+        <p className="mx-auto mt-6 max-w-[520px] text-caption text-muted">
+          If something differs at pickup, Clutch sends a new price with the reason, and the dealership decides.
+        </p>
+      )}
+
+      <div className="mt-10 flex flex-col items-center gap-4">
+        <Button className="px-10" onClick={t.reset}>
+          Start another trade-in
+        </Button>
+        <button type="button" onClick={onOpenBackOffice} className="text-base font-bold text-brand hover:underline">
+          Open Back office
+        </button>
+      </div>
     </div>
   );
 }
 
-/** After the action: what happens next, in words the customer can read too. */
-function Done({ t, q }: { t: TradeIn; q: Quote }) {
-  const car = t.car!;
-  const review = t.outcome === 'review-sent';
-  const steps: ReactNode[] = review
-    ? [
-        `A Clutch appraiser sets the offer by ${DATES.firmBy}. It shows up in Back office to accept.`,
-        `Once accepted, Clutch picks the car up ${DATES.pickup} with ${DEALER.name}’s regular run.`,
-      ]
-    : [
-        `${DATES.pickup}: a Clutch inspector checks the car against these answers. About 15 minutes.`,
-        `If it matches, Clutch takes the car and ${DEALER.name} is paid within 2 business days.`,
-        'If something differs, Clutch sends a new price with the reason, and the dealership decides.',
-      ];
+const icon = 'size-6';
+function IconTruck() {
   return (
-    <div className="mx-auto max-w-[600px] py-12">
-      <h2 className="text-h3 font-bold text-ink">{review ? 'Sent to Clutch' : 'Offer accepted'}</h2>
-      <p className="mt-2 text-base text-muted">
-        {carName(car)} · {review ? `estimate ${money(q.review!.floor)} – ${money(q.firm)}` : money(q.firm)}
-      </p>
-      <ol className="mt-8 space-y-4 rounded-panel border border-line bg-white px-6 py-5 text-sm text-body">
-        {steps.map((s, i) => (
-          <li key={i} className="flex gap-3">
-            <span className="grid size-6 shrink-0 place-items-center rounded-full border border-line text-caption font-bold text-ink">{i + 1}</span>
-            <span className="pt-0.5">{s}</span>
-          </li>
-        ))}
-      </ol>
-      <p className="mt-4 text-caption text-muted">Reference {reference(car)}</p>
-      <Button variant="outline" className="mt-8" onClick={t.reset}>
-        Start another trade-in
-      </Button>
-    </div>
+    <svg viewBox="0 0 24 24" className={icon} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M2 7h11v9H2zM13 10h4l4 3v3h-8z" />
+      <circle cx="6" cy="17.5" r="1.8" fill="white" />
+      <circle cx="17" cy="17.5" r="1.8" fill="white" />
+    </svg>
+  );
+}
+function IconCheck() {
+  return (
+    <svg viewBox="0 0 24 24" className={icon} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <rect x="5" y="4" width="14" height="17" rx="2" />
+      <path d="M9 4V3h6v1M9 12l2 2 4-4" />
+    </svg>
+  );
+}
+function IconDollar() {
+  return (
+    <svg viewBox="0 0 24 24" className={icon} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M14.5 9.2c-.4-.8-1.4-1.3-2.5-1.3-1.5 0-2.5.8-2.5 1.9 0 2.6 5.2 1.4 5.2 4.2 0 1.1-1.1 2-2.7 2-1.2 0-2.2-.5-2.6-1.4M12 6.5v11" />
+    </svg>
+  );
+}
+function IconClock() {
+  return (
+    <svg viewBox="0 0 24 24" className={icon} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 2" />
+    </svg>
   );
 }

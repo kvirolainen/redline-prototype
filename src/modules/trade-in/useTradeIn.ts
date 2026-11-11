@@ -5,7 +5,7 @@ import { QUESTIONS, quote as priceQuote, type Answers, type Question, type Quest
 export type Outcome = null | 'accepted' | 'floor-accepted' | 'review-sent';
 
 /** Local state for one trade-in: VIN, km, answers, the live quote and the outcome. Shared by all variants. */
-export function useTradeIn(scope: Question[] = QUESTIONS, start: 'demo' | 'blank' = 'demo') {
+export function useTradeIn(scope: Question[] = QUESTIONS, start: 'demo' | 'blank' = 'demo', all: Question[] = QUESTIONS) {
   const startVin = start === 'demo' ? CIVIC.vin : '';
   const startKm = start === 'demo' ? CIVIC.listKm.toLocaleString('en-CA') : '';
   const [vin, setVin] = useState(startVin);
@@ -26,7 +26,8 @@ export function useTradeIn(scope: Question[] = QUESTIONS, start: 'demo' | 'blank
     }
     setVinError(null);
     setCar(found);
-    setAnswers({});
+    // The one-screen version lets people answer before the VIN, so it keeps the answers.
+    if (start === 'demo') setAnswers({});
     return found;
   }
 
@@ -35,11 +36,16 @@ export function useTradeIn(scope: Question[] = QUESTIONS, start: 'demo' | 'blank
     setKmText(c.listKm.toLocaleString('en-CA'));
     setVinError(null);
     setCar(c);
-    setAnswers({});
+    if (start === 'demo') setAnswers({});
+  }
+
+  function clearCar() {
+    setCar(null);
+    setVinError(null);
   }
 
   function answer(id: QuestionId, value: string) {
-    const q = QUESTIONS.find((x) => x.id === id)!;
+    const q = all.find((x) => x.id === id)!;
     setAnswers((a) => {
       if (!q.multi) return { ...a, [id]: [value] };
       const cur = a[id] ?? [];
@@ -58,10 +64,10 @@ export function useTradeIn(scope: Question[] = QUESTIONS, start: 'demo' | 'blank
     setVinError(null);
   }
 
-  const quote = car && km > 0 ? priceQuote(car, km, answers, scope) : null;
+  const quote = car && km > 0 ? priceQuote(car, km, answers, scope, all) : null;
 
   return {
-    vin, setVin, kmText, setKmText, km, car, vinError, lookup, pick,
+    vin, setVin, kmText, setKmText, km, car, vinError, lookup, pick, clearCar,
     answers, answer, quote, outcome, setOutcome, reset,
   };
 }
