@@ -29,33 +29,7 @@ Why B: Maria prices trade-ins every week. For someone who repeats a task, one sc
 - **No "today's trade-ins" list.** Nothing in this MVP knows the dealer's trade-ins before Maria types the VIN; pulling them from the dealer's sales system is a later integration. A full VIN looks the car up on its own.
 - **The confirmation follows Clutch's own firm-offer card**, then what happens next (pickup, inspection, payment) and two ways on: another trade-in, or Back office.
 
-## 2. Clutch ops · Jordan, Clutch ops, desktop
-
-**Job:** every dealer's pickup runs in one place, and the exceptions that need a person.
-
-- **A · Week grid.** Dealers × run days, a dot per car. Best for planning the next two weeks; today's progress is only a count.
-- **B · Today's runs.** One card per truck, stops in order with ETAs and live progress. Best for watching the day; planning needs another screen.
-- **C · Exceptions first.** A queue of what needs ops now (re-price waiting, run with no inspector, offer expiring), one action each, with a small calendar beside it. Fastest to unblock; the runs are only a summary.
-
-::screens[ops-board]
-
-**Picked:** _pending_
-
-## 3. Clutch inspector · Sam, phone, in a parking lot
-
-**Job:** check each car against what the dealer declared, in about 15 minutes with one hand, then confirm, re-price or mark not ready.
-
-- **A · Run, car, checklist.** A run list, then one checklist per car with Match / Different on every row. Easy to scan; every check takes a tap.
-- **B · One car at a time.** One question per screen, the declared answer shown big, a running price that drops with each difference. Hardest to get wrong; slow for a clean car.
-- **C · Exceptions only.** Five areas, each closed with one "All match" tap; only a difference opens for detail and a photo. A clean car in 5 taps; relies on Sam really walking each area.
-
-Every version needs a photo per difference before a re-price can go to Dave.
-
-::screens[inspector]
-
-**Picked:** _pending_
-
-## 4. Back office · Dave, sales director
+## 2. Back office · Dave, sales director
 
 **Job:** decide re-prices fast, keep offers from expiring, and see what Redline is worth.
 
@@ -75,3 +49,29 @@ Why B: the sales director doesn't work in the back office, he drops in between d
 - **Keep any for your lot?** The director decides where each trade-in goes: retail on his own lot, or wholesale. Before each pickup he can pull any car off it. Clutch's offer is firm, so he doesn't approve the price; he decides whether the car goes.
 - **Value is one line here; Results is its own tab.** Clutch's own feedback on the first dashboard: the summary took too much room. Results answers "is Redline worth it?" in money: dollars above auction, days to get paid, staff time saved, and how often inspection changed the price (the trust number), by month. These are also the numbers he takes to the dealer principal, and the scorecard for the first-dealer experiment.
 - **Staff time saved** uses an assumed 1.5 hours of auction work per car, to confirm with the first dealer.
+
+## 3. Clutch ops · Jordan, Clutch ops, desktop
+
+**Job:** every dealer's pickup runs in one place, and the exceptions that need a person.
+
+- **A · Week grid.** Dealers × run days, a dot per car. Best for planning the next two weeks; today's progress is only a count.
+- **B · Today's runs.** One card per truck, stops in order with ETAs and live progress. Best for watching the day; planning needs another screen.
+- **C · Exceptions first.** A queue of what needs ops now (re-price waiting, run with no inspector, offer expiring), one action each, with a small calendar beside it. Fastest to unblock; the runs are only a summary.
+
+::screens[ops-board]
+
+**Picked:** _pending_
+
+## 4. Clutch inspector · Sam, phone, in a parking lot
+
+**Job:** check each car against what the dealer declared, in about 15 minutes with one hand, then confirm, re-price or mark not ready.
+
+- **A · Run, car, checklist.** A run list, then one checklist per car with Match / Different on every row. Easy to scan; every check takes a tap.
+- **B · One car at a time.** One question per screen, the declared answer shown big, a running price that drops with each difference. Hardest to get wrong; slow for a clean car.
+- **C · Exceptions only.** Five areas, each closed with one "All match" tap; only a difference opens for detail and a photo. A clean car in 5 taps; relies on Sam really walking each area.
+
+Every version needs a photo per difference before a re-price can go to Dave.
+
+::screens[inspector]
+
+**Picked:** _pending_

@@ -12,12 +12,17 @@ export interface Persona {
   need: string;
 }
 
-// In the order the car meets them: trade-in → pickup → inspection → the dealer's back office. Every list uses this order.
+// Dealership-facing modules first, then Clutch's: Trade-in → Back office → Clutch ops → Clutch inspector. Every list uses this order.
 export const PERSONAS: Persona[] = [
   {
     id: 'maria', name: 'Maria', role: 'Sales Manager', org: 'Yorkdale Honda', side: 'Dealer',
     module: 'trade-in',
     need: 'A firm number at the desk while the customer is still there',
+  },
+  {
+    id: 'dave', name: 'Dave', role: 'Sales Director', org: 'Yorkdale Honda', side: 'Dealer',
+    module: 'back-office',
+    need: 'Confidence in the price, and a say when it changes',
   },
   {
     id: 'jordan', name: 'Jordan', role: 'Operations', org: 'Clutch', side: 'Clutch',
@@ -28,11 +33,6 @@ export const PERSONAS: Persona[] = [
     id: 'sam', name: 'Sam', role: 'Inspector', org: 'Clutch', side: 'Clutch',
     module: 'inspector',
     need: "Today's cars and a quick way to confirm or flag a difference",
-  },
-  {
-    id: 'dave', name: 'Dave', role: 'Sales Director', org: 'Yorkdale Honda', side: 'Dealer',
-    module: 'back-office',
-    need: 'Confidence in the price, and a say when it changes',
   },
 ];
 
