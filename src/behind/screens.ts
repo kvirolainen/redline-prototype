@@ -52,6 +52,7 @@ export const SCREENS: Record<ModuleId, Record<Explored, Entry> & Partial<Record<
     A: { name: 'Table first', Component: named(() => import('../modules/back-office/VariantA'), 'VariantA') },
     B: { name: 'Needs you inbox', Component: named(() => import('../modules/back-office/VariantB'), 'VariantB') },
     C: { name: 'Pipeline board', Component: named(() => import('../modules/back-office/VariantC'), 'VariantC') },
+    B2: { name: 'Decide and track', Component: named(() => import('../modules/back-office/VariantB2'), 'VariantB2') },
   },
 };
 

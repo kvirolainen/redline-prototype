@@ -50,6 +50,10 @@ export interface BackOfficeCar {
   repriced: boolean;
   daysToCash?: number;
   note?: string;
+  /** Pickup-day readiness, ticked by the sales manager: on the lot, both keys, ownership papers. */
+  ready?: boolean;
+  /** Priced by a Clutch appraiser after the desk (high km, branded title), not instantly. */
+  fromReview?: boolean;
   reprice?: Reprice;
   events: CarEvent[];
 }
@@ -156,6 +160,7 @@ export const BACK_OFFICE_CARS: BackOfficeCar[] = [
     inspected: false,
     repriced: false,
     note: 'Second key missing',
+    ready: false,
     events: [
       { at: 'Tue Nov 10, 16:02', who: 'Maria', text: 'Offer made: $13,900, beats auction by $1,200', kind: 'offer' },
       { at: 'Tue Nov 10, 16:05', who: 'Maria', text: 'Accepted. Joined Thursday’s pickup, Thu Nov 12', kind: 'accept' },
@@ -170,6 +175,7 @@ export const BACK_OFFICE_CARS: BackOfficeCar[] = [
     auction: 16950,
     status: 'awaiting_pickup',
     pickup: NEXT_PICKUP,
+    ready: true,
     inspected: false,
     repriced: false,
     events: [
@@ -185,11 +191,29 @@ export const BACK_OFFICE_CARS: BackOfficeCar[] = [
     auction: 13050,
     status: 'awaiting_pickup',
     pickup: NEXT_PICKUP,
+    ready: false,
     inspected: false,
     repriced: false,
     events: [
       { at: 'Today, 12:05', who: 'Dave', text: 'Offer made: $14,100, beats auction by $1,050', kind: 'offer' },
       { at: 'Today, 12:06', who: 'Dave', text: 'Accepted. Joined the next pickup, Thu Nov 19', kind: 'accept' },
+    ],
+  },
+  {
+    vin: '4T1BF1FK5CU153367',
+    car: '2012 Toyota Camry LE',
+    km: 214000,
+    offer: 5600,
+    auction: 4900,
+    status: 'offered',
+    pickup: 'Not booked',
+    expires: 'Thu Nov 19',
+    fromReview: true,
+    inspected: false,
+    repriced: false,
+    events: [
+      { at: 'Today, 10:30', who: 'Maria', text: 'Sent to Clutch: over 200,000 km, priced by an appraiser', kind: 'alert' },
+      { at: 'Today, 13:40', who: 'Clutch', text: 'Offer ready: $5,600, beats auction by $700. Holds 7 days', kind: 'offer' },
     ],
   },
   {
@@ -278,3 +302,12 @@ export const BACK_OFFICE_CARS: BackOfficeCar[] = [
     ],
   },
 ];
+
+/** Earlier months for the Results view (demo history; the current month comes from the cars above). */
+export const MONTHS: { month: string; sold: number; aboveAuction: number; daysToCash: number; repriced: number }[] = [
+  { month: 'Aug', sold: 3, aboveAuction: 3300, daysToCash: 7, repriced: 1 },
+  { month: 'Sep', sold: 5, aboveAuction: 5900, daysToCash: 6, repriced: 1 },
+  { month: 'Oct', sold: 7, aboveAuction: 8100, daysToCash: 6, repriced: 1 },
+];
+/** Staff time an auction sale takes per car (listing, transport, paperwork). An assumption to confirm with the dealer. */
+export const AUCTION_HOURS_PER_CAR = 1.5;

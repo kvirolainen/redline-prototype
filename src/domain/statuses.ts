@@ -9,7 +9,8 @@ export type CarStatus =
   | 'paid'
   | 'declined'
   | 'expired'
-  | 'cancelled';
+  | 'cancelled'
+  | 'kept';
 
 export type StatusTone = 'neutral' | 'active' | 'attention' | 'done' | 'closed';
 
@@ -24,9 +25,10 @@ export const STATUS: Record<CarStatus, { label: string; tone: StatusTone; hint: 
   declined: { label: 'Declined', tone: 'closed', hint: 'Stays with the dealer' },
   expired: { label: 'Offer expired', tone: 'closed', hint: 'One-click refresh' },
   cancelled: { label: 'Cancelled', tone: 'closed', hint: 'Dealer cancelled before pickup' },
+  kept: { label: 'Kept for your lot', tone: 'closed', hint: 'The dealer kept it to sell on its own lot' },
 };
 
 export const STATUS_ORDER: CarStatus[] = [
   'offered', 'awaiting_pickup', 'not_ready', 'confirmed', 'reprice_pending',
-  'picked_up', 'paid', 'declined', 'expired', 'cancelled',
+  'picked_up', 'paid', 'declined', 'expired', 'cancelled', 'kept',
 ];

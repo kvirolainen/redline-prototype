@@ -65,4 +65,13 @@ Every version needs a photo per difference before a re-price can go to Dave.
 
 ::screens[back-office]
 
-**Picked:** _pending_
+**Picked: B, refined into B2 · Decide and track.**
+
+::screen[back-office/B2]
+
+Why B: the sales director doesn't work in the back office, he drops in between deals. He comes for three things: a quick morning check ("does anything need me?"), a decision pushed to him on pickup day (the re-price), and once a month, "is this worth it?". An inbox of decisions serves the first two in seconds. What changed from B:
+
+- **Two people, one page.** Dave decides on the left. Maria, the sales manager, works the car list on the right: a **Ready** tick per car on the next pickup (on the lot, both keys, ownership papers), and accepting an offer that a Clutch appraiser priced after the desk. Trucks and arrival times stay with Clutch ops.
+- **Keep any for your lot?** The director decides where each trade-in goes: retail on his own lot, or wholesale. Before each pickup he can pull any car off it. Clutch's offer is firm, so he doesn't approve the price; he decides whether the car goes.
+- **Value is one line here; Results is its own tab.** Clutch's own feedback on the first dashboard: the summary took too much room. Results answers "is Redline worth it?" in money: dollars above auction, days to get paid, staff time saved, and how often inspection changed the price (the trust number), by month. These are also the numbers he takes to the dealer principal, and the scorecard for the first-dealer experiment.
+- **Staff time saved** uses an assumed 1.5 hours of auction work per car, to confirm with the first dealer.

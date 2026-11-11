@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { VariantA } from '../../modules/back-office/VariantA';
 import { VariantB } from '../../modules/back-office/VariantB';
+import { VariantB2 } from '../../modules/back-office/VariantB2';
 import { VariantC } from '../../modules/back-office/VariantC';
 
 const meta = {
@@ -58,6 +59,19 @@ export const C: Story = {
       description: {
         story:
           'Columns by stage, from offer made to paid, with a card per car; the re-price column lights up when it holds a car. Shows the flow of cars at a glance, but columns get tight on an iPad and long lists scroll.',
+      },
+    },
+  },
+};
+
+export const B2: Story = {
+  name: 'B2 · Decide and track',
+  render: () => <VariantB2 />,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "B refined for two people on one page. Dave drops in to decide: re-price, expiring offer, and which cars on the next pickup to keep for his own lot. Maria works the car list: a Ready tick per car on the next pickup, and accepting an offer the appraiser priced after the desk. Value is one line here; the full picture (by month, re-prices and why, staff time) sits in the Results tab.",
       },
     },
   },

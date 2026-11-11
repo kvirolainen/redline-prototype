@@ -71,10 +71,51 @@ export function useBackOffice(initial: BackOfficeCar[] = BACK_OFFICE_CARS) {
       ],
     }));
 
+  const keep = (vin: string) =>
+    update(vin, (c) => ({
+      ...c,
+      status: 'kept',
+      note: 'Kept for your lot',
+      events: [...c.events, { at: 'Today, just now', who: 'Dave', text: `Kept for the lot. Off the ${c.pickup} pickup`, kind: 'decision' }],
+    }));
+
+  const undoKeep = (vin: string) =>
+    update(vin, (c) => ({
+      ...c,
+      status: 'awaiting_pickup',
+      note: undefined,
+      events: [...c.events, { at: 'Today, just now', who: 'Dave', text: `Back on the ${c.pickup} pickup`, kind: 'decision' }],
+    }));
+
+  const setReady = (vin: string, ready: boolean) =>
+    update(vin, (c) => ({
+      ...c,
+      ready,
+      status: ready && c.status === 'not_ready' ? 'awaiting_pickup' : c.status,
+      note: ready ? undefined : c.note,
+      events: [
+        ...c.events,
+        { at: 'Today, just now', who: 'Maria', text: ready ? 'Marked ready: on the lot, both keys, ownership papers' : 'Marked not ready yet', kind: 'pickup' },
+      ],
+    }));
+
+  const acceptOffer = (vin: string) =>
+    update(vin, (c) => ({
+      ...c,
+      status: 'awaiting_pickup',
+      pickup: NEXT_PICKUP,
+      expires: undefined,
+      expiresSoon: false,
+      ready: false,
+      events: [...c.events, { at: 'Today, just now', who: 'Maria', text: `Accepted. Joined the next pickup, ${NEXT_PICKUP}`, kind: 'accept' }],
+    }));
+
   const stats = useMemo(() => computeStats(cars), [cars]);
+  /** Cars on the next pickup the dealer can still pull back for its own lot. */
+  const nextRun = cars.filter((c) => c.pickup === NEXT_PICKUP && (c.status === 'awaiting_pickup' || c.status === 'not_ready' || c.status === 'kept'));
   const needsYou = cars.filter((c) => c.status === 'reprice_pending' || (c.status === 'offered' && c.expiresSoon));
 
-  return { cars, stats, needsYou, acceptReprice, declineReprice, refreshOffer };
+  return { cars, stats, needsYou, nextRun, acceptReprice, declineReprice, refreshOffer, keep, undoKeep, setReady, acceptOffer };
 }
 
 export type BackOffice = ReturnType<typeof useBackOffice>;
