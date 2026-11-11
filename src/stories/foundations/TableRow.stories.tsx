@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { CarTable, SAMPLE_CARS } from '../../components/ui/CarTable';
+import { CarTable } from '../../components/ui/CarTable';
+import { SAMPLE_CARS } from '../../domain/sampleCars';
 import { Group, Page } from './Specimen';
 
 function Table() {

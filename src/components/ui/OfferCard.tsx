@@ -1,3 +1,5 @@
+import { money } from '../../domain/format';
+
 interface Props {
   amount: number;
   car: string;
@@ -7,8 +9,6 @@ interface Props {
   auctionEstimate?: number;
   validUntil?: string;
 }
-
-export const money = (n: number) => `$${n.toLocaleString('en-CA')}`;
 
 // "Here's your firm offer" card, with the Redline addition: the gap to the auction estimate.
 export function OfferCard({ amount, car, vin, km, reference, auctionEstimate, validUntil }: Props) {
