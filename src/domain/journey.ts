@@ -22,7 +22,7 @@ export const JOURNEY_MAIN: JourneyStep[] = [
  *  inspector re-prices and the director decides. Accepts → paid; declines → the car stays with the dealer. */
 export const JOURNEY_MISMATCH = {
   up: 'Doesn’t match',
-  step: 'Re-price → director decides',
+  step: 'Re-price, director decides',
   down: 'Accepts',
-  exit: 'Declines: car stays with the dealer',
+  exit: 'Declines: stays with the dealer',
 } as const;

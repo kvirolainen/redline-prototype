@@ -12,4 +12,5 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Circles: Story = { args: { shape: 'circle' } };
+export const ForkBypass: Story = { name: 'Fork · bypass', args: { shape: 'circle', fork: 'bypass' } };
 export const IconTiles: Story = { name: 'Icon tiles', args: { shape: 'tile' } };

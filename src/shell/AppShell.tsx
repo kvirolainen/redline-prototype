@@ -96,22 +96,24 @@ function ScreensPointer({ onPick }: { onPick: (id: PersonaId) => void }) {
   return (
     <div className="pointer-events-none flex justify-end px-6 pt-2 xl:absolute xl:top-0 xl:right-0">
       <div className="pointer-events-auto flex items-start gap-1">
-        <div className="mt-6 flex max-w-[236px] flex-col items-end text-right">
+        <div className="mt-6 flex flex-col items-end">
           <p className="text-sm text-ink">
             <span className="font-bold">4 working screens</span>, one per role
           </p>
-          <div className="mt-2 flex flex-wrap justify-end gap-1.5">
+          {/* Equal-width pills, stacked: module first, then the person. */}
+          <div className="mt-3 grid w-[196px] gap-1.5">
             {SCREEN_ORDER.map((id) => {
-              const m = persona(id).module;
+              const p = persona(id);
               return (
                 <button
                   key={id}
                   type="button"
                   onClick={() => onPick(id)}
-                  className="inline-flex items-center gap-1 rounded-pill border border-line bg-white px-2.5 py-1 text-caption font-medium whitespace-nowrap text-ink hover:border-ink"
+                  className="flex items-center gap-2 rounded-pill border border-line bg-white px-3 py-1.5 text-left text-caption whitespace-nowrap hover:border-ink"
                 >
-                  <Icon name={MODULE_ICON[m]} className="size-3.5 text-muted" />
-                  {MODULES[m].label}
+                  <Icon name={MODULE_ICON[p.module]} className="size-3.5 shrink-0 text-muted" />
+                  <span className="font-medium text-ink">{MODULES[p.module].label}</span>
+                  <span className="ml-auto text-muted">{p.name}</span>
                 </button>
               );
             })}
@@ -149,28 +151,32 @@ export function AppShell({ initialView = 'behind', initialTab = 'car-journey', i
 
   return (
     <div className="flex min-h-screen flex-col bg-canvas">
-      <header className="relative z-20 flex h-[68px] items-center justify-between gap-6 border-b border-line bg-white px-6 shadow-header">
-        <button type="button" onClick={() => go('behind')} aria-label="Home">
-          <Lockup size={20} />
-        </button>
-        <ViewSwitcher view={view} onChange={go} />
+      <header className="relative z-20 flex h-[68px] items-stretch justify-between gap-6 border-b border-line bg-white px-6 shadow-header">
+        <div className="flex items-stretch gap-8 lg:gap-10">
+          <button type="button" onClick={() => go('behind')} aria-label="Home" className="flex items-center">
+            <Lockup size={20} />
+          </button>
+          {/* Behind-the-build tabs live in the header, next to the logo: one bar instead of two. */}
+          {view === 'behind' && (
+            <nav className="flex items-stretch gap-6 text-sm" aria-label="Behind the build">
+              {BEHIND_TABS.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => setTab(t.id)}
+                  aria-current={tab === t.id ? 'page' : undefined}
+                  className={`-mb-px border-b-2 whitespace-nowrap ${tab === t.id ? 'border-ink font-medium text-ink' : 'border-transparent text-muted hover:text-ink'}`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </nav>
+          )}
+        </div>
+        <div className="flex items-center">
+          <ViewSwitcher view={view} onChange={go} />
+        </div>
       </header>
-
-      {view === 'behind' && (
-        <nav className="flex h-12 items-center justify-start gap-8 lg:justify-center border-b border-line bg-white px-6 text-sm" aria-label="Behind the build">
-          {BEHIND_TABS.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => setTab(t.id)}
-              aria-current={tab === t.id ? 'page' : undefined}
-              className={`-mb-px h-full border-b-2 ${tab === t.id ? 'border-ink font-medium text-ink' : 'border-transparent text-muted hover:text-ink'}`}
-            >
-              {t.label}
-            </button>
-          ))}
-        </nav>
-      )}
 
       <main className="relative flex flex-1 flex-col">
         {pointerOn && <ScreensPointer onPick={showPerson} />}
