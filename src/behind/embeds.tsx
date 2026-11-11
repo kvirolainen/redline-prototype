@@ -3,14 +3,12 @@ import { createPortal } from 'react-dom';
 import { MODULES, type ModuleId } from '../domain/personas';
 import { ArchitectureDiagram } from './Architecture';
 import { Icon } from './icons';
-import { MILESTONES, type MilestoneState } from './milestones';
 import { DEVICE, isModule, isVariant, screen, screenCaption, type Device, type VariantKey } from './screens';
 
 // Block embeds for the docs. A directive sits on its own line in the markdown:
 //   ::screen[trade-in/B]   one live screen variant in a device frame
 //   ::screens[inspector]   all three variants of a module, side by side
 //   ::diagram[architecture]
-//   ::milestones
 
 /** Width of the element, kept up to date as the layout changes. */
 function useWidth<T extends HTMLElement>() {
@@ -154,33 +152,6 @@ function Missing({ what }: { what: string }) {
   return <p className="mt-4 font-mono text-caption text-subtle">Missing embed: {what}</p>;
 }
 
-const STATE_STYLE: Record<MilestoneState, { dot: string; text: string; label: string }> = {
-  done: { dot: 'border-ink bg-ink text-white', text: 'text-ink', label: 'Done' },
-  next: { dot: 'border-2 border-ink bg-white text-ink', text: 'text-ink', label: 'Next' },
-  later: { dot: 'border border-dashed border-subtle bg-white text-subtle', text: 'text-muted', label: 'Later' },
-};
-
-/** The build milestones in one row, each with its state. */
-export function Milestones() {
-  return (
-    <ol className="mt-8 grid grid-cols-2 gap-x-4 gap-y-6 rounded-panel border border-line p-4 sm:grid-cols-4 lg:p-6">
-      {MILESTONES.map((m, i) => {
-        const s = STATE_STYLE[m.state];
-        return (
-          <li key={m.id} className="relative min-w-0">
-            {i < MILESTONES.length - 1 && <span className="absolute top-4 left-10 right-0 hidden border-t border-line sm:block" aria-hidden />}
-            <span className={`relative grid size-8 place-items-center rounded-full text-caption font-bold ${s.dot}`}>
-              {m.state === 'done' ? <Icon name="check" className="size-4" /> : m.id}
-            </span>
-            <p className={`mt-3 text-sm font-bold ${s.text}`}>{m.label}</p>
-            <p className="mt-0.5 text-caption text-muted">{s.label}</p>
-          </li>
-        );
-      })}
-    </ol>
-  );
-}
-
 /** Renders one directive line. Unknown names or arguments render a muted "Missing embed" note. */
 export function Embed({ name, arg, raw }: { name: string; arg: string; raw: string }) {
   if (name === 'screen') {
@@ -211,6 +182,5 @@ export function Embed({ name, arg, raw }: { name: string; arg: string; raw: stri
         <ArchitectureDiagram compact />
       </div>
     );
-  if (name === 'milestones' && !arg) return <Milestones />;
   return <Missing what={raw} />;
 }

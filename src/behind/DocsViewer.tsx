@@ -51,7 +51,7 @@ const md: Components = {
   td: ({ children }) => <td className="border-b border-line-light px-4 py-3 align-top leading-[22px] text-body">{children}</td>,
 };
 
-/** A document's markdown, with block directives (`::screen[…]`, `::screens[…]`, `::diagram[…]`, `::milestones`) rendered as embeds. */
+/** A document's markdown, with block directives (`::screen[…]`, `::screens[…]`, `::diagram[…]`) rendered as embeds. */
 export function DocBody({ body }: { body: string }) {
   const segments = useMemo(() => splitDirectives(body), [body]);
   return (
