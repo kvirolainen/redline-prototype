@@ -2,76 +2,81 @@ import { useState } from 'react';
 import { StatusChip } from '../../components/ui/StatusChip';
 import { money } from '../../domain/format';
 import { DifferenceEditor } from './DifferenceEditor';
-import { AREAS, CARS, CHECKS, RUN, STOPS, carById, carsAt, declaredFor, stopOf, type AreaId, type InspectionCar } from './fixtures';
-import { BigButton, CarLine, Icon, NotReadySheet, OutcomeView, Screen } from './parts';
+import { useInspectorEnv } from './env';
+import { AREAS, CHECKS, declaredFor, type AreaId, type InspectionCar } from './fixtures';
+import { BigButton, Icon, NotReadySheet, OutcomeView, Progress, Screen } from './parts';
 import { useRun, type Run } from './useRun';
 
 // C · Exceptions only. Checks are grouped by area and collapsed; one tap says "All matches declared".
 // Only an area with a difference opens up, and only the differing item asks for detail and a photo.
 export function InspectorVariantC({ startCar }: { startCar?: string }) {
   const run = useRun();
+  const env = useInspectorEnv();
   const [carId, setCarId] = useState<string | undefined>(startCar);
-  const [stopId, setStopId] = useState(startCar ? carById(startCar).stopId : STOPS[0].id);
 
-  if (!carId) return <Stops run={run} stopId={stopId} onStop={setStopId} onOpen={setCarId} />;
-  const car = carById(carId);
+  const car = carId ? env.carById(carId) : undefined;
+  if (!car) return <RunList run={run} onOpen={setCarId} />;
   const nextCar = () => {
-    const next = carsAt(car.stopId).find((c) => c.id !== carId && !run.outcomes[c.id]);
+    const next = env.carsAt(car.stopId).find((c) => c.id !== car.id && !run.outcomes[c.id]);
     setCarId(next?.id);
   };
-  return <CarAreas key={carId} run={run} car={car} onBack={() => setCarId(undefined)} onNext={nextCar} />;
+  return <CarAreas key={car.id} run={run} car={car} onBack={() => setCarId(undefined)} onNext={nextCar} />;
 }
 
-function Stops({ run, stopId, onStop, onOpen }: { run: Run; stopId: string; onStop: (id: string) => void; onOpen: (id: string) => void }) {
-  const stop = STOPS.find((s) => s.id === stopId)!;
-  const cars = carsAt(stopId);
-  const left = cars.filter((c) => !run.outcomes[c.id]).length;
+/** Today's stops in driving order, each with its cars: the whole run on one scrolling screen. */
+function RunList({ run, onOpen }: { run: Run; onOpen: (id: string) => void }) {
+  const { run: info, stops, cars, carsAt } = useInspectorEnv();
   return (
-    <Screen title={`${RUN.day} run`} subtitle={`${RUN.date} · ${run.doneCount} of ${CARS.length} done · ${RUN.truck}`}>
-      <div className="-mx-4 mb-5 flex gap-2 overflow-x-auto px-4 pb-1">
-        {STOPS.map((s, i) => (
-          <button
-            key={s.id}
-            type="button"
-            onClick={() => onStop(s.id)}
-            className={`h-11 shrink-0 rounded-pill border px-4 text-sm font-medium whitespace-nowrap ${
-              s.id === stopId ? 'border-ink bg-ink text-white' : 'border-line bg-white text-ink'
-            }`}
-          >
-            {i + 1}. {s.dealer}
-          </button>
-        ))}
-      </div>
-
-      <div className="rounded-panel border border-line bg-white p-5">
-        <p className="text-h4 font-bold text-ink">{stop.dealer}</p>
-        <p className="mt-1 flex items-center gap-1.5 text-sm text-muted">
-          <Icon name="pin" className="size-4" /> {stop.address}
-        </p>
-        <p className="mt-1 flex items-center gap-1.5 text-sm text-muted">
-          <Icon name="clock" className="size-4" /> {stop.window} · ask for {stop.contact}
-        </p>
-        <p className="mt-4 text-base text-body">
-          {left === 0 ? 'All cars here are done.' : `${left} of ${cars.length} ${cars.length === 1 ? 'car' : 'cars'} left here.`}
-        </p>
-      </div>
-
-      <ul className="mt-4 space-y-3">
-        {cars.map((c) => (
-          <li key={c.id}>
-            <button type="button" onClick={() => onOpen(c.id)} className="w-full rounded-card border border-line bg-white p-4 text-left hover:border-subtle">
-              <div className="flex items-start justify-between gap-3">
-                <CarLine car={c} />
-                <Icon name="chevron" className="mt-1 size-5 shrink-0 text-subtle" />
-              </div>
-              <div className="mt-3 flex items-center justify-between">
-                <StatusChip status={run.statusOf(c.id)} />
-                <span className="text-sm text-muted">{c.spot}</span>
-              </div>
-            </button>
-          </li>
-        ))}
-      </ul>
+    <Screen title={`${info.day} run`} subtitle={`${info.date} · ${info.truck} · ${cars.length} cars at ${stops.length} dealers`}>
+      {stops.length === 0 ? (
+        <p className="rounded-panel border border-line bg-white p-5 text-base text-body">No pickup run for you today. Your next run shows here on the day.</p>
+      ) : (
+        <>
+          <div className="mb-6">
+            <div className="mb-2 flex justify-between text-sm">
+              <span className="font-medium text-ink">
+                {run.doneCount} of {cars.length} cars done
+              </span>
+              <span className="text-muted">About 15 min a car</span>
+            </div>
+            <Progress done={run.doneCount} total={Math.max(cars.length, 1)} />
+          </div>
+          <ol className="space-y-6">
+            {stops.map((s, i) => (
+              <li key={s.id}>
+                <div className="mb-3 flex gap-3">
+                  <span className="grid size-8 shrink-0 place-items-center rounded-full bg-ink text-sm font-bold text-white">{i + 1}</span>
+                  <div className="min-w-0">
+                    <p className="text-title font-bold text-ink">{s.dealer}</p>
+                    <p className="mt-0.5 text-sm text-muted">
+                      {s.window} · {s.address}
+                    </p>
+                    <p className="text-sm text-muted">Ask for {s.contact}</p>
+                  </div>
+                </div>
+                <ul className="overflow-hidden rounded-card border border-line bg-white">
+                  {carsAt(s.id).map((c) => (
+                    <li key={c.id} className="border-b border-line-light last:border-b-0">
+                      <button type="button" onClick={() => onOpen(c.id)} className="flex min-h-[72px] w-full items-center gap-3 px-4 py-3 text-left hover:bg-canvas">
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-base font-medium text-ink">{c.car}</span>
+                          <span className="mt-0.5 block text-sm text-muted">
+                            {c.spot} · {money(c.offer)}
+                          </span>
+                          <span className="mt-2 block">
+                            <StatusChip status={run.statusOf(c.id)} />
+                          </span>
+                        </span>
+                        <Icon name="chevron" className="size-5 shrink-0 text-subtle" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ol>
+        </>
+      )}
     </Screen>
   );
 }
@@ -82,7 +87,8 @@ function CarAreas({ run, car, onBack, onNext }: { run: Run; car: InspectionCar; 
   const outcome = run.outcomes[car.id];
   const answers = run.answersFor(car.id);
   const diffs = run.differences(car.id);
-  const stop = stopOf(car);
+  const env = useInspectorEnv();
+  const stop = env.stopOf(car);
 
   if (outcome)
     return (
@@ -93,7 +99,7 @@ function CarAreas({ run, car, onBack, onNext }: { run: Run; car: InspectionCar; 
           diffs={diffs}
           onLoad={() => run.loadOnTruck(car.id)}
           onNext={onNext}
-          nextLabel={carsAt(car.stopId).some((c) => c.id !== car.id && !run.outcomes[c.id]) ? 'Next car here' : `Done at ${stop.dealer}`}
+          nextLabel={env.carsAt(car.stopId).some((c) => c.id !== car.id && !run.outcomes[c.id]) ? 'Next car here' : `Done at ${stop.dealer}`}
           onUndo={() => run.reopen(car.id)}
         />
       </Screen>
@@ -141,7 +147,7 @@ function CarAreas({ run, car, onBack, onNext }: { run: Run; car: InspectionCar; 
             <BigButton onClick={() => run.confirm(car.id)}>Confirm at {money(car.offer)}</BigButton>
           ) : (
             <BigButton disabled={missingPhoto} onClick={() => run.sendReprice(car.id)}>
-              {missingPhoto ? 'Add a photo to every difference' : 'Send re-price to Dave'}
+              {missingPhoto ? 'Add a photo to every difference' : `Send re-price to ${env.directorOf(car)}`}
             </BigButton>
           )}
         </div>

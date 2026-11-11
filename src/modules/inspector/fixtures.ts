@@ -15,10 +15,12 @@ export interface Stop {
   address: string;
   contact: string;
   window: string;
+  /** Who accepts or declines a re-price at this dealer. */
+  director?: string;
 }
 
 export const STOPS: Stop[] = [
-  { id: 'yorkdale', dealer: 'Yorkdale Honda', address: '3401 Dufferin St, Toronto', contact: 'Maria, Sales Manager', window: '10:15 – 11:45' },
+  { id: 'yorkdale', dealer: 'Yorkdale Honda', address: '3401 Dufferin St, Toronto', contact: 'Maria, Sales Manager', window: '10:15 – 11:45', director: 'Dave' },
   { id: 'downtown', dealer: 'Downtown Toyota', address: '677 Queen St E, Toronto', contact: 'Priya, Used Car Manager', window: '12:30 – 1:30' },
   { id: 'mississauga', dealer: 'Mississauga Mazda', address: '2400 Dundas St W, Mississauga', contact: 'Tom, Sales Manager', window: '2:15 – 3:00' },
 ];
@@ -129,6 +131,10 @@ export interface InspectionCar {
   spot: string;
   /** Prototype script: what Sam will find. Used only to pre-fill the note when he marks a difference. */
   script?: Record<string, { finding: number; note: string }>;
+  /** What the dealer declared at the desk, by check id, where it differs from the clean default. */
+  declared?: Record<string, string>;
+  /** This dealer's next pickup day, where a not-ready car goes. */
+  nextRun?: string;
 }
 
 export const CARS: InspectionCar[] = [
@@ -169,7 +175,7 @@ export function declaredFor(item: CheckItem, car: InspectionCar): string {
   if (item.id === 'vin') return `Ends in ${car.vin.slice(-6)}`;
   if (item.id === 'odometer') return `${car.km.toLocaleString('en-CA')} km`;
   if (item.id === 'keys') return `${car.keys} ${car.keys === 1 ? 'key' : 'keys'}`;
-  return item.declared;
+  return car.declared?.[item.id] ?? item.declared;
 }
 
 export const stopOf = (car: InspectionCar) => STOPS.find((s) => s.id === car.stopId)!;
