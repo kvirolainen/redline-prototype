@@ -9,7 +9,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'One shell. The switcher at the top right picks Behind the build (the landing) or one of four working screens, one per role. Behind the build renders the same Car journey and The thinking (docs) components as the Behind the build stories. Clickable throughout.',
+          'One shell. The switcher at the top right picks Behind the build (the landing) or one of four modules, one per role. Behind the build renders the same Car journey and The thinking (docs) components as the Behind the build stories. Clickable throughout.',
       },
     },
   },

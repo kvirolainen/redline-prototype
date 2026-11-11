@@ -81,7 +81,7 @@ function ViewSwitcher({ view, onChange }: { view: View; onChange: (v: View) => v
           <div role="menu" className="absolute top-full right-0 z-20 mt-2 w-[300px] rounded-panel border border-line bg-white p-2 shadow-overlay">
             {item('behind')}
             <div className="mx-2 my-2 border-t border-line-light" />
-            <p className="px-3 pt-1 pb-1 text-caption font-bold text-muted">Try a screen</p>
+            <p className="px-3 pt-1 pb-1 text-caption font-bold text-muted">Try a module</p>
             {PERSONAS.map((p) => item(p.id))}
           </div>
         </>
@@ -90,7 +90,7 @@ function ViewSwitcher({ view, onChange }: { view: View; onChange: (v: View) => v
   );
 }
 
-/** Always-on pointer drawn on the canvas under the switcher: says there are four working screens and offers them
+/** Always-on pointer drawn on the canvas under the switcher: says there are four modules and offers them
  *  directly, in the car's order. Lives on the Car journey tab only. */
 function ScreensPointer({ onPick }: { onPick: (id: PersonaId) => void }) {
   return (
@@ -98,7 +98,7 @@ function ScreensPointer({ onPick }: { onPick: (id: PersonaId) => void }) {
       <div className="pointer-events-auto flex items-start gap-1">
         <div className="mt-6 flex flex-col items-end">
           <p className="text-sm text-ink">
-            <span className="font-bold">4 working screens</span>, one per role
+            <span className="font-bold">4 modules</span>, one per role
           </p>
           {/* Equal-width pills, stacked: module first, then the person. */}
           <div className="mt-3 grid w-[196px] gap-1.5">
@@ -129,7 +129,7 @@ function ScreensPointer({ onPick }: { onPick: (id: PersonaId) => void }) {
   );
 }
 
-// The four screens in the order the car meets them.
+// The four modules in the order the car meets them.
 const SCREEN_ORDER: PersonaId[] = ['maria', 'jordan', 'sam', 'dave'];
 
 interface Props {

@@ -140,7 +140,7 @@ export function CarJourney({ shape = 'circle', fork, onPick }: Props) {
   return (
     <CenteredPage
       title="One car, start to finish"
-      intro="From the dealer’s desk to payment. Each step happens on one of four screens; the inspection is the only place the path can fork."
+      intro="From the dealer’s desk to payment. Each step happens in one of four modules; the inspection is the only place the path can fork."
     >
       {/* Extra air between the intro and the diagram (the fork arc sits close under the intro otherwise). */}
       <div className="mt-10 lg:mt-20">
