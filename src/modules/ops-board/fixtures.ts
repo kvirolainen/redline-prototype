@@ -133,6 +133,9 @@ export interface OpsCar {
   expiresOn?: string; // ISO date the offer ends
   /** Accepted, but the customer keeps driving it until their new car is delivered. ISO date it reaches the lot. */
   onLotFrom?: string;
+  /** The sales manager's pickup check: false = not confirmed yet; `missing` says what's still open. Unset = no data. */
+  ready?: boolean;
+  missing?: string;
 }
 
 export const CARS: OpsCar[] = [

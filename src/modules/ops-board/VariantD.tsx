@@ -272,6 +272,7 @@ function Metric({ label, value, flag }: { label: string; value: string; flag?: b
 
 const readinessDot: Record<Readiness, string> = {
   ready: 'bg-success',
+  unconfirmed: 'bg-white border-[1.5px] border-success',
   not_on_lot: 'bg-white border-[1.5px] border-dashed border-ink',
   expiring: 'bg-warning',
   not_ready: 'bg-warning',
@@ -287,6 +288,7 @@ function Dot({ r, title }: { r: Readiness; title?: string }) {
 function ReadinessCounts({ counts }: { counts: DealerRow['counts'] }) {
   const items: [Readiness, number, string][] = [
     ['ready', counts.ready, 'ready'],
+    ['unconfirmed', counts.unconfirmed, 'not confirmed by the dealer'],
     ['not_on_lot', counts.notOnLot, 'not on the lot yet'],
     ['expiring', counts.expiring, 'offer ends before run'],
   ];
@@ -363,6 +365,7 @@ function CarRow({ board, car, flagged }: { board: DealerBoard; car: OpsCar; flag
       <p className="col-start-1 pl-[18px] text-caption text-body md:col-start-auto md:pl-0 md:text-sm">
         {day(car.day).state === 'today' ? 'Today' : day(car.day).label}
         {lot && <span className="block text-caption font-medium text-ink">{lot}</span>}
+        {!lot && r === 'unconfirmed' && <span className="block text-caption text-muted">{car.missing ?? 'Dealer hasn’t confirmed it’s ready'}</span>}
       </p>
       <p className="col-start-1 pl-[18px] text-caption text-body md:col-start-auto md:pl-0 md:text-sm">
         {car.newPrice ? (
@@ -385,6 +388,7 @@ function CarRow({ board, car, flagged }: { board: DealerBoard; car: OpsCar; flag
 
 const PLAN_LEGEND: [Readiness, string][] = [
   ['ready', 'Ready'],
+  ['unconfirmed', 'Not confirmed by the dealer'],
   ['not_on_lot', 'Not on the lot yet'],
   ['offer', 'Offer out'],
   ['expiring', 'Needs the dealer'],

@@ -51,7 +51,20 @@ function toOpsCar(c: LiveCar, dealer: LiveDealer, today: string): OpsCar | null 
     expires: c.status === 'offered' && c.expiresOn ? dayLabel(c.expiresOn, today) : undefined,
     expiresOn: c.expiresOn,
     onLotFrom: c.onLotFrom,
+    ready: c.ready,
+    missing: missingOf(c),
   };
+}
+
+const CHECK_MISSING: Record<string, string> = { lot: 'not on the lot yet', keys: 'second key missing', papers: 'ownership papers missing' };
+
+/** What the sales manager's check still lacks, as Back office shows it ("Second key missing"). */
+function missingOf(c: { ready?: boolean; readyChecks?: string[] }) {
+  if (c.ready !== false) return undefined;
+  const ticked = c.readyChecks ?? [];
+  if (!ticked.length) return 'Not checked by the dealer yet';
+  const m = Object.keys(CHECK_MISSING).filter((k) => !ticked.includes(k)).map((k) => CHECK_MISSING[k]).join(', ');
+  return m ? m[0].toUpperCase() + m.slice(1) : undefined;
 }
 
 export function OpsLive({ children }: { children: ReactNode }) {

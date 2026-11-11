@@ -8,7 +8,7 @@ import { useOpsBoard } from './useOpsBoard';
 // What changes when the seller is a dealer: the dealer is the main object, with its people,
 // its cars on the way and its track record. Trucks, routes and rosters stay in dispatch.
 
-export type Readiness = 'ready' | 'not_on_lot' | 'expiring' | 'offer' | 'not_ready' | 'done' | 'closed';
+export type Readiness = 'ready' | 'unconfirmed' | 'not_on_lot' | 'expiring' | 'offer' | 'not_ready' | 'done' | 'closed';
 
 export type FlagKind = 'live' | 'expiring' | 'rolls' | 'rolled' | 'health';
 
@@ -37,7 +37,7 @@ export interface DealerRow {
   health: DealerHealth;
   nextRun: Day | null;
   nextRunCars: number;
-  counts: { ready: number; notOnLot: number; expiring: number };
+  counts: { ready: number; unconfirmed: number; notOnLot: number; expiring: number };
   cars: OpsCar[];
   flags: DealerFlag[];
   /** Dispatch-owned issue, shown as one quiet line. */
@@ -96,6 +96,8 @@ export function readiness(c: OpsCar, env: Pick<OpsEnv, 'dateOf' | 'today'>): Rea
   if (c.status === 'not_ready') return 'not_ready';
   if (c.status === 'offered') return c.expiresOn && c.expiresOn < env.dateOf(c.day) ? 'expiring' : 'offer';
   if (c.onLotFrom && c.onLotFrom > env.today) return 'not_on_lot';
+  // Accepted and on the lot, but the dealer's sales manager hasn't confirmed keys and papers yet (Back office check).
+  if (c.status === 'awaiting_pickup' && c.ready === false) return 'unconfirmed';
   return 'ready';
 }
 
@@ -204,6 +206,7 @@ export function useDealerBoard() {
       nextRunCars: nextRun ? open.filter((c) => c.day === nextRun.id).length : 0,
       counts: {
         ready: open.filter((c) => ready(c) === 'ready').length,
+        unconfirmed: open.filter((c) => ready(c) === 'unconfirmed').length,
         notOnLot: open.filter((c) => ready(c) === 'not_on_lot').length,
         expiring: open.filter((c) => ready(c) === 'expiring').length,
       },
