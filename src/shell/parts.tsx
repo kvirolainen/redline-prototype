@@ -19,6 +19,7 @@ import type { BackOfficeTab } from './views';
 interface OfficeProps {
   tab: BackOfficeTab;
   onChange: (t: BackOfficeTab) => void;
+  hrefOf: (t: BackOfficeTab) => string;
 }
 
 function PhoneFrame({ children }: { children: ReactNode }) {
@@ -37,7 +38,7 @@ function PickedScreen({ module, onSwitch, office }: { module: ModuleId; onSwitch
       // Opens Back office on Pickups, where the car just traded in now waits for its pickup.
       return <TradeInVariantB2 onOpenBackOffice={() => onSwitch('dave', 'pickups')} />;
     case 'back-office':
-      return <BackOfficeB2 tab={office?.tab} onTabChange={office?.onChange} />;
+      return <BackOfficeB2 tab={office?.tab} onTabChange={office?.onChange} tabHref={office?.hrefOf} />;
     case 'ops-board':
       return <OpsD />;
     case 'inspector':

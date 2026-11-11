@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { navClick } from '../../shell/link';
 
 /** One content width and side padding for every desktop module, so page edges stay put when switching modules.
  *  1400px because the trade-in form needs it to fit its questions on one screen. */
@@ -21,7 +22,7 @@ export function PageHeader({ title, context, right }: { title: string; context?:
 }
 
 /** Pill tabs that switch a module between its pages. */
-export function SegmentedTabs<T extends string>({ items, value, onChange }: { items: [T, string][]; value: T; onChange: (t: T) => void }) {
+export function SegmentedTabs<T extends string>({ items, value, onChange, hrefOf }: { items: [T, string][]; value: T; onChange: (t: T) => void; hrefOf?: (t: T) => string }) {
   return (
     <div role="group" className="inline-flex gap-1 rounded-pill border border-line bg-white p-1">
       {items.map(([id, label]) => (
@@ -29,7 +30,7 @@ export function SegmentedTabs<T extends string>({ items, value, onChange }: { it
           key={id}
           type="button"
           aria-pressed={value === id}
-          onClick={() => onChange(id)}
+          {...(hrefOf ? navClick(hrefOf(id), () => onChange(id)) : { onClick: () => onChange(id) })}
           className={`h-8 rounded-pill px-4 text-sm font-medium transition-colors ${value === id ? 'bg-ink text-white' : 'text-body hover:text-ink'}`}
         >
           {label}

@@ -1,3 +1,4 @@
+import { navClick } from '../shell/link';
 import { JOURNEY_MAIN, JOURNEY_MISMATCH, type JourneyStep, type JourneyStepId } from '../domain/journey';
 import { MODULES, persona, type PersonaId } from '../domain/personas';
 import { CenteredPage, Connector, FlowNode, type NodeShape } from './flow';
@@ -106,7 +107,7 @@ export function JourneyDiagram({ shape = 'circle', fork = 'arc', onPick }: Props
       sub={<span className="whitespace-nowrap">{s.detail}</span>}
       shape={shape}
       foot={<ModuleChip owner={s.owner} />}
-      onClick={onPick ? () => onPick(s.owner) : undefined}
+      {...(onPick ? navClick(`/${persona(s.owner).module}`, () => onPick(s.owner)) : {})}
       title={`Happens in ${MODULES[persona(s.owner).module].label}${onPick ? ': open that screen' : ''}`}
       className="h-full"
     />

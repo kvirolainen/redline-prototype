@@ -1,3 +1,4 @@
+import type { MouseEvent } from 'react';
 import type { ReactNode } from 'react';
 import { Icon, type IconName } from './icons';
 
@@ -31,21 +32,22 @@ interface NodeProps {
   badge?: ReactNode;
   /** Extra line under the label and sub-line (e.g. the module chip, or a "Read" affordance). */
   foot?: ReactNode;
-  onClick?: () => void;
+  onClick?: (e: MouseEvent) => void;
+  onAuxClick?: (e: MouseEvent) => void;
   title?: string;
   /** Width of the node's column (label wraps inside it). */
   width?: string;
   className?: string;
 }
 
-export function FlowNode({ icon, label, sub, shape = 'circle', size = 'lg', tone = 'default', badge, foot, onClick, title, width = 'w-[104px] lg:w-[132px]', className = '' }: NodeProps) {
+export function FlowNode({ icon, label, sub, shape = 'circle', size = 'lg', tone = 'default', badge, foot, onClick, onAuxClick, title, width = 'w-[104px] lg:w-[132px]', className = '' }: NodeProps) {
   const s = SIZE[size];
   const radius = shape === 'circle' ? 'rounded-full' : 'rounded-panel';
   const interactive = onClick ? 'cursor-pointer hover:border-ink' : '';
   const Tag = onClick ? 'button' : 'div';
   return (
     <Tag
-      {...(onClick ? { onClick, type: 'button' as const } : {})}
+      {...(onClick ? { onClick, onAuxClick, type: 'button' as const } : {})}
       title={title}
       className={`group flex flex-col items-center text-center ${width} ${className}`}
     >

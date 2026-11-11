@@ -4,6 +4,7 @@ import { PAGE, PageHeader, SegmentedTabs } from '../../components/ui/Page';
 import { ATTENTION_EDGE, Tag } from '../../components/ui/Tag';
 import { money } from '../../domain/format';
 import { StatusChip } from '../../components/ui/StatusChip';
+import { navClick } from '../../shell/link';
 import type { BackOfficeTab } from '../../shell/views';
 import { checksOf, MONTHS, READY_CHECKS, type BackOfficeCar, type ReadyCheck as ReadyCheckId } from './fixtures';
 import { km } from './format';
@@ -54,7 +55,7 @@ function useCounts(office: BackOffice) {
   };
 }
 
-function Tabs({ tab, onChange, counts }: { tab: BackOfficeTab; onChange: (t: BackOfficeTab) => void; counts: { pickups: number; overview: number } }) {
+function Tabs({ tab, onChange, counts, hrefOf }: { tab: BackOfficeTab; onChange: (t: BackOfficeTab) => void; counts: { pickups: number; overview: number }; hrefOf?: (t: BackOfficeTab) => string }) {
   const label = (text: string, n: number) => (n ? `${text} · ${n}` : text);
   return (
     <SegmentedTabs
@@ -64,6 +65,7 @@ function Tabs({ tab, onChange, counts }: { tab: BackOfficeTab; onChange: (t: Bac
       ]}
       value={tab}
       onChange={onChange}
+      hrefOf={hrefOf}
     />
   );
 }
@@ -401,7 +403,7 @@ function Results({ office }: { office: BackOffice }) {
 }
 
 /** One glance at the pickups, so the director knows the week is on track without opening the list. */
-function ThisWeek({ office, onTab }: { office: BackOffice; onTab: (t: BackOfficeTab) => void }) {
+function ThisWeek({ office, onTab, tabHref }: { office: BackOffice; onTab: (t: BackOfficeTab) => void; tabHref?: (t: BackOfficeTab) => string }) {
   const { today: TODAY, nextPickup: NEXT_PICKUP } = useBackOfficeEnv();
   const going = office.nextRun.filter((c) => c.status !== 'kept');
   const todays = office.cars.filter((c) => c.pickup === TODAY && c.status !== 'declined');
@@ -417,7 +419,7 @@ function ThisWeek({ office, onTab }: { office: BackOffice; onTab: (t: BackOffice
     <Panel
       title="This week"
       aside={
-        <button type="button" onClick={() => onTab('pickups')} className="font-medium text-ink underline">
+        <button type="button" {...(tabHref ? navClick(tabHref('pickups'), () => onTab('pickups')) : { onClick: () => onTab('pickups') })} className="font-medium text-ink underline">
           See pickups
         </button>
       }
@@ -457,14 +459,14 @@ function RepricedList({ office }: { office: BackOffice }) {
   );
 }
 
-function Overview({ office, onOpen, onTab }: { office: BackOffice; onOpen: (vin: string) => void; onTab: (t: BackOfficeTab) => void }) {
+function Overview({ office, onOpen, onTab, tabHref }: { office: BackOffice; onOpen: (vin: string) => void; onTab: (t: BackOfficeTab) => void; tabHref?: (t: BackOfficeTab) => string }) {
   return (
     <div className="mt-6 space-y-4">
       <NeedsYou office={office} onOpen={onOpen} />
       <div className="grid grid-cols-[minmax(0,1fr)_380px] items-start gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
         <Results office={office} />
         <div className="space-y-4">
-          <ThisWeek office={office} onTab={onTab} />
+          <ThisWeek office={office} onTab={onTab} tabHref={tabHref} />
           <RepricedList office={office} />
         </div>
       </div>
@@ -476,7 +478,12 @@ function Overview({ office, onOpen, onTab }: { office: BackOffice; onOpen: (vin:
 
 /** B2 · Pickups first, Overview second. In the app the shell owns the tab, so each tab has its own URL; in Storybook
  *  it's local. */
-export function VariantB2({ tab: tabProp, onTabChange, initialTab = 'pickups' }: { tab?: BackOfficeTab; onTabChange?: (t: BackOfficeTab) => void; initialTab?: BackOfficeTab } = {}) {
+export function VariantB2({
+  tab: tabProp,
+  onTabChange,
+  tabHref,
+  initialTab = 'pickups',
+}: { tab?: BackOfficeTab; onTabChange?: (t: BackOfficeTab) => void; tabHref?: (t: BackOfficeTab) => string; initialTab?: BackOfficeTab } = {}) {
   const { dealer: DEALER, nextPickup: NEXT_PICKUP } = useBackOfficeEnv();
   const office = useBackOffice();
   const counts = useCounts(office);
@@ -496,9 +503,9 @@ export function VariantB2({ tab: tabProp, onTabChange, initialTab = 'pickups' }:
               {DEALER} · next pickup <span className="font-medium text-ink">{NEXT_PICKUP}</span>
             </>
           }
-          right={<Tabs tab={tab} onChange={setTab} counts={counts} />}
+          right={<Tabs tab={tab} onChange={setTab} counts={counts} hrefOf={tabHref} />}
         />
-        {tab === 'pickups' ? <Pickups office={office} onOpen={setOpen} /> : <Overview office={office} onOpen={setOpen} onTab={setTab} />}
+        {tab === 'pickups' ? <Pickups office={office} onOpen={setOpen} /> : <Overview office={office} onOpen={setOpen} onTab={setTab} tabHref={tabHref} />}
       </div>
 
       <Drawer open={!!openCar} onClose={() => setOpen(null)} label="Car detail">

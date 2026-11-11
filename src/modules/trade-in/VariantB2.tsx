@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { navClick } from '../../shell/link';
 import { Button } from '../../components/ui/Button';
 import { PAGE, PageHeader, SectionHeading } from '../../components/ui/Page';
 import { SegmentedProgress } from '../../components/ui/Stepper';
@@ -489,7 +490,7 @@ function Done({ t, q, onOpenBackOffice }: { t: TradeIn; q: Quote; onOpenBackOffi
         <Button className="px-10" onClick={t.reset}>
           Start another trade-in
         </Button>
-        <button type="button" onClick={onOpenBackOffice} className="text-base font-bold text-brand hover:underline">
+        <button type="button" {...(onOpenBackOffice ? navClick('/back-office', onOpenBackOffice) : {})} className="text-base font-bold text-brand hover:underline">
           Open Back office
         </button>
       </div>

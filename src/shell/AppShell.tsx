@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { fromPath, toPath, type Route } from './route';
+import { fromPath, HOME, toPath, type Route } from './route';
+import { navClick, setRouted } from './link';
 import { Lockup } from '../components/brand/Lockup';
 import { CarJourney } from '../behind/CarJourney';
 import type { DocId } from '../behind/docs';
@@ -64,7 +65,7 @@ function ViewSwitcher({ view, onChange }: { view: View; onChange: (v: View) => v
       type="button"
       role="menuitemradio"
       aria-checked={v === view}
-      onClick={() => pick(v)}
+      {...navClick(toPath({ ...HOME, view: v }), () => pick(v))}
       className={`flex w-full items-center rounded-card px-2 py-2 hover:bg-canvas ${v === view ? 'bg-canvas' : ''}`}
     >
       <MenuLine view={v} active={v === view} />
@@ -116,7 +117,7 @@ function ScreensPointer({ onPick }: { onPick: (id: PersonaId) => void }) {
                 <button
                   key={id}
                   type="button"
-                  onClick={() => onPick(id)}
+                  {...navClick(toPath({ ...HOME, view: id }), () => onPick(id))}
                   className="flex items-center gap-2 rounded-pill border border-line bg-white px-3 py-1.5 text-left text-caption whitespace-nowrap hover:border-ink"
                 >
                   <Icon name={MODULE_ICON[p.module]} className="size-3.5 shrink-0 text-muted" />
@@ -151,6 +152,7 @@ export function AppShell({ initialView = 'behind', initialTab = 'car-journey', i
   const [route, setRoute] = useState<Route>(() =>
     routed ? fromPath(window.location.pathname) : { view: initialView, tab: initialTab, doc: initialDoc, office: 'pickups' },
   );
+  setRouted(routed);
   const { view, tab, doc, office } = route;
   const navigate = (patch: Partial<Route>) => {
     const next = { ...route, ...patch };
@@ -172,7 +174,7 @@ export function AppShell({ initialView = 'behind', initialTab = 'car-journey', i
   const go = (v: View) => navigate({ view: v });
   // Back office opens on Pickups unless another tab is asked for.
   const showPerson = (id: PersonaId, home: BackOfficeTab = 'pickups') => navigate({ view: id, office: home });
-  const officeProps = { tab: office, onChange: (t: BackOfficeTab) => navigate({ office: t }) };
+  const officeProps = { tab: office, onChange: (t: BackOfficeTab) => navigate({ office: t }), hrefOf: (t: BackOfficeTab) => toPath({ ...route, office: t }) };
   // The pointer belongs to the landing page; on the other tabs it would sit over the content.
   const pointerOn = view === 'behind' && tab === 'car-journey';
   const hasBackend = useHasBackend();
@@ -181,7 +183,7 @@ export function AppShell({ initialView = 'behind', initialTab = 'car-journey', i
     <div className="flex min-h-screen flex-col bg-canvas">
       <header className="relative z-20 flex h-[68px] items-stretch justify-between gap-6 border-b border-line bg-white px-6 shadow-header">
         <div className="flex items-stretch gap-8 lg:gap-10">
-          <button type="button" onClick={() => go('behind')} aria-label="Home" className="flex items-center">
+          <button type="button" {...navClick('/', () => go('behind'))} aria-label="Home" className="flex items-center">
             <Lockup size={20} />
           </button>
           {/* Behind-the-build tabs live in the header, next to the logo: one bar instead of two. */}
@@ -191,7 +193,7 @@ export function AppShell({ initialView = 'behind', initialTab = 'car-journey', i
                 <button
                   key={t.id}
                   type="button"
-                  onClick={() => setTab(t.id)}
+                  {...navClick(toPath({ ...route, view: 'behind', tab: t.id }), () => setTab(t.id))}
                   aria-current={tab === t.id ? 'page' : undefined}
                   className={`-mb-px border-b-2 whitespace-nowrap ${tab === t.id ? 'border-ink font-medium text-ink' : 'border-transparent text-muted hover:text-ink'}`}
                 >

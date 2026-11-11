@@ -1,3 +1,4 @@
+import { navClick } from '../shell/link';
 import { useMemo, useState } from 'react';
 import Markdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -97,7 +98,7 @@ function DocLink({ doc, active, onPick }: { doc: Doc; active: boolean; onPick: (
   return (
     <button
       type="button"
-      onClick={() => onPick(doc.id)}
+      {...navClick(`/thinking/${doc.id}`, () => onPick(doc.id))}
       aria-current={active ? 'page' : undefined}
       className={`flex w-full items-center gap-2 rounded-pill px-3 py-2 text-left text-sm whitespace-nowrap ${
         active ? 'bg-ink font-medium text-white' : empty ? 'text-subtle hover:bg-canvas' : 'text-ink hover:bg-canvas'
