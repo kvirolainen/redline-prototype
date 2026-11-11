@@ -2,8 +2,12 @@ import { useState, type ReactNode } from 'react';
 import { Button } from '../../components/ui/Button';
 import { OptionCard } from '../../components/ui/OptionCard';
 import { money } from '../../domain/format';
-import { NOT_READY_REASONS, RUN, stopOf, type InspectionCar } from './fixtures';
+import { useInspectorEnv } from './env';
+import { NOT_READY_REASONS, type InspectionCar } from './fixtures';
 import type { Difference, Outcome } from './useRun';
+
+/** A difference as the summary shows it: from the phone's own answers, or from the re-price as it was sent. */
+type DifferenceRow = Pick<Difference, 'declared' | 'finding' | 'note' | 'adjustment' | 'photos'> & { item: { id: string } };
 
 // Small inline icons, stroke style to match Material Symbols Rounded.
 const paths = {
@@ -114,7 +118,7 @@ export function PhotoStrip({ count, label, onAdd, required }: { count: number; l
 }
 
 /** One line per difference: declared vs found and what it does to the price. */
-export function DifferenceList({ diffs }: { diffs: Difference[] }) {
+export function DifferenceList({ diffs }: { diffs: DifferenceRow[] }) {
   return (
     <ul className="divide-y divide-line-light rounded-card border border-line bg-white">
       {diffs.map((d) => (
@@ -164,10 +168,12 @@ export function Sheet({ title, onClose, children }: { title: string; onClose: ()
 /** "Not ready" picker: one reason, then the car rolls to the next pickup day. */
 export function NotReadySheet({ car, onPick, onClose }: { car: InspectionCar; onPick: (reason: string) => void; onClose: () => void }) {
   const [reason, setReason] = useState<string>();
+  const env = useInspectorEnv();
+  const next = env.nextRunOf(car);
   return (
     <Sheet title="Car not ready?" onClose={onClose}>
       <p className="-mt-2 mb-4 text-sm text-muted">
-        {car.car} moves to {stopOf(car).dealer}'s next pickup day, {RUN.nextRun}. The dealer is told right away.
+        {car.car} moves to {env.stopOf(car).dealer}'s next pickup day, {next}. The dealer is told right away.
       </p>
       <div className="space-y-2">
         {NOT_READY_REASONS.map((r) => (
@@ -175,7 +181,7 @@ export function NotReadySheet({ car, onPick, onClose }: { car: InspectionCar; on
         ))}
       </div>
       <BigButton className="mt-5" disabled={!reason} onClick={() => reason && onPick(reason)}>
-        Move to {RUN.nextRun}
+        Move to {next}
       </BigButton>
     </Sheet>
   );
@@ -199,7 +205,10 @@ export function OutcomeView({
   onUndo: () => void;
   nextLabel?: string;
 }) {
-  const dealer = stopOf(car).dealer;
+  const env = useInspectorEnv();
+  const dealer = env.stopOf(car).dealer;
+  const director = env.directorOf(car);
+  const truck = env.run.truck;
   let mark: ReactNode;
   let title: string;
   let body: ReactNode;
@@ -207,9 +216,24 @@ export function OutcomeView({
 
   if (outcome.kind === 'confirmed') {
     mark = <Mark tone="done" icon="check" />;
-    if (!outcome.loaded) {
+    if (!outcome.loaded && outcome.accepted) {
+      title = `${director} accepted ${money(outcome.accepted.to)}`;
+      body = (
+        <>
+          <p className="text-h4 font-bold text-ink">Load it on {truck}</p>
+          <p className="mt-2">
+            Down from {money(outcome.accepted.from)}. {dealer} gets {money(outcome.accepted.to)} within 2 business days.
+          </p>
+        </>
+      );
+      action = (
+        <BigButton onClick={onLoad}>
+          <Icon name="truck" /> Loaded on the truck
+        </BigButton>
+      );
+    } else if (!outcome.loaded) {
       title = `Confirmed at ${money(car.offer)}`;
-      body = <p>Matches what {dealer} declared. Load it on {RUN.truck}.</p>;
+      body = <p>Matches what {dealer} declared. Load it on {truck}.</p>;
       action = (
         <BigButton onClick={onLoad}>
           <Icon name="truck" /> Loaded on the truck
@@ -219,27 +243,46 @@ export function OutcomeView({
       title = 'Picked up';
       body = (
         <p>
-          On {RUN.truck}. {dealer} gets {money(car.offer)} within 2 business days.
+          On {truck}. {dealer} gets {money(car.offer)} within 2 business days.
         </p>
       );
     }
   } else if (outcome.kind === 'reprice') {
-    mark = <Mark tone="attention" icon="clock" />;
-    title = 'Re-price sent to Dave';
-    body = (
-      <>
-        <p>
-          Dave, Sales Director at {dealer}, accepts or declines on his screen. If he declines, the car stays with the dealer. Leave it
-          parked until he answers.
-        </p>
-        <div className="mt-4 text-left">
-          <PriceChange from={outcome.from} to={outcome.to} />
+    const rows: DifferenceRow[] = diffs.length
+      ? diffs
+      : (outcome.sent ?? []).map((s) => ({ item: { id: s.label }, declared: s.declared, finding: s.found, note: '', adjustment: s.amount, photos: s.photos }));
+    const summary = (
+      <div className="mt-4 text-left">
+        <PriceChange from={outcome.from} to={outcome.to} />
+        {rows.length > 0 && (
           <div className="mt-3">
-            <DifferenceList diffs={diffs} />
+            <DifferenceList diffs={rows} />
           </div>
-        </div>
-      </>
+        )}
+      </div>
     );
+    if (outcome.declined) {
+      mark = <Mark tone="attention" icon="alert" />;
+      title = `${director} declined the re-price`;
+      body = (
+        <>
+          <p>The car stays with {dealer}. Leave it parked and move on.</p>
+          {summary}
+        </>
+      );
+    } else {
+      mark = <Mark tone="attention" icon="clock" />;
+      title = `Re-price sent to ${director}`;
+      body = (
+        <>
+          <p>
+            {director}, Sales Director at {dealer}, accepts or declines on their screen. If they decline, the car stays with the dealer.
+            Leave it parked until they answer.
+          </p>
+          {summary}
+        </>
+      );
+    }
   } else {
     mark = <Mark tone="attention" icon="key" />;
     title = `Moved to ${outcome.next}`;

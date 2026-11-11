@@ -1,14 +1,26 @@
 import { useState } from 'react';
 import type { CarStatus } from '../../domain/statuses';
-import { CARS, CHECKS, RUN, carById, declaredFor, type CheckItem, type InspectionCar } from './fixtures';
+import { useInspectorEnv } from './env';
+import { CHECKS, declaredFor, type CheckItem, type InspectionCar } from './fixtures';
 
 export type Answer =
   | { result: 'match' }
   | { result: 'different'; finding: number; note: string; photos: number };
 
+/** A re-price as sent, for when the phone no longer holds the answers (another session, after a reload). */
+export interface SentItem {
+  label: string;
+  declared: string;
+  found: string;
+  amount: number;
+  photos: number;
+}
+
 export type Outcome =
-  | { kind: 'confirmed'; loaded: boolean }
-  | { kind: 'reprice'; from: number; to: number }
+  /** `accepted`: the director took a re-price, so the car now goes at the new price. */
+  | { kind: 'confirmed'; loaded: boolean; accepted?: { from: number; to: number } }
+  /** `declined`: the director said no, the car stays with the dealer. */
+  | { kind: 'reprice'; from: number; to: number; declined?: boolean; sent?: SentItem[] }
   | { kind: 'not_ready'; reason: string; next: string };
 
 export interface Difference {
@@ -22,8 +34,11 @@ export interface Difference {
 
 type Answers = Record<string, Record<string, Answer>>;
 
-// Local state for one inspector's run: answers per car and item, and the outcome per car.
+// One inspector's run: answers per car and item stay on the phone; outcomes and writes go to the live backend in
+// the app, and stay local in Storybook.
 export function useRun() {
+  const env = useInspectorEnv();
+  const carById = (id: string) => env.carById(id)!;
   const [answers, setAnswers] = useState<Answers>({});
   const [outcomes, setOutcomes] = useState<Record<string, Outcome>>({});
 
@@ -76,7 +91,7 @@ export function useRun() {
   const confirm = (carId: string) => setOutcome(carId, { kind: 'confirmed', loaded: false });
   const loadOnTruck = (carId: string) => setOutcome(carId, { kind: 'confirmed', loaded: true });
   const sendReprice = (carId: string) => setOutcome(carId, { kind: 'reprice', from: carById(carId).offer, to: suggestedPrice(carId) });
-  const notReady = (carId: string, reason: string) => setOutcome(carId, { kind: 'not_ready', reason, next: RUN.nextRun });
+  const notReady = (carId: string, reason: string) => setOutcome(carId, { kind: 'not_ready', reason, next: env.nextRunOf(carById(carId)) });
 
   /** Undo, so a reviewer can walk the same car again. */
   const reopen = (carId: string) => {
@@ -92,12 +107,28 @@ export function useRun() {
     return 'not_ready';
   };
 
-  const doneCount = CARS.filter((c) => outcomes[c.id]).length;
+  const clearAnswers = (carId: string) => setAnswers((prev) => ({ ...prev, [carId]: {} }));
 
-  return {
-    answersFor, setAnswer, markDifferent, patchDifferent, differences, suggestedPrice, checkedCount,
-    outcomes, confirm, loadOnTruck, sendReprice, notReady, reopen, statusOf, doneCount,
-  };
+  const local = { outcomes, confirm, loadOnTruck, sendReprice, notReady, reopen, statusOf };
+  const live = env.live;
+  const decided = live
+    ? {
+        outcomes: live.outcomes,
+        confirm: live.confirm,
+        loadOnTruck: live.loadOnTruck,
+        sendReprice: (carId: string) => live.sendReprice(carId, suggestedPrice(carId), differences(carId)),
+        notReady: live.notReady,
+        reopen: (carId: string) => {
+          live.reopen(carId);
+          clearAnswers(carId);
+        },
+        statusOf: (carId: string): CarStatus => live.statuses[carId] ?? 'awaiting_pickup',
+      }
+    : local;
+
+  const doneCount = env.cars.filter((c) => decided.outcomes[c.id]).length;
+
+  return { answersFor, setAnswer, markDifferent, patchDifferent, differences, suggestedPrice, checkedCount, ...decided, doneCount };
 }
 
 export type Run = ReturnType<typeof useRun>;
