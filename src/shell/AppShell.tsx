@@ -96,12 +96,12 @@ function ScreensPointer({ onPick }: { onPick: (id: PersonaId) => void }) {
   return (
     <div className="pointer-events-none flex justify-end px-6 pt-2 xl:absolute xl:top-0 xl:right-0">
       <div className="pointer-events-auto flex items-start gap-1">
-        <div className="mt-6 flex flex-col items-end">
+        <div className="mt-6 flex w-[196px] flex-col">
           <p className="text-sm text-ink">
             <span className="font-bold">4 modules</span>, one per role
           </p>
-          {/* Equal-width pills, stacked: module first, then the person. */}
-          <div className="mt-3 grid w-[196px] gap-1.5">
+          {/* Heading and pills share one left edge. Module first, then the person. */}
+          <div className="mt-3 grid gap-1.5">
             {SCREEN_ORDER.map((id) => {
               const p = persona(id);
               return (
@@ -120,7 +120,7 @@ function ScreensPointer({ onPick }: { onPick: (id: PersonaId) => void }) {
           </div>
         </div>
         {/* Hand-drawn style arrow curving up to the switcher. */}
-        <svg viewBox="0 0 40 44" className="mr-8 h-11 w-10 shrink-0 text-ink" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <svg viewBox="0 0 40 44" className="mr-8 -ml-8 h-11 w-10 shrink-0 text-ink" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
           <path d="M2 36C16 36 26 26 28 4" />
           <path d="M22 9l6-6 5 7" />
         </svg>
