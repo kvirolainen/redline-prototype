@@ -26,7 +26,7 @@ export const OneScreen: Story = {
     docs: {
       description: {
         story:
-          'B, refined. Clutch’s full sell-flow question list (15 that apply to a dealer), each always in the same place, in two columns that fit 1440 × 900 and 1280 × 800 with no scroll. Answer in any order, even before the VIN. The price appears once, when everything is in, so nobody watches it move. Nothing on screen is meant only for the dealer. A car Clutch can’t price instantly says why and when the offer comes. The confirmation follows Clutch’s firm-offer card and links on to Back office.',
+          'B, refined. Clutch’s full sell-flow question list (15 that apply to a dealer), each always in the same place. The car and its price run across the top; the questions take the full width below. Fits 1440 × 900 and 1280 × 800 with no scroll. Answer in any order, even before the VIN. The price appears once, when everything is in, so nobody watches it move. Nothing on screen is meant only for the dealer. A car Clutch can’t price instantly says why and when the offer comes. The confirmation follows Clutch’s firm-offer card and links on to Back office.',
       },
     },
   },

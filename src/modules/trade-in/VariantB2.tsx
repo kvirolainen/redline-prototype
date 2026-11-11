@@ -93,7 +93,7 @@ function noteFor(t: TradeIn, id: QuestionId): string | null {
 
 function kmNote(t: TradeIn): string | null {
   if (!t.car || !t.km) return null;
-  if (t.km > INSTANT_KM_LIMIT) return `Over ${INSTANT_KM_LIMIT.toLocaleString('en-CA')} km, a Clutch appraiser prices the car. The offer comes by ${DATES.firmBy}.`;
+  if (t.km > INSTANT_KM_LIMIT) return null; // the offer box says why
   const age = 2026 - t.car.year;
   if (t.km > age * 40000) return 'That looks high for this car’s age. Check the odometer so the offer is right.';
   if (t.km < age * 3000) return 'That looks low for this car’s age. Check the odometer so the offer is right.';
@@ -103,11 +103,11 @@ function kmNote(t: TradeIn): string | null {
 /** Every reason the offer needs a person, in plain words. */
 function reviewReasons(t: TradeIn): string[] {
   const out: string[] = [];
-  if (t.km > INSTANT_KM_LIMIT) out.push(`Over ${INSTANT_KM_LIMIT.toLocaleString('en-CA')} km. High-mileage cars are priced by an appraiser.`);
+  if (t.km > INSTANT_KM_LIMIT) out.push(`Over ${INSTANT_KM_LIMIT.toLocaleString('en-CA')} km`);
   for (const q of FULL_QUESTIONS)
     for (const v of t.answers[q.id] ?? []) {
       const o = q.options.find((x) => x.value === v);
-      if (o?.review) out.push(`${o.title} declared. These cars are priced by an appraiser.`);
+      if (o?.review) out.push(`${o.title} declared`);
     }
   return out;
 }
@@ -127,25 +127,25 @@ export function TradeInVariantB2({ onOpenBackOffice }: { onOpenBackOffice?: () =
   return (
     <div className="flex min-h-screen flex-col bg-canvas">
       <Header />
-      <div className="mx-auto grid w-full max-w-[1400px] items-start grid-cols-[1fr_300px] gap-5 px-6 py-4 min-[1400px]:grid-cols-[1fr_340px] min-[1400px]:py-6">
-        <div className="rounded-panel border border-line bg-white">
+      <div className="mx-auto w-full max-w-[1400px] space-y-4 px-6 py-4 min-[1400px]:space-y-5 min-[1400px]:px-8 min-[1400px]:py-5">
+        {/* The car and its price, across the top: where both people look first. */}
+        <div className="grid grid-cols-[1fr_380px] rounded-panel border border-line bg-white min-[1400px]:grid-cols-[1fr_440px]">
           <CarRow t={t} />
-          <div className="grid grid-cols-2 divide-x divide-line-light">
-            {COLUMNS.map((c) => (
-              <section key={c.title} className="px-6 pt-4 pb-5">
-                <h2 className="text-caption font-bold tracking-wide text-muted uppercase">{c.title}</h2>
-                <div className="mt-3 space-y-5">
-                  {c.rows.map((ids) => (
-                    <Line key={ids.join()} ids={ids} t={t} />
-                  ))}
-                </div>
-              </section>
-            ))}
-          </div>
+          <OfferBox t={t} />
         </div>
-        <aside>
-          <OfferPanel t={t} />
-        </aside>
+        {/* The questions get the full width, so answers have room and never wrap. */}
+        <div className="grid grid-cols-2 divide-x divide-line-light rounded-panel border border-line bg-white">
+          {COLUMNS.map((c) => (
+            <section key={c.title} className="px-8 pt-4 pb-5 min-[1400px]:px-10 min-[1400px]:pt-6 min-[1400px]:pb-7">
+              <h2 className="text-caption font-bold tracking-wide text-muted uppercase">{c.title}</h2>
+              <div className="mt-3 space-y-5 min-[1400px]:mt-4 min-[1400px]:space-y-6">
+                {c.rows.map((ids) => (
+                  <Line key={ids.join()} ids={ids} t={t} />
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -167,8 +167,8 @@ function Header() {
 function CarRow({ t }: { t: TradeIn }) {
   const note = kmNote(t);
   return (
-    <div className="border-b border-line px-5 py-3">
-      <div className="grid grid-cols-[1fr_200px] gap-3">
+    <div className="px-8 py-5 min-[1400px]:px-10 min-[1400px]:py-6">
+      <div className="grid grid-cols-[1fr_220px] gap-4">
         <Input
           label="VIN"
           value={t.vin}
@@ -191,6 +191,11 @@ function CarRow({ t }: { t: TradeIn }) {
           onBlur={() => t.km && t.setKmText(t.km.toLocaleString('en-CA'))}
         />
       </div>
+      {t.car && (
+        <p className="mt-3 text-sm text-muted">
+          <span className="font-bold text-ink">{carName(t.car)}</span> · {t.car.colour} · {t.car.transmission}
+        </p>
+      )}
       {note && <Note>{note}</Note>}
       {!t.car && (
         <p className="mt-2 text-caption text-muted">
@@ -226,7 +231,7 @@ function Input({
     <label className="block">
       <span className="mb-1 block text-caption font-medium text-muted">{label}</span>
       <span
-        className={`flex h-10 items-center rounded-card border bg-white px-3 ${
+        className={`flex h-11 items-center rounded-card border bg-white px-4 min-[1400px]:h-12 ${
           error ? 'border-error' : 'border-line hover:border-body focus-within:border-ink'
         }`}
       >
@@ -245,7 +250,7 @@ function Input({
 }
 
 function Note({ children }: { children: ReactNode }) {
-  return <p className="mt-1.5 rounded-card bg-nudge px-3 py-1.5 text-caption text-body">{children}</p>;
+  return <p className="mt-2 rounded-card bg-nudge px-3 py-2 text-caption text-body min-[1400px]:text-sm">{children}</p>;
 }
 
 /** Label above, answers as pills below, one left edge for everything. Black = picked, as in Clutch's flow. */
@@ -253,7 +258,7 @@ function Line({ ids, t }: { ids: QuestionId[]; t: TradeIn }) {
   const notes = ids.map((id) => noteFor(t, id)).filter(Boolean) as string[];
   return (
     <div>
-      <div className="grid grid-cols-2 gap-x-4">
+      <div className="grid grid-cols-2 gap-x-6">
         {ids.map((id) => (
           <Answer key={id} q={Q(id)} t={t} wide={ids.length === 1} />
         ))}
@@ -269,12 +274,12 @@ function Answer({ q, t, wide }: { q: Question; t: TradeIn; wide: boolean }) {
   const picked = t.answers[q.id] ?? [];
   return (
     <fieldset className={wide ? 'col-span-2' : ''}>
-      <legend className="text-sm font-medium text-ink min-[1400px]:text-base">
+      <legend className="text-base font-medium text-ink">
         {LABEL[q.id] ?? q.label}
         {q.multi && <span className="font-normal text-subtle"> · all that apply</span>}
         {HINT[q.id] && <span className="font-normal text-subtle"> · {HINT[q.id]}</span>}
       </legend>
-      <div className="mt-1.5 flex flex-wrap gap-1.5">
+      <div className="mt-2 flex flex-wrap gap-2">
         {q.options.map((o) => {
           const on = picked.includes(o.value);
           return (
@@ -284,7 +289,7 @@ function Answer({ q, t, wide }: { q: Question; t: TradeIn; wide: boolean }) {
               aria-pressed={on}
               title={o.helper ?? o.title}
               onClick={() => t.answer(q.id, o.value)}
-              className={`h-8 rounded-pill border px-3 text-sm transition-colors min-[1400px]:h-9 min-[1400px]:px-3.5 min-[1400px]:text-base ${
+              className={`h-9 rounded-pill border px-3.5 text-sm transition-colors min-[1400px]:h-10 min-[1400px]:px-4 min-[1400px]:text-base ${
                 on ? 'border-ink bg-ink font-medium text-white' : 'border-line bg-white text-ink hover:border-ink'
               }`}
             >
@@ -297,104 +302,67 @@ function Answer({ q, t, wide }: { q: Question; t: TradeIn; wide: boolean }) {
   );
 }
 
-/** The part both people read: the car, then either progress or the one result. */
-function OfferPanel({ t }: { t: TradeIn }) {
+/** The price box, top right. Shows progress until every answer is in, then the one result. */
+function OfferBox({ t }: { t: TradeIn }) {
   const q = t.quote;
   const reasons = reviewReasons(t);
-  return (
-    <div className="rounded-panel border border-line bg-white p-6">
-      <div className="border-b border-line-light pb-4">
-        <p className="text-caption font-bold tracking-wide text-muted uppercase">Your vehicle</p>
-        {t.car ? (
-          <>
-            <p className="mt-2 text-title font-bold text-ink">{carName(t.car)}</p>
-            <p className="mt-1 text-caption text-muted">
-              {t.car.colour} · {t.car.transmission}
-              {t.km > 0 && ` · ${kmLabel(t.km)}`}
-            </p>
-          </>
-        ) : (
-          <p className="mt-2 text-sm text-muted">Answer in any order. The offer appears here once the VIN, odometer and every question are in.</p>
-        )}
-      </div>
-      {!q && <Waiting t={t} />}
-      {q && (reasons.length ? <ByHand t={t} q={q} reasons={reasons} /> : <Instant t={t} q={q} />)}
-    </div>
-  );
-}
-
-/** Before there is a quote: how many answers are in, and what is still missing. */
-function Waiting({ t }: { t: TradeIn }) {
   const answered = FULL_QUESTIONS.filter((x) => t.answers[x.id]?.length).length;
-  const missing = !t.car ? 'Needs the VIN' : 'Needs the odometer';
+  const total = FULL_QUESTIONS.length;
   return (
-    <>
-      <Progress q={{ answered, total: FULL_QUESTIONS.length }} />
-      <Button className="w-full" disabled>
-        {missing}
-      </Button>
-    </>
-  );
-}
-
-function Progress({ q }: { q: Pick<Quote, 'answered' | 'total'> }) {
-  return (
-    <div className="py-6">
-      <p className="text-center text-sm text-muted">
-        {q.answered} of {q.total} answered
-      </p>
-      <div className="mt-3">
-        <SegmentedProgress total={q.total} done={q.answered} />
-      </div>
+    <div className="flex flex-col justify-center border-l border-line-light px-8 py-5 min-[1400px]:px-10">
+      {reasons.length && q ? (
+        <ByHand t={t} q={q} reasons={reasons} />
+      ) : q?.complete ? (
+        <div className="flex items-end justify-between gap-6">
+          <div>
+            <p className="text-sm text-muted">Clutch’s firm offer</p>
+            <p className="mt-1 text-[40px] leading-[44px] font-bold text-ink tabular-nums">{money(q.firm)}</p>
+            <p className="mt-1 text-caption text-muted">
+              Holds until {DATES.validUntil}
+            </p>
+          </div>
+          <Button className="shrink-0 px-8" onClick={() => t.setOutcome('accepted')}>
+            Accept offer
+          </Button>
+        </div>
+      ) : (
+        <>
+          <div className="flex items-baseline justify-between">
+            <p className="text-sm font-medium text-ink">Clutch’s offer</p>
+            <p className="text-sm text-muted">
+              {answered} of {total} answered
+            </p>
+          </div>
+          <div className="mt-3">
+            <SegmentedProgress total={total} done={answered} />
+          </div>
+          <p className="mt-3 text-sm text-muted">
+            {!t.car ? 'Shows here once the VIN and every answer are in.' : !t.km ? 'Shows here once the odometer and every answer are in.' : 'Shows here once every answer is in.'}
+          </p>
+        </>
+      )}
     </div>
   );
 }
 
-function Instant({ t, q }: { t: TradeIn; q: Quote }) {
-  if (!q.complete)
-    return (
-      <>
-        <Progress q={q} />
-        <Button className="w-full" disabled>
-          Answer all to see the offer
-        </Button>
-      </>
-    );
-  return (
-    <>
-      <div className="py-6 text-center">
-        <p className="text-sm text-muted">Clutch’s firm offer</p>
-        <p className="mt-1 text-[40px] leading-[48px] font-bold text-ink tabular-nums">{money(q.firm)}</p>
-        <p className="mt-1 text-caption text-muted">Holds until {DATES.validUntil}</p>
-      </div>
-      <Button className="w-full" onClick={() => t.setOutcome('accepted')}>
-        Accept offer
-      </Button>
-      <p className="mt-3 text-center text-caption text-muted">Clutch picks the car up {DATES.pickup}</p>
-    </>
-  );
-}
-
-/** No instant offer: say why, what happens next, and when. */
+/** No instant offer: when it comes, why, then send. */
 function ByHand({ t, q, reasons }: { t: TradeIn; q: Quote; reasons: string[] }) {
   return (
     <>
-      <div className="pt-5">
-        <p className="text-title font-bold text-ink">A Clutch appraiser prices this one</p>
-        <p className="mt-1 text-sm text-muted">The offer comes by {DATES.firmBy}. Why:</p>
-        <ul className="mt-3 space-y-2">
+      <p className="text-title font-bold text-ink">Offer by {DATES.firmBy}</p>
+      <p className="mt-1 text-sm text-muted">A Clutch appraiser prices this one. Why:</p>
+      <div className="mt-3 flex items-end justify-between gap-4">
+        <ul className="space-y-1.5">
           {reasons.map((r) => (
-            <li key={r} className="rounded-card bg-nudge px-3 py-2 text-sm text-body">
+            <li key={r} className="rounded-card bg-nudge px-3 py-1.5 text-sm text-body">
               {r}
             </li>
           ))}
         </ul>
+        <Button className="shrink-0 px-6" disabled={!q.complete} onClick={() => t.setOutcome('review-sent')}>
+          {q.complete ? 'Send to Clutch' : `${q.answered} of ${q.total} answered`}
+        </Button>
       </div>
-      <Progress q={q} />
-      <Button className="w-full" disabled={!q.complete} onClick={() => t.setOutcome('review-sent')}>
-        {q.complete ? 'Send to Clutch' : 'Answer all to send'}
-      </Button>
-      <p className="mt-3 text-center text-caption text-muted">The offer shows up in Back office to accept</p>
     </>
   );
 }

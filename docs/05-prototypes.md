@@ -21,7 +21,7 @@ All twelve share the same demo moment: **Thu Nov 12**, pickup day, when Sam's in
 Why B: Maria prices trade-ins every week. For someone who repeats a task, one screen where every answer sits in the same place beats a guided flow: she works from memory, in any order. What changed from B:
 
 - **Clutch's full question list.** The 15 questions from Clutch's sell flow that apply to a dealer (disclosures, accidents, exterior, rust, interior, mechanical, driveable, overall condition, loan or lease, keys, features, factory rims, tire sets, tire type, when the all-seasons were replaced). Dropped: ownership, sell or trade, and when you plan to sell, because the dealership is the seller and it sells now. Transmission and colour come from the VIN.
-- **Fits one screen** (1440 × 900 and 1280 × 800) with no scrolling: two columns, short questions two to a line, and every answer starting on one of two edges.
+- **One screen, two bands.** Across the top: the car and its price (VIN, odometer, the decoded car, then the offer and the one action), where both people look first. Below, the questions at full width in two columns, short ones two to a line, so answers never wrap. Fits 1440 × 900 and 1280 × 800 with no scrolling; nothing stretches to fill the screen.
 - **Answer in any order**, even before the VIN.
 - **The price appears once.** Until every answer is in, the panel shows progress, not a number, so the customer never watches it move.
 - **Every word is fine for the customer to read.** The auction comparison is the dealer's business and moved to Back office. Clutch's honesty notes stay, worded for both people ("It's checked at pickup").
