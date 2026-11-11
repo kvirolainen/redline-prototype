@@ -77,3 +77,15 @@
 body {
   @apply bg-canvas text-body font-sans antialiased;
 }
+
+/* Tailwind v4 no longer gives buttons a pointer cursor; anything clickable gets one back. */
+@layer base {
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  [role='tab'],
+  [role='menuitemradio'],
+  summary,
+  label[for] {
+    cursor: pointer;
+  }
+}
