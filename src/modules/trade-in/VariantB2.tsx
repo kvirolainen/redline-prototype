@@ -453,10 +453,10 @@ function Done({ t, q, onOpenBackOffice }: { t: TradeIn; q: Quote; onOpenBackOffi
         { icon: <IconDollar />, title: 'Within 2 business days', text: `${DEALER.name} is paid` },
       ];
   return (
-    // One centred column: outcome, the offer card with the next steps folded into it, then both actions.
-    <div className="mx-auto max-w-[760px] px-6 pt-6 pb-8 text-center">
+    // One centred column: outcome, the offer card, the next steps under it, then both actions, all in one screen.
+    <div className="mx-auto max-w-[720px] px-6 pt-4 pb-8 text-center">
       <div className="flex items-center justify-center gap-3">
-        <span className="grid size-9 place-items-center rounded-full bg-success text-white">
+        <span className="grid size-10 place-items-center rounded-full bg-success text-white">
           <svg viewBox="0 0 12 12" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
             <path d="M2.5 6.5l2.5 2.5 4.5-5" />
           </svg>
@@ -464,8 +464,8 @@ function Done({ t, q, onOpenBackOffice }: { t: TradeIn; q: Quote; onOpenBackOffi
         <h2 className="text-h3 font-bold text-ink">{review ? 'Sent to Clutch' : 'Offer accepted'}</h2>
       </div>
 
-      <div className="mt-5 overflow-hidden rounded-card border border-brand/15 bg-white shadow-[0_12px_32px_-12px_rgba(255,70,76,0.25)]">
-        <div className="px-8 pt-6 pb-5">
+      <div className="mt-5 overflow-hidden rounded-card border border-brand/15 bg-white text-left shadow-[0_12px_32px_-12px_rgba(255,70,76,0.25)]">
+        <div className="border-b border-brand/15 px-6 py-5 text-center">
           <p className="text-base text-ink">{review ? 'Offer' : 'Total value of vehicle'}</p>
           {review ? (
             <p className="mt-1 text-h4 font-bold text-ink">Coming by {DATES.firmBy}</p>
@@ -473,21 +473,21 @@ function Done({ t, q, onOpenBackOffice }: { t: TradeIn; q: Quote; onOpenBackOffi
             <p className="mt-1 text-price font-bold text-ink tabular-nums">{money(q.firm)}</p>
           )}
         </div>
-        <dl className="grid grid-cols-4 gap-4 border-t border-brand/15 px-6 py-4 text-sm">
+        <dl className="grid grid-cols-2 gap-x-8 gap-y-4 px-8 py-5 text-base">
           {[
-            ['Car', carName(car)],
+            ['Make/Model', carName(car)],
             ['VIN', car.vin],
             ['Mileage', kmLabel(t.km)],
-            ['Reference', reference(car)],
+            ['Reference code', reference(car)],
           ].map(([k, v]) => (
-            <div key={k} className="min-w-0">
-              <dt className="text-caption text-muted">{k}</dt>
-              <dd className="mt-0.5 font-medium break-words text-ink">{v}</dd>
+            <div key={k}>
+              <dt className="font-medium text-ink">{k}</dt>
+              <dd className="mt-0.5 text-muted">{v}</dd>
             </div>
           ))}
         </dl>
         {review && (
-          <ul className="flex flex-wrap justify-center gap-2 border-t border-brand/15 px-6 py-4">
+          <ul className="flex flex-wrap gap-2 border-t border-brand/15 px-8 py-4">
             {reasons.map((r) => (
               <li key={r} className="rounded-card bg-nudge px-3 py-1.5 text-sm text-body">
                 {r}
@@ -495,24 +495,20 @@ function Done({ t, q, onOpenBackOffice }: { t: TradeIn; q: Quote; onOpenBackOffi
             ))}
           </ul>
         )}
-        <div className="border-t border-line-light bg-canvas/60 px-6 py-4">
-          <p className="text-caption font-medium text-muted">What happens next</p>
-          <ol className="mt-3 grid grid-cols-3 gap-4">
-            {steps.map((s, i) => (
-              <li key={i} className="flex items-center gap-2.5 text-left">
-                <span className="grid size-9 shrink-0 place-items-center rounded-full bg-brand-tint text-brand">{s.icon}</span>
-                <span className="min-w-0">
-                  <span className="block text-sm font-bold text-ink">{s.title}</span>
-                  <span className="block text-caption text-muted">{s.text}</span>
-                </span>
-              </li>
-            ))}
-          </ol>
-          {!review && (
-            <p className="mt-3 text-caption text-muted">If something differs at pickup, Clutch sends a new price with the reason and the dealership decides.</p>
-          )}
-        </div>
       </div>
+
+      <h3 className="mt-7 text-base font-bold text-ink">What happens next</h3>
+      <ol className="mt-4 grid grid-cols-3 gap-4">
+        {steps.map((s, i) => (
+          <li key={i} className="relative">
+            {i > 0 && <span className="absolute top-5 right-1/2 mr-7 h-px w-[calc(100%-40px)] bg-line" aria-hidden />}
+            <span className="relative mx-auto grid size-10 place-items-center rounded-full bg-brand-tint text-brand">{s.icon}</span>
+            <p className="mt-2 text-sm font-bold text-ink">{s.title}</p>
+            <p className="text-sm text-muted">{s.text}</p>
+          </li>
+        ))}
+      </ol>
+      {!review && <p className="mx-auto mt-4 max-w-[560px] text-caption text-muted">If something differs at pickup, Clutch sends a new price with the reason, and the dealership decides.</p>}
 
       <div className="mt-6 flex items-center justify-center gap-3">
         <Button variant="outline" {...(onOpenBackOffice ? navClick('/back-office', onOpenBackOffice) : {})}>
