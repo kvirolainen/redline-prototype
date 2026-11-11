@@ -52,10 +52,10 @@ function ForkArc({ up, step, down, exit, style }: { up: string; step: string; do
   if (style === 'arc') {
     return (
       <div className="flex w-full flex-col items-center px-[52px] lg:px-[66px]">
-        <p className="text-center text-caption leading-[17px] whitespace-nowrap text-muted">
+        <p className="text-center text-caption leading-[17px] whitespace-nowrap text-subtle">
           {step}
           <br />
-          <span className="text-subtle">{exit}</span>
+          {exit}
         </p>
         <ForkNode small className="relative z-10 mt-1.5" />
         <div className="relative -mt-3 h-11 w-full lg:h-12">
@@ -128,7 +128,7 @@ export function JourneyDiagram({ shape = 'circle', fork = 'arc', onPick }: Props
         {node(pickup)}
         <Connector />
         {node(inspection)}
-        <Connector label="Matches" />
+        <Connector label="Matches" quiet />
         {node(paid)}
       </div>
     </div>

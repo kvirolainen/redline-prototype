@@ -62,7 +62,7 @@ export function FlowNode({ icon, label, sub, shape = 'circle', size = 'lg', tone
 }
 
 /** Horizontal connector, vertically centred on the node next to it. */
-export function Connector({ size = 'lg', arrow, label, dashed }: { size?: 'lg' | 'sm'; arrow?: boolean; label?: string; dashed?: boolean }) {
+export function Connector({ size = 'lg', arrow, label, dashed, quiet }: { size?: 'lg' | 'sm'; arrow?: boolean; label?: string; dashed?: boolean; quiet?: boolean }) {
   return (
     <div className={`relative flex min-w-3 flex-1 items-center justify-self-stretch lg:min-w-10 ${size === 'lg' ? 'h-14 lg:h-20' : 'h-12 lg:h-14'}`} aria-hidden>
       <span className={`h-0 flex-1 border-t ${dashed ? 'border-dashed border-subtle' : 'border-line'}`} />
@@ -71,7 +71,7 @@ export function Connector({ size = 'lg', arrow, label, dashed }: { size?: 'lg' |
           <path d="M0 0l8 5-8 5z" />
         </svg>
       )}
-      {label && <span className="absolute inset-x-0 top-[calc(50%+6px)] text-center text-caption whitespace-nowrap text-muted">{label}</span>}
+      {label && <span className={`absolute inset-x-0 top-[calc(50%+6px)] text-center text-caption whitespace-nowrap ${quiet ? 'text-subtle' : 'text-muted'}`}>{label}</span>}
     </div>
   );
 }
