@@ -1,61 +1,45 @@
 # Demo
 
-One car through all four people, in about ten minutes. Press **Reset demo** in the header first, so it starts at the same moment every time: **Thursday Nov 12, 10:40**, pickup day at Yorkdale Honda. Sam, the inspector, is on the lot. The RAV4 and the CR-V are already on his truck; the Civic and the CX-5 are next.
+One car through all four modules in about ten minutes, plus the side paths worth taking if there's time or a question.
 
-## 1. Car journey
+## Before you start
 
-**Behind the build** opens on the car's path: firm price at the desk → joins the next pickup → weekly run → checked against what was declared → dealer gets paid, with the re-price detour when the check doesn't match. The switcher at the top right holds the four modules.
+- Press **Reset demo** in the header. Every run then starts at the same moment: **Thu Nov 12, 10:40**, pickup day at Yorkdale Honda. On Sam's run, the RAV4 and CR-V are already loaded; the **Civic** and **CX-5** are next.
+- The demo needs two screens open to show the hand-off live: the app in one window and the Clutch inspector in a second, narrower one. One window works too; switch modules from the top-right switcher.
+- Each module has its own address (`/trade-in`, `/back-office`, `/ops-board`, `/inspector`), so you can open one directly.
 
-## 2. Trade-in · Maria
+## The main path
 
-1. Pick the **2020 Honda HR-V** from Demo cars (or type its VIN).
-2. Answer the questions in any order. The offer box shows progress and what's left; the price appears only when all 15 are in.
-3. **Accept offer**: the car joins Yorkdale's next pickup, Thu Nov 19.
+| # | Module | Click | Ends at |
+|---|---|---|---|
+| 1 | Car journey | Open the app. Point at the switcher, top right | The four modules |
+| 2 | Trade-in | **Demo cars → 2020 Honda HR-V**. Answer every question, jumping between columns. **Accept offer** | HR-V joins the Thu Nov 19 pickup |
+| 3 | Back office | **Needs you**: the Rogue's offer expires tomorrow. **Keep** a car in "Keep any for your lot?", then **Undo**. Tick **Ready** on a car. Open **Results** | The HR-V listed under the next pickup |
+| 4 | Clutch ops | Expand **Scarborough** (31% re-priced). Expand **Downtown Toyota** (Highlander rolls a week). Open **Planning**, back to **Dealers** | "On the lot now" is quiet |
+| 5 | Clutch inspector | **Civic** → take the **VIN** and **odometer** photos → open one area → **Different** → pick a finding, add the photo → **Send re-price to Dave** → **Next car: CX-5** → **Not ready** → **Second key missing** | Civic waiting on Dave; CX-5 on Nov 19 |
+| 6 | Clutch ops | Look at the top band | Civic waiting, with the clock and Sam's leave time |
+| 7 | Back office | The re-price leads **Needs you** → **Accept** | Accepted |
+| 8 | Clutch inspector | Open the **Civic**: "Load the Civic on Truck 3" → **Loaded on the truck** | Civic on the truck |
+| 9 | Header | **Skip to next pickup day** | Civic paid; HR-V on Sam's Nov 19 run; Results moved |
 
-**Say:** she does this every week, so it's a control panel she learns by heart, not a step-by-step flow. The customer reads the same screen, so the price shows once and nothing on it is dealer-only.
+## Side paths
 
-**Optional:** the **2013 F-150** is over 200,000 km. It goes to a Clutch appraiser with "offer by 3:00 pm today", and the offer lands in Back office about 45 seconds later.
+Take one when there's time, or when a question points there.
 
-## 3. Back office · Dave
+- **A car Clutch can't price instantly.** Trade-in → **Demo cars → 2013 F-150** (over 200,000 km) → **Send to Clutch**. Back office shows "Offer by 3:00 pm"; the offer lands about **45 seconds** later. Fill the wait with step 3.
+- **An appraiser-priced offer.** Back office → the **2012 Camry** under open offers → **Accept**. It joins the next pickup.
+- **Dave says no.** At step 7, **Decline** instead. The inspector's phone says leave the car; it stays with the dealer.
+- **Dave doesn't answer.** This one plays in [Storybook's C2 story](https://redline-storybook.vercel.app/?path=/story/screens-clutch-inspector--c-2), which has "play what happens next" links under the run: send the re-price, then **No answer by leave time** → **Leave without it**. The re-price is withdrawn and the car joins next week's run.
+- **A clean car.** Inspector → Vaughan Ford's **F-150** → photos → **All match** on each area → confirm. A few taps.
+- **An expired offer.** After **Skip to next pickup day**, Back office shows offers that ran out; **Refresh** one.
+- **Earlier versions of a screen.** Storybook → Screens → the module. Each module's "Also tried" line in The modules links straight to them.
 
-1. **Needs you:** the Rogue's offer expires tomorrow.
-2. **Keep any for your lot?** Keep one car from Thursday's pickup, then undo.
-3. Maria's side: tick a car **Ready**; accept the appraiser-priced **2012 Camry**.
-4. Open **Results**.
+## Steering
 
-**Say:** Dave drops in, he doesn't work here, so it's an inbox of his decisions. He doesn't approve Clutch's price; he decides where the car goes. Results is what he shows the dealer principal, and the scorecard for the first-dealer experiment.
-
-## 4. Clutch ops · Jordan
-
-1. The dealer table: **Scarborough** re-prices 31% of its cars, about three times the others.
-2. **Downtown Toyota:** the Highlander reaches the lot after its run, so it rolls a week.
-3. The **Planning** tab.
-
-**Say:** this assumes Clutch already runs pickups, so it shows only what changes when the seller is a dealer: dealers instead of trucks, and two clocks, minutes and days.
-
-## 5. Clutch inspector · Sam
-
-1. Open the **Civic**. Take the VIN and odometer photos.
-2. Mark one area **Different**, describe it and add the photo. The price drops.
-3. **Send re-price to Dave**, then move on to the **CX-5**.
-4. CX-5: **Not ready**, second key missing. It moves to Thu Nov 19.
-
-**Say:** a clean car takes a few taps, but VIN and odometer photos come first, so "All match" can't be a rubber stamp.
-
-## 6. The hand-off
-
-1. **Clutch ops:** "On the lot now" shows the Civic waiting on Dave, how long it's waited, and when Sam has to leave.
-2. **Back office:** the re-price leads Needs you, with the old and new price, the reason and the photo. **Accept**.
-3. **Clutch inspector:** "Dave accepted · load the Civic" → **Loaded**.
-
-**Say:** this is the moment the product exists for. Three people on three screens, one live backend, no refresh.
-
-## 7. The rest of the week
-
-**Skip to next pickup day** in the header: the Civic is paid, the HR-V from step 2 is on Sam's run for Nov 19, and Results moves. **Reset demo** when done.
-
-## Close with
-
-- What's faked on purpose, and what it takes to make it real (Architecture).
-- Desk or online, and why the desk comes first.
-- Who to sign first (Dealer research).
+- **Short on time:** steps 2, 5, 7 and 8 carry the story (offer, re-price, decision, load). Skip 3, 4 and 6.
+- **Time runs out mid-path:** jump to step 9; skipping the week shows where everything ends up.
+- **Questions about the dealer side:** stay in Back office and open **Results**.
+- **Questions about Clutch's side:** Clutch ops, then **Planning**.
+- **Questions about the build:** Behind the build → The thinking → Architecture.
+- **Something looks wrong:** **Reset demo** and pick up from the step you were on. Every step works from a fresh reset.
+- **Before handing over the link:** press **Reset demo**, so the next person starts from the same moment.
