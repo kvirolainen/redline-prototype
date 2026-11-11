@@ -43,6 +43,8 @@ export interface BackOfficeEnv {
   dealer: string;
   today: string;
   nextPickup: string;
+  /** The readiness check for the next pickup closes soon (Wed 5 pm before a Thursday pickup): unchecked cars get urgent. */
+  checkDueSoon?: boolean;
   live?: BackOffice;
 }
 

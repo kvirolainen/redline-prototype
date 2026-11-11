@@ -30,7 +30,7 @@ function ViewIcon({ view, active, quiet }: { view: View; active?: boolean; quiet
   );
 }
 
-/** Back office is one module with two people: Dave's Overview tab and Maria's Pickups tab. */
+/** Back office is one module for two people, Dave and Maria. */
 const isShared = (view: View) => view !== 'behind' && persona(view).module === 'back-office';
 
 /** Button label: leads with the module ("Trade-in · Maria"), or "Behind the build". */
@@ -149,7 +149,7 @@ interface Props {
  *  sub-nav) or the selected person's module. The pages are the same components as in Storybook, rendered as-is. */
 export function AppShell({ initialView = 'behind', initialTab = 'car-journey', initialDoc = 'concept', routed = false }: Props) {
   const [route, setRoute] = useState<Route>(() =>
-    routed ? fromPath(window.location.pathname) : { view: initialView, tab: initialTab, doc: initialDoc, office: 'overview' },
+    routed ? fromPath(window.location.pathname) : { view: initialView, tab: initialTab, doc: initialDoc, office: 'pickups' },
   );
   const { view, tab, doc, office } = route;
   const navigate = (patch: Partial<Route>) => {
@@ -170,8 +170,8 @@ export function AppShell({ initialView = 'behind', initialTab = 'car-journey', i
   const setTab = (t: BehindTab) => navigate({ view: 'behind', tab: t });
   const setDoc = (d: DocId) => navigate({ view: 'behind', tab: 'docs', doc: d });
   const go = (v: View) => navigate({ view: v });
-  // A module opens on its person's home: Back office on Dave's Overview unless Maria's Pickups is asked for.
-  const showPerson = (id: PersonaId, home: BackOfficeTab = 'overview') => navigate({ view: id, office: home });
+  // Back office opens on Pickups unless another tab is asked for.
+  const showPerson = (id: PersonaId, home: BackOfficeTab = 'pickups') => navigate({ view: id, office: home });
   const officeProps = { tab: office, onChange: (t: BackOfficeTab) => navigate({ office: t }) };
   // The pointer belongs to the landing page; on the other tabs it would sit over the content.
   const pointerOn = view === 'behind' && tab === 'car-journey';
@@ -203,7 +203,7 @@ export function AppShell({ initialView = 'behind', initialTab = 'car-journey', i
         </div>
         <div className="flex items-center gap-6">
           {hasBackend && view !== 'behind' && <DemoBar />}
-          <ViewSwitcher view={view} onChange={(v) => navigate({ view: v, office: 'overview' })} />
+          <ViewSwitcher view={view} onChange={(v) => navigate({ view: v, office: 'pickups' })} />
         </div>
       </header>
 

@@ -49,7 +49,8 @@ export function BackOfficeLive({ children }: { children: ReactNode }) {
   const nowMin = useDemoNow(world.meta);
   const today = world.meta.today;
   const dealer = world.dealers.find((d) => d.key === DEMO_DEALER)!;
-  const next = shortDate(nextPickup(today, dealer.runDay));
+  const nextDate = nextPickup(today, dealer.runDay);
+  const next = shortDate(nextDate);
 
   const m = {
     acceptReprice: useMutation(api.cars.acceptReprice),
@@ -85,6 +86,7 @@ export function BackOfficeLive({ children }: { children: ReactNode }) {
     acceptOffer: (vin) => void m.acceptOffer({ key: keyOf(vin), who: 'Maria' }),
   };
 
-  const env: BackOfficeEnv = { dealer: dealer.name, today: shortDate(today), nextPickup: next, live };
+  // The check closes the evening before pickup; from two days out an unchecked car is urgent.
+  const env: BackOfficeEnv = { dealer: dealer.name, today: shortDate(today), nextPickup: next, checkDueSoon: addDays(today, 2) >= nextDate, live };
   return <BackOfficeEnvContext.Provider value={env}>{children}</BackOfficeEnvContext.Provider>;
 }

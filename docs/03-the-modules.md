@@ -5,7 +5,7 @@ One car, four people. Each module is built around one person's job. The design c
 | Who | Where, how often | So the module is |
 |---|---|---|
 | **Maria**, sales manager | At the sales desk, customer across from her, every week | **Trade-in**: one fixed screen she learns by heart |
-| **Dave**, sales director, and **Maria** | Dave drops in between deals; Maria works the pickup list each week | **Back office**: a home for each. Dave's decisions and results, Maria's pickups |
+| **Dave**, sales director, and **Maria** | Maria works the pickups each week; Dave drops in between deals | **Back office**: opens on where every car is; Dave's re-prices and results on a second tab |
 | **Jordan**, Clutch operations | At a desk, all day | **Clutch ops**: dealers, with two clocks: minutes and days |
 | **Sam**, Clutch inspector | On a dealer's lot, one hand free, the truck waiting | **Clutch inspector**: check by exception, on a phone |
 
@@ -58,15 +58,16 @@ _The dealership's page for cars sold to Clutch · Dave drops in between deals ·
 - Dave: "Does anything need me?" answered in seconds; a re-price with the old and new price, the reason and photos on one card; once a month, proof in money he can show the dealer principal.
 - Maria: which cars go on the next truck, and exactly what's missing on the rest.
 
-**The main call: one page, a home for each person.** Clutch's whiteboard named two needs: sales managers need a back office (where cars are, when Clutch picks up, issues), and sales directors need the value at a glance. The first sketch put both on one page, and Clutch's feedback was that the summary took too much room and the table should open on cars awaiting pickup. So the page has two tabs, and each person lands on their own:
-- **Overview, Dave's home.** **Needs you** holds only his decisions: a re-price from the lot, and before each pickup which cars to keep for his own lot. Most days it says nothing needs him. Next to it, **Results**: cars sold, the total against the auction estimate, days to payment, how often inspection changed the price, by month. Stated as plain facts, not as a pitch: Dave should be able to trust the numbers, not feel sold to. A small Pickups card says whether the week is on track.
-- **Pickups, Maria's home.** The cars by pickup, opening on the next one. Each car's readiness, the offers still open (refresh an expiring one, accept one an appraiser priced after the desk), and what was paid.
+**The main call: one page that opens on where the cars are.** Clutch's whiteboard named two needs: sales managers need a back office (where cars are, when Clutch picks up, issues), and sales directors need the value at a glance. Clutch's feedback on the first sketch: the summary took too much room, and the table should open on cars awaiting pickup. So the page has two tabs:
+- **Pickups, first and the default.** Every car by pickup, opening on the next one: readiness, the offers still open (refresh an expiring one, accept one an appraiser priced after the desk), what was paid. It answers "where are my cars?", the question both people arrive with.
+- **Overview, Dave's.** **Needs you** across the top holds only re-prices from the lot; most days it says nothing needs him. Below it, **Results**: cars sold, the total against the auction estimate, days to payment, how often inspection changed the price, by month. Stated as plain facts, not as a pitch: Dave should be able to trust the numbers, not feel sold to. Next to it, this week's pickups at a glance and the latest re-prices.
 
 **Other calls:**
-- **He doesn't approve Clutch's price; he decides where the car goes.** The offer is firm. What a director really decides is retail on his own lot or wholesale, so before each pickup he can **Keep** any car for his lot.
+- **Anything urgent is marked wherever it shows.** A re-price the truck is waiting on, an offer about to lapse, a car not ready a day or two before its check closes: a yellow edge on the row, its action in the row, and a count on the tab. Everything else is a plain to-do. If every open item were yellow, nothing would stand out.
+- **He doesn't approve Clutch's price; he decides where the car goes, before the offer is accepted.** Dealers decide at appraisal which trade-ins they'll retail on their own lot, so Redline only sees the cars they've chosen to wholesale. Pulling a car back after accepting would make Clutch's runs unreliable, so the page has no "keep" step.
 - **Ready is a checklist, not a toggle.** Mark ready opens three checks: on the lot, both keys, ownership papers. The car is ready only when all three are ticked, so a stray click can't put it on the truck, and a half-done check is saved and shown ("second key missing"). The same reasoning as the inspector's "never on one tap": a wrong Ready sends a truck for nothing.
 - **Results doubles as the first-dealer scorecard,** the numbers Clutch and the dealer would agree to judge the pilot by.
-- **Trucks and arrival times are Clutch's,** so they aren't here.
+- **The same look as Trade-in:** white panels with the heading inside, 16px text, outline pills for row actions; black only for the main decision on a card. Trucks and arrival times are Clutch's, so they aren't here.
 
 **From Clutch:** the director's role (decides retail or wholesale, signs the contract), the two needs and the dashboard feedback, all from the whiteboard session.
 

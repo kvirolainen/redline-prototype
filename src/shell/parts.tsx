@@ -34,7 +34,7 @@ function PhoneFrame({ children }: { children: ReactNode }) {
 function PickedScreen({ module, onSwitch, office }: { module: ModuleId; onSwitch: (id: PersonaId, office?: BackOfficeTab) => void; office?: OfficeProps }) {
   switch (module) {
     case 'trade-in':
-      // An offer an appraiser prices after the desk is Maria's to accept, on her Pickups page.
+      // Opens Back office on Pickups, where the car just traded in now waits for its pickup.
       return <TradeInVariantB2 onOpenBackOffice={() => onSwitch('dave', 'pickups')} />;
     case 'back-office':
       return <BackOfficeB2 tab={office?.tab} onTabChange={office?.onChange} />;

@@ -65,26 +65,25 @@ export const C: Story = {
 };
 
 export const B2: Story = {
-  name: 'B2 · Two homes · Overview (Dave)',
+  name: 'B2 · Pickups (default tab)',
   render: () => <VariantB2 />,
   parameters: {
     docs: {
       description: {
         story:
-          "B split into a home for each person. Overview is Dave's: Needs you holds only his decisions (a re-price from the lot, which cars on the next pickup to keep for his own lot), next to the results as plain facts (cars sold, total vs the auction estimate, days to payment, re-prices, by month).",
+          "B reworked into one page with two tabs, in Trade-in's look (white panels, 16px text, outline pills). Pickups opens first: every car by pickup, the readiness check (three ticks, ready only when all are ticked), open offers. Anything urgent (a re-price waiting, an offer about to lapse, a car not ready close to its deadline) gets the yellow edge, and each tab counts its urgent items.",
       },
     },
   },
 };
 
-export const B2Pickups: Story = {
-  name: 'B2 · Two homes · Pickups (Maria)',
-  render: () => <VariantB2 initialTab="pickups" />,
+export const B2Overview: Story = {
+  name: 'B2 · Overview',
+  render: () => <VariantB2 initialTab="overview" />,
   parameters: {
     docs: {
       description: {
-        story:
-          "Pickups is Maria's: the cars by pickup, opening on the next one. Mark ready opens three checks (on the lot, both keys, ownership papers) and a half-done check shows what's missing. Open offers: refresh an expiring one, accept one an appraiser priced after the desk.",
+        story: "Dave's tab: re-prices waiting on him across the top, then the results as plain facts, this week's pickups at a glance and the latest re-prices.",
       },
     },
   },

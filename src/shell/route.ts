@@ -7,19 +7,19 @@ export interface Route {
   view: View;
   tab: BehindTab;
   doc: DocId;
-  /** Back office has a home per person: Overview (Dave) and Pickups (Maria). */
+  /** Back office's tab: Pickups (default) or Overview. */
   office: BackOfficeTab;
 }
 
-export const HOME: Route = { view: 'behind', tab: 'car-journey', doc: 'concept', office: 'overview' };
+export const HOME: Route = { view: 'behind', tab: 'car-journey', doc: 'concept', office: 'pickups' };
 
 /** One path per screen, so a refresh or a shared link opens the same screen:
  *  `/` car journey · `/thinking/<doc>` a document · `/<module>` a person's module (`/trade-in`, `/inspector`, …),
- *  `/back-office/pickups` Maria's home in Back office. */
+ *  `/back-office/overview` Back office's second tab (Pickups is the default). */
 export function toPath(r: Route): string {
   if (r.view !== 'behind') {
     const module = PERSONAS.find((p) => p.id === r.view)!.module;
-    return module === 'back-office' && r.office === 'pickups' ? '/back-office/pickups' : `/${module}`;
+    return module === 'back-office' && r.office === 'overview' ? '/back-office/overview' : `/${module}`;
   }
   return r.tab === 'docs' ? `/thinking/${r.doc}` : '/';
 }
@@ -34,5 +34,5 @@ export function fromPath(path: string): Route {
   }
   const person = PERSONAS.find((p) => p.module === first);
   if (!person) return HOME;
-  return { ...HOME, view: person.id as PersonaId, office: person.module === 'back-office' && second === 'pickups' ? 'pickups' : 'overview' };
+  return { ...HOME, view: person.id as PersonaId, office: person.module === 'back-office' && second === 'overview' ? 'overview' : 'pickups' };
 }
