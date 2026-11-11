@@ -48,7 +48,7 @@ export const submitTradeIn = mutation({
     };
 
     if (a.review) {
-      const id = await ctx.db.insert('cars', { ...base, offer: 0, status: 'appraising', fromReview: true, reviewReasons: a.review });
+      const id = await ctx.db.insert('cars', { ...base, offer: 0, pendingOffer: a.offer, status: 'appraising', fromReview: true, reviewReasons: a.review });
       const car = (await ctx.db.get(id))!;
       await log(ctx, car, a.who, `Sent to Clutch: ${a.review.join(', ').toLowerCase()}. An appraiser prices it`, 'alert');
       await ctx.scheduler.runAfter(APPRAISER_SECONDS * 1000, internal.cars.appraise, { key, offer: a.offer });
@@ -72,7 +72,7 @@ export const appraise = internalMutation({
     if (!car || car.status !== 'appraising') return;
     const meta = await getMeta(ctx);
     const expiresOn = addDays(meta.today, 7);
-    await ctx.db.patch(car._id, { status: 'offered', offer, expiresOn });
+    await ctx.db.patch(car._id, { status: 'offered', offer, expiresOn, pendingOffer: undefined });
     await log(ctx, car, 'Clutch', `Offer ready: ${money(offer)}, beats auction by ${money(offer - car.auction)}. Holds until ${shortDate(expiresOn)}`, 'offer');
   },
 });
@@ -114,7 +114,8 @@ export const undoKeep = mutation({
   args: { key: v.string(), who: v.string() },
   handler: async (ctx, { key, who }) => {
     const car = await carByKey(ctx, key);
-    await ctx.db.patch(car._id, { status: 'awaiting_pickup', note: undefined });
+    const notReady = car.ready === false && !!car.rolledFrom;
+    await ctx.db.patch(car._id, { status: notReady ? 'not_ready' : 'awaiting_pickup', note: undefined });
     await log(ctx, car, who, `Back on the ${car.runDate ? shortDate(car.runDate) : 'next'} pickup`, 'decision');
   },
 });
@@ -160,6 +161,9 @@ export const confirmMatch = mutation({
   args: { key: v.string(), who: v.string(), load: v.boolean() },
   handler: async (ctx, { key, who, load }) => {
     const car = await carByKey(ctx, key);
+    // Only a car still waiting for the inspector, or already confirmed, can be confirmed or loaded: a stale screen
+    // must not skip the director's decision on a re-price.
+    if (car.status !== 'awaiting_pickup' && car.status !== 'confirmed') return;
     if (!car.inspected) {
       await ctx.db.patch(car._id, { inspected: true, status: 'confirmed' });
       await log(ctx, car, who, 'Inspected. Matches what was declared', 'inspect');
@@ -176,7 +180,7 @@ export const sendReprice = mutation({
   handler: async (ctx, { key, who, to, items, photos }) => {
     const car = await carByKey(ctx, key);
     const dealer = await dealerByKey(ctx, car.dealer);
-    const min = await nowMin(ctx);
+    const min = Math.min(await nowMin(ctx), 23 * 60 + 59);
     const meta = await getMeta(ctx);
     const at = `${meta.today}T${clock(min).padStart(5, '0')}`;
     const drop = car.offer - to;
@@ -187,7 +191,8 @@ export const sendReprice = mutation({
       reprice: {
         from: car.offer, to, by: `${who}, Clutch inspector`, at, items, photos,
         auctionAsFound: Math.max(car.auction - Math.round((drop * 0.9) / 50) * 50, 0),
-        inspectorLeaves: min + 50,
+        inspectorLeaves: Math.min(min + 50, 23 * 60 + 59),
+        auctionFrom: car.auction,
       },
     });
     const n = items.length;
@@ -213,15 +218,19 @@ export const reopenInspection = mutation({
   args: { key: v.string(), who: v.string() },
   handler: async (ctx, { key, who }) => {
     const car = await carByKey(ctx, key);
+    // An accepted re-price lowered the offer and the auction estimate: put both back.
+    const accepted = car.reprice && (car.status === 'confirmed' || car.status === 'picked_up');
+    const rolledToday = car.status === 'not_ready' && car.rolledFrom;
     await ctx.db.patch(car._id, {
       status: 'awaiting_pickup',
       inspected: false,
       repriced: false,
       reprice: undefined,
-      runDate: car.rolledFrom ?? car.runDate,
-      rolledFrom: undefined,
+      offer: accepted ? car.reprice!.from : car.offer,
+      auction: accepted && car.reprice!.auctionFrom !== undefined ? car.reprice!.auctionFrom : car.auction,
+      runDate: rolledToday ? car.rolledFrom : car.runDate,
+      rolledFrom: rolledToday ? undefined : car.rolledFrom,
       note: undefined,
-      ready: car.status === 'not_ready' ? true : car.ready,
     });
     await log(ctx, car, who, 'Reopened the inspection', 'inspect');
   },

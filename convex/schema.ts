@@ -41,6 +41,8 @@ export const reprice = v.object({
   auctionAsFound: v.number(),
   /** When the inspector plans to leave the lot, minutes after midnight. */
   inspectorLeaves: v.number(),
+  /** Auction estimate before the re-price, so an undo can restore it. */
+  auctionFrom: v.optional(v.number()),
 });
 
 export default defineSchema({
@@ -89,6 +91,8 @@ export default defineSchema({
     /** Priced by a Clutch appraiser after the desk, not instantly. */
     fromReview: v.optional(v.boolean()),
     reviewReasons: v.optional(v.array(v.string())),
+    /** The desk's quote while an appraiser prices the car; becomes the offer. */
+    pendingOffer: v.optional(v.number()),
     inspected: v.boolean(),
     repriced: v.boolean(),
     rolledFrom: v.optional(v.string()),

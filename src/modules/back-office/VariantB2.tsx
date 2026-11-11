@@ -123,7 +123,7 @@ function NeedsYou({ office, onOpen }: { office: BackOffice; onOpen: (vin: string
   const [seen, setSeen] = useState(() => office.needsYou.map((c) => c.vin));
   const fresh = office.needsYou.map((c) => c.vin).filter((v) => !seen.includes(v));
   if (fresh.length) setSeen([...fresh, ...seen]);
-  const inbox = fresh.length ? [...fresh, ...seen] : seen;
+  const inbox = (fresh.length ? [...fresh, ...seen] : seen).filter((vin) => office.cars.some((c) => c.vin === vin));
   const pending = office.needsYou.length;
   const anyReprice = office.needsYou.some((c) => c.status === 'reprice_pending');
   return (

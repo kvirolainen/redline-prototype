@@ -60,8 +60,9 @@ export function BackOfficeLive({ children }: { children: ReactNode }) {
     acceptOffer: useMutation(api.cars.acceptOffer),
   };
 
-  const mine = world.cars.filter((c) => c.dealer === DEMO_DEALER);
-  // The screen keys cars by VIN; a VIN can come back after a closed sale, so the open one wins.
+  // A VIN can come back after a closed sale; the screen keys cars by VIN, so the open record replaces the old one.
+  const all = world.cars.filter((c) => c.dealer === DEMO_DEALER);
+  const mine = all.filter((c) => !CLOSED.includes(c.status) || !all.some((o) => o.vin === c.vin && !CLOSED.includes(o.status)));
   const keyOf = (vin: string) => (mine.find((c) => c.vin === vin && !CLOSED.includes(c.status)) ?? mine.find((c) => c.vin === vin))!.key;
 
   const cars = useMemo(
