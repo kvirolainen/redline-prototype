@@ -44,9 +44,29 @@ export function DocBody({ body }: { body: string }) {
   );
 }
 
+/** One document: its file path, then the rendered markdown, or "Coming next" while it's still empty. */
+export function DocPanel({ id }: { id: DocId }) {
+  const doc = DOCS.find((d) => d.id === id)!;
+  return (
+    <>
+      <p className="mb-6 font-mono text-caption text-subtle">docs/{doc.file}</p>
+      {isEmpty(doc.body) ? (
+        <div className="max-w-[720px]">
+          <h1 className="text-h3 font-bold text-ink">{doc.label}</h1>
+          <div className="mt-6 rounded-panel border border-dashed border-subtle p-8 text-center">
+            <p className="text-title font-bold text-ink">Coming next</p>
+            <p className="mt-2 text-sm text-muted">This document is written at its step in the process.</p>
+          </div>
+        </div>
+      ) : (
+        <DocBody body={doc.body} />
+      )}
+    </>
+  );
+}
+
 export function DocsViewer({ initial = 'concept' }: { initial?: DocId }) {
   const [current, setCurrent] = useState<DocId>(initial);
-  const doc = DOCS.find((d) => d.id === current)!;
   return (
     <div className="grid min-h-full grid-cols-[220px_1fr]">
       <nav className="border-r border-line bg-white px-3 py-8" aria-label="Docs">
@@ -72,18 +92,7 @@ export function DocsViewer({ initial = 'concept' }: { initial?: DocId }) {
         </ul>
       </nav>
       <div className="bg-white px-12 py-10">
-        <p className="mb-6 font-mono text-caption text-subtle">docs/{doc.file}</p>
-        {isEmpty(doc.body) ? (
-          <div className="max-w-[720px]">
-            <h1 className="text-h3 font-bold text-ink">{doc.label}</h1>
-            <div className="mt-6 rounded-panel border border-dashed border-subtle p-8 text-center">
-              <p className="text-title font-bold text-ink">Coming next</p>
-              <p className="mt-2 text-sm text-muted">This document is written at its step in the process.</p>
-            </div>
-          </div>
-        ) : (
-          <DocBody body={doc.body} />
-        )}
+        <DocPanel id={current} />
       </div>
     </div>
   );

@@ -14,15 +14,3 @@ export function Avatar({ id, size = 'md', active }: { id: PersonaId; size?: 'sm'
     </span>
   );
 }
-
-export function Owner({ id }: { id: PersonaId }) {
-  const p = persona(id);
-  return (
-    <span className="inline-flex items-center gap-1.5 text-caption text-muted">
-      <Avatar id={id} size="sm" />
-      <span>
-        <span className="font-medium text-ink">{p.name}</span> · {p.role}
-      </span>
-    </span>
-  );
-}

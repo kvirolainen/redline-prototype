@@ -5,5 +5,5 @@ const meta = { title: 'Behind the build/Journey', component: JourneyPage, parame
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const HorizontalTrack: Story = { args: { variant: 'track' } };
-export const Swimlane: Story = { args: { variant: 'swimlane' } };
+export const Circles: Story = { args: { shape: 'circle' } };
+export const IconTiles: Story = { name: 'Icon tiles', args: { shape: 'tile' } };

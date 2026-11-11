@@ -1,89 +1,112 @@
-import { PageFrame } from './Journey';
+import { useState } from 'react';
+import type { DocId } from './docs';
+import { DocPanel } from './DocsViewer';
+import { CenteredPage, Connector, FlowNode, type NodeTone } from './flow';
+import type { IconName } from './icons';
 
 type State = 'done' | 'now' | 'next';
+export type ProcessStepId = 'research' | 'concept' | 'prototypes' | 'build-plan' | 'build' | 'test';
+type Selection = ProcessStepId | 'decisions';
 
-const STEPS: { title: string; detail: string; output: string; state: State }[] = [
+interface Step {
+  id: ProcessStepId;
+  label: string;
+  icon: IconName;
+  state: State;
+  doc?: DocId;
+  /** Shown instead of a document for steps that don't produce one. */
+  note?: { lead: string; points: string[] };
+}
+
+const STEPS: Step[] = [
   {
-    title: 'Research',
-    detail: 'Whiteboard session on the business case and the people involved; a pass through Clutch’s public design and its sell flow on a tablet.',
-    output: 'Style notes, sell-flow screenshots, open questions',
+    id: 'research',
+    label: 'Research',
+    icon: 'search',
     state: 'done',
+    note: {
+      lead: 'Before writing anything: who is involved, what they need, and how Clutch already looks and talks.',
+      points: [
+        'A whiteboard session on the business case and the four people who touch one car.',
+        'A pass through Clutch’s public site and its sell flow on a tablet, captured as style notes and screenshots.',
+        'Open questions carried into the concept doc.',
+      ],
+    },
   },
+  { id: 'concept', label: 'Concept', icon: 'doc', state: 'done', doc: 'concept' },
+  { id: 'prototypes', label: 'Prototypes', icon: 'layers', state: 'now', doc: 'prototypes' },
+  { id: 'build-plan', label: 'Build plan', icon: 'map', state: 'next', doc: 'build-plan' },
   {
-    title: 'Concept doc',
-    detail: 'Why dealerships, who the four people are, the ideal end state, and the slice this prototype builds.',
-    output: 'docs/01-concept.md',
-    state: 'done',
-  },
-  {
-    title: 'Prototypes in Storybook',
-    detail: 'Foundations from Clutch’s look, then several genuinely different variants per screen, compared side by side before picking.',
-    output: 'This Storybook · docs/02-prototypes.md',
-    state: 'now',
-  },
-  {
-    title: 'Build plan',
-    detail: 'Data model, car statuses and the events each change writes, milestones in demo order.',
-    output: 'docs/03-build-plan.md',
+    id: 'build',
+    label: 'Build',
+    icon: 'code',
     state: 'next',
+    note: {
+      lead: 'One working slice at a time on the live backend, in demo order.',
+      points: ['Offer and pickup day', 'Inspection and re-price', 'Director approval', 'Ops board'],
+    },
   },
-  {
-    title: 'Milestone builds',
-    detail: 'One working slice at a time on the live backend: offer, pickup day, inspection and re-price, approval, ops board.',
-    output: 'The app, deployed',
-    state: 'next',
-  },
-  {
-    title: 'Test report',
-    detail: 'Walk the demo path as each person, note what broke or confused, fix, and record what changed.',
-    output: 'docs/04-test-report.md',
-    state: 'next',
-  },
+  { id: 'test', label: 'Test', icon: 'check', state: 'next', doc: 'test-report' },
 ];
 
-const badge: Record<State, string> = {
-  done: 'border-line bg-white text-muted',
-  now: 'border-ink bg-ink text-white',
-  next: 'border-line bg-white text-subtle',
-};
+const STATE_LABEL: Record<State, string> = { done: 'Done', now: 'Now', next: 'Next' };
+const STATE_TONE: Record<State, NodeTone> = { done: 'default', now: 'current', next: 'upcoming' };
 
-export function ProcessPage() {
+function Note({ step }: { step: Step }) {
+  const { lead, points } = step.note!;
   return (
-    <PageFrame
-      eyebrow="Behind the build"
-      title="How this was made"
-      intro="Research first, then a written concept, then designs explored as variants before anything is built for real."
-    >
-      <ol className="relative max-w-[760px]">
-        {STEPS.map((s, i) => (
-          <li key={s.title} className="relative grid grid-cols-[48px_1fr] gap-4 pb-6 last:pb-0">
-            {i < STEPS.length - 1 && <span className="absolute top-10 bottom-0 left-[19px] w-px bg-line" aria-hidden />}
-            <span
-              className={`z-10 grid size-10 place-items-center rounded-full border text-sm font-bold ${
-                s.state === 'now' ? 'border-ink bg-ink text-white' : s.state === 'done' ? 'border-line bg-white text-ink' : 'border-line bg-canvas text-subtle'
-              }`}
-            >
-              {s.state === 'done' ? (
-                <svg viewBox="0 0 12 12" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M2.5 6.5l2.5 2.5 4.5-5" />
-                </svg>
-              ) : (
-                i + 1
-              )}
-            </span>
-            <div className={`rounded-card border bg-white p-5 ${s.state === 'now' ? 'border-ink' : 'border-line'}`}>
-              <div className="flex items-center gap-3">
-                <h3 className={`text-title font-bold ${s.state === 'next' ? 'text-muted' : 'text-ink'}`}>{s.title}</h3>
-                <span className={`ml-auto rounded-pill border px-3 py-1 text-caption font-medium ${badge[s.state]}`}>
-                  {s.state === 'now' ? 'Now' : s.state === 'done' ? 'Done' : 'Next'}
-                </span>
-              </div>
-              <p className="mt-2 text-sm text-body">{s.detail}</p>
-              <p className="mt-3 text-caption text-muted">{s.output}</p>
-            </div>
-          </li>
+    <div className="max-w-[720px]">
+      <h1 className="text-h3 font-bold text-ink">{step.label}</h1>
+      <p className="mt-4 text-base leading-[28px] text-body">{lead}</p>
+      <ul className="mt-4 list-disc space-y-2 pl-6 text-base leading-[28px] text-body marker:text-subtle">
+        {points.map((p) => (
+          <li key={p}>{p}</li>
         ))}
-      </ol>
-    </PageFrame>
+      </ul>
+      {step.state === 'next' && <p className="mt-6 text-sm text-muted">Coming next.</p>}
+    </div>
+  );
+}
+
+/** How the assignment was done: six steps in a row; clicking one opens its document below. */
+export function ProcessPage({ initial = 'concept' }: { initial?: Selection }) {
+  const [sel, setSel] = useState<Selection>(initial);
+  const step = STEPS.find((s) => s.id === sel);
+
+  return (
+    <CenteredPage title="How this was made" intro="Research, then a written concept, then designs explored as variants before anything is built for real. Click a step to read its document.">
+      <div className="overflow-x-auto pb-2">
+        <div className="mx-auto flex w-[920px] items-start">
+          {STEPS.map((s, i) => (
+            <div key={s.id} className="contents">
+              {i > 0 && <Connector />}
+              <FlowNode
+                icon={s.icon}
+                label={s.label}
+                sub={STATE_LABEL[s.state]}
+                tone={sel === s.id ? 'selected' : STATE_TONE[s.state]}
+                onClick={() => setSel(s.id)}
+                width="w-[104px]"
+                className="shrink-0"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-8 flex justify-center">
+        <button
+          type="button"
+          onClick={() => setSel('decisions')}
+          className={`rounded-pill border px-4 py-1.5 text-sm font-medium ${sel === 'decisions' ? 'border-ink bg-ink text-white' : 'border-line bg-white text-ink hover:border-ink'}`}
+        >
+          Decisions log
+        </button>
+      </div>
+
+      <div className="mx-auto mt-10 max-w-[880px] rounded-panel border border-line bg-white px-12 py-10">
+        {sel === 'decisions' ? <DocPanel id="decisions" /> : step?.doc ? <DocPanel id={step.doc} /> : step && <Note step={step} />}
+      </div>
+    </CenteredPage>
   );
 }

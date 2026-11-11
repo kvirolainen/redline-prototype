@@ -1,30 +1,5 @@
 import type { ReactNode } from 'react';
-import { MODULES, persona, type ModuleId, type PersonaId } from '../domain/personas';
-import { Avatar } from '../behind/Avatar';
-
-export function Wordmark({ invert }: { invert?: boolean }) {
-  return (
-    <span className="flex items-baseline gap-2">
-      <span className={`text-[26px] leading-none font-bold tracking-tight ${invert ? 'text-white' : 'text-brand'}`}>clutch</span>
-      <span className={`text-sm font-medium ${invert ? 'text-white/70' : 'text-muted'}`}>Redline</span>
-    </span>
-  );
-}
-
-export function PersonaLine({ id, active }: { id: PersonaId; active?: boolean }) {
-  const p = persona(id);
-  return (
-    <span className="flex min-w-0 items-center gap-3 text-left">
-      <Avatar id={id} active={active} />
-      <span className="min-w-0">
-        <span className="block truncate text-sm font-bold text-ink">{p.name}</span>
-        <span className="block truncate text-caption text-muted">
-          {p.role} · {p.org}
-        </span>
-      </span>
-    </span>
-  );
-}
+import { MODULES, persona, type PersonaId } from '../domain/personas';
 
 function PhoneFrame({ children }: { children: ReactNode }) {
   return (
@@ -35,10 +10,10 @@ function PhoneFrame({ children }: { children: ReactNode }) {
   );
 }
 
-// Placeholder for a persona module. Modules are designed in the next step; this keeps the shell honest about that.
-export function DemoModule({ personaId, moduleId }: { personaId: PersonaId; moduleId: ModuleId }) {
+// Placeholder for a persona's module. Modules are designed in the next step; this keeps the shell honest about that.
+export function DemoModule({ personaId }: { personaId: PersonaId }) {
   const p = persona(personaId);
-  const m = MODULES[moduleId];
+  const m = MODULES[p.module];
   const body = (
     <div className={`flex h-full flex-col ${m.device === 'phone' ? 'p-5' : 'p-8'}`}>
       <p className="text-caption font-medium text-muted">
