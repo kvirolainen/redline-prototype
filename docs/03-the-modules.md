@@ -9,7 +9,7 @@ One car, four people. Each module is built around one person's job. The design c
 | **Sam**, Clutch inspector | On a dealer's lot, one hand free, the truck waiting | **Clutch inspector**: check by exception, on a phone |
 | **Jordan**, Clutch operations | At a desk, all day, across every dealer | **Clutch ops**: only what needs a person reaches Jordan |
 
-The look and components follow Clutch's own product (colours, type, pill controls, black selected states, pale-yellow notes). They're collected in Storybook under [Foundations](https://redline-storybook.vercel.app/?path=/story/foundations-brand--colours). Each module below notes what it takes from Clutch's existing screens.
+The look and components follow Clutch's own product (colours, type, pill controls, black selected states, pale-yellow notes). They're collected in Storybook under [Foundations](https://redline-storybook.vercel.app/?path=/story/foundations-brand--colours).
 
 The three desk modules open the same way: the page title, a grey line under it with the dealer and next pickup, and tabs on the right when the module has more than one page. They share one content width, so switching people doesn't move the page. Anything that needs someone gets a yellow stripe down its left edge and a yellow label pill. The inspector keeps its own phone header.
 
@@ -35,12 +35,6 @@ _Sales manager · laptop at the sales desk · the customer looks at the same scr
 - **Every word is fine for the customer to read.** The auction comparison is the dealer's business, so it lives in Back office.
 - **A car Clutch can't price instantly** (over 200,000 km, a branded title) says why and promises the offer by 3:00 pm the same day. It lands in Back office to accept.
 - **Questions sit two to a line only when they belong together** (mechanical and driveable, rims and tire sets). The offer box lists what's still unanswered, and each name jumps to its question.
-
-**From Clutch:**
-- The 15 questions of its sell flow that apply to a dealer. Ownership, sell-or-trade and "when do you plan to sell" are dropped: the dealership is the seller, and it sells now.
-- The pale-yellow honesty notes ("Only 1 in 10 cars from 2019 has no exterior damage"). They matter more here: what Maria declares is what Sam checks on pickup day.
-- The firm-offer card on the confirmation.
-- The "we need a little more time" fallback, tightened to a same-day promise, so the deal can still close today.
 
 ::screen[trade-in/B2]
 
@@ -71,8 +65,6 @@ _The dealership's page for cars sold to Clutch · Dave drops in between deals ·
 - **Results doubles as the first-dealer scorecard,** the numbers Clutch and the dealer would agree to judge the pilot by.
 - **The same look as Trade-in:** white panels with the heading inside, 16px text, outline pills for row actions; black only for the main decision on a card. Trucks and arrival times are Clutch's, so they aren't here.
 
-**From Clutch:** the director's role (decides retail or wholesale, signs the contract), the two needs and the dashboard feedback, all from the whiteboard session.
-
 ::screen[back-office/B2]
 
 **Also tried:** [A · table first](https://redline-storybook.vercel.app/?path=/story/screens-back-office--a) (dense, closer to Maria's job than Dave's), [B · Needs you inbox](https://redline-storybook.vercel.app/?path=/story/screens-back-office--b) (the base for B2, both people on one page) and [C · pipeline board](https://redline-storybook.vercel.app/?path=/story/screens-back-office--c) (shows the flow, doesn't help him decide anything).
@@ -90,8 +82,6 @@ _Phone, one hand, outdoors · about 15 minutes a car · the truck leaves at a se
 **Other calls:**
 - **The wait on Dave.** Every first version ended at "Send re-price". The real pain comes after it: Sam moves on to the next car, the answer comes back to the phone, and he loads the car or leaves it. No answer by the time the truck leaves → leave it, the re-price is withdrawn, and the car joins next week's run. This is what ties Clutch ops' clock and Dave's re-price card together.
 - **A phone, not a tablet.** Walking around a car, looking under the hood and taking photos are one-hand tasks. It's designed for 390px wide and checked so it doesn't break at tablet width.
-
-**From Clutch:** the 210-point inspection report's rows (a tick, or a yellow "!" with a short note) became the checklist, with the dealer's declared answer beside each one. The 15-minute check itself is the same one Clutch runs for consumers.
 
 ::screen[inspector/C2]
 
@@ -117,10 +107,8 @@ This one sits outside the car's path. No step of the demo needs it; it shows how
 
 **Other calls:**
 - **Assume the dispatch tool exists; show only the dealer layer.** No trucks, ETAs or inspector rosters. A run without an inspector shows as "flagged to dispatch" and goes no further.
-- **Read-only below Needs you.** **Today's pickups** shows where each stop stands (picked up, to inspect, waiting on a re-price). **All dealers** has one row per dealer: next pickup, cars on the way (including "not on the lot yet" and "not confirmed by the dealer"), re-price rate, acceptance and days to cash, and one line on what the system already handled; open the row for what's in motion and its cars.
+- **Read-only below Needs you.** **Today's pickups** shows where each stop stands (picked up, to inspect, waiting on a re-price). **All dealers** has one row per dealer: next pickup, cars on the way (including "not on the lot yet" and "not confirmed by the dealer"), re-price rate, acceptance and days to cash, and one line on what the system already handled; open the row for its cars.
 - **Planning** is a second tab: dealers × pickup days, with no dispatch actions.
-
-**From Clutch:** the same panels, outline pills, yellow edge and green check as Back office, so the dealer's screen and Clutch's read alike.
 
 ::screen[ops-board/D]
 
