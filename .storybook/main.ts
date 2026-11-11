@@ -13,6 +13,12 @@ const config: StorybookConfig = {
     "@storybook/addon-mcp"
   ],
   "framework": "@storybook/react-vite",
+  // Clutch's icon in the browser tab, from public/ (shared with the app).
+  "staticDirs": ["../public"],
+  managerHead: (head) => `${head}
+    <link rel="icon" href="./favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />`,
   // Previews are opened through a temporary public tunnel on *.trycloudflare.com.
   "core": { "allowedHosts": [".trycloudflare.com"] },
   // Previews are opened through a temporary public tunnel, so accept any host.
