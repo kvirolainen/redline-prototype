@@ -27,20 +27,30 @@ function ModuleChip({ owner }: { owner: PersonaId }) {
   );
 }
 
-/** Dashed arc from the top of one node over to the top of the next-but-one, arrow head on the second.
- *  Spans node centre to node centre, so it stretches with the columns. */
-function ForkArc({ path, exit }: { path: string; exit: string }) {
+/** The detour for a car that doesn't match: a dashed arc leaves the top of Inspection, passes through the re-price
+ *  step (a pill at the top of the arc) and lands on Paid when the director accepts. A decline leaves the pill upward
+ *  and ends the journey. Spans node centre to node centre, so it stretches with the columns. */
+function ForkArc({ up, step, down, exit }: { up: string; step: string; down: string; exit: string }) {
   return (
-    <div className="flex w-full flex-col items-center px-[52px] lg:px-[66px]" aria-label={`${path}. ${exit}.`}>
-      <p className="text-center text-caption leading-[17px] whitespace-nowrap text-ink">{path}</p>
-      <p className="text-center text-caption leading-[17px] whitespace-nowrap text-muted">{exit}</p>
-      <div className="relative mt-1.5 h-9 w-full lg:h-10" aria-hidden>
-        <svg viewBox="0 0 100 40" preserveAspectRatio="none" className="absolute inset-0 size-full overflow-visible text-subtle">
-          <path d="M0 40C0 6 100 6 100 37" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" vectorEffect="non-scaling-stroke" />
+    <div className="flex w-full flex-col items-center px-[52px] lg:px-[66px]">
+      <p className="flex items-center gap-1 text-caption whitespace-nowrap text-muted">
+        <Icon name="close" className="size-3" />
+        {exit}
+      </p>
+      <span className="h-3 border-l border-dashed border-subtle" aria-hidden />
+      <span className="inline-flex items-center gap-1.5 rounded-pill border border-subtle bg-white px-3 py-1 text-caption font-medium whitespace-nowrap text-ink">
+        <Icon name="pencil" className="size-3.5 text-muted" />
+        {step}
+      </span>
+      <div className="relative h-9 w-full lg:h-10">
+        <svg viewBox="0 0 100 40" preserveAspectRatio="none" className="absolute inset-0 size-full overflow-visible text-subtle" aria-hidden>
+          <path d="M0 40C0 12 25 0 50 0C75 0 100 12 100 37" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" vectorEffect="non-scaling-stroke" />
         </svg>
-        <svg viewBox="0 0 10 8" className="absolute right-0 bottom-0 h-2 w-2.5 translate-x-1/2 text-subtle" fill="currentColor">
+        <svg viewBox="0 0 10 8" className="absolute right-0 bottom-0 h-2 w-2.5 translate-x-1/2 text-subtle" fill="currentColor" aria-hidden>
           <path d="M0 0h10L5 8z" />
         </svg>
+        <span className="absolute top-1/2 right-full mr-2 -translate-y-1/2 text-caption whitespace-nowrap text-muted">{up}</span>
+        <span className="absolute top-1/2 left-full ml-2 -translate-y-1/2 text-caption whitespace-nowrap text-muted">{down}</span>
       </div>
     </div>
   );

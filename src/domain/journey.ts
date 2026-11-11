@@ -18,9 +18,11 @@ export const JOURNEY_MAIN: JourneyStep[] = [
   { id: 'paid', title: 'Paid', detail: 'Picked up, dealer paid', owner: 'sam' },
 ];
 
-/** The one fork, drawn as an arc from inspection over to paid: the car doesn't match what was declared,
- *  the inspector re-prices and the director decides. */
+/** The one fork, drawn as a detour arc from inspection over to paid: the car doesn't match what was declared, the
+ *  inspector re-prices and the director decides. Accepts → paid; declines → the car stays with the dealer. */
 export const JOURNEY_MISMATCH = {
-  path: 'Doesn’t match → re-price → director accepts',
+  up: 'Doesn’t match',
+  step: 'Re-price → director decides',
+  down: 'Accepts',
   exit: 'Declines: car stays with the dealer',
 } as const;
