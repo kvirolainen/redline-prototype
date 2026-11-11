@@ -7,7 +7,8 @@ import { Icon } from '../behind/icons';
 import { MODULE_ICON } from '../behind/moduleIcons';
 import { MODULES, PERSONAS, persona, personaLine, type PersonaId } from '../domain/personas';
 import { BEHIND_TABS, DOCS_TAB_LABEL, type BehindTab, type View } from './views';
-import { DemoModule } from './parts';
+import { DemoBar, DemoModule, EmptyWorld, WorldProvider } from './parts';
+import { useHasBackend } from '../live/world';
 
 function Chevron() {
   return (
@@ -146,6 +147,7 @@ export function AppShell({ initialView = 'behind', initialTab = 'car-journey', i
   const showPerson = (id: PersonaId) => go(id);
   // The pointer belongs to the landing page; on the other tabs it would sit over the content.
   const pointerOn = view === 'behind' && tab === 'car-journey';
+  const hasBackend = useHasBackend();
 
   return (
     <div className="flex min-h-screen flex-col bg-canvas">
@@ -179,7 +181,15 @@ export function AppShell({ initialView = 'behind', initialTab = 'car-journey', i
       <main className="relative flex flex-1 flex-col">
         {pointerOn && <ScreensPointer onPick={showPerson} />}
         {view !== 'behind' ? (
-          <DemoModule key={view} personaId={view} />
+          hasBackend ? (
+            // In the app the module reads the shared backend; the demo bar sits on top of it.
+            <WorldProvider empty={<EmptyWorld />}>
+              <DemoBar />
+              <DemoModule key={view} personaId={view} onSwitch={showPerson} />
+            </WorldProvider>
+          ) : (
+            <DemoModule key={view} personaId={view} onSwitch={showPerson} />
+          )
         ) : tab === 'car-journey' ? (
           <CarJourney onPick={showPerson} />
         ) : (

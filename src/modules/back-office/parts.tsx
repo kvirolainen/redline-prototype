@@ -3,9 +3,9 @@ import { Button } from '../../components/ui/Button';
 import { StatusChip } from '../../components/ui/StatusChip';
 import { money } from '../../domain/format';
 import { STATUS } from '../../domain/statuses';
-import { DEALER, type BackOfficeCar, type CarEvent, type EventKind } from './fixtures';
+import type { BackOfficeCar, CarEvent, EventKind } from './fixtures';
 import { km } from './format';
-import { AUCTION_DAYS_TO_CASH, type BackOffice, type Stats } from './useBackOffice';
+import { AUCTION_DAYS_TO_CASH, useBackOfficeEnv, type BackOffice, type Stats } from './useBackOffice';
 
 
 // ───────────────────────── Header ─────────────────────────
@@ -117,6 +117,7 @@ export function RepriceDecision({
   onDecline: () => void;
   compact?: boolean;
 }) {
+  const { dealer: DEALER } = useBackOfficeEnv();
   const [confirmDecline, setConfirmDecline] = useState(false);
   const r = car.reprice;
   if (!r) return null;
@@ -201,6 +202,7 @@ export function ExpiryTag({ car }: { car: BackOfficeCar }) {
 // ───────────────────────── Decided note ─────────────────────────
 
 export function DecidedNote({ car }: { car: BackOfficeCar }) {
+  const { dealer: DEALER } = useBackOfficeEnv();
   const text =
     car.status === 'confirmed'
       ? `Accepted at ${money(car.offer)}. Sam loads it today; payment within 2 business days.`

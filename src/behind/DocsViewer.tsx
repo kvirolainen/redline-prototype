@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import Markdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { DOCS, isEmptyDoc, type Doc, type DocId } from './docs';
@@ -16,9 +16,27 @@ const imageUrl = (src?: string) => {
 
 const isEmpty = isEmptyDoc;
 
+// Section anchors: the same slug is built from the rendered h2 and from the raw markdown line, so the
+// "On this page" list and the headings always agree.
+const plain = (md: string) => md.replace(/[*_`]/g, '').replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').trim();
+const slug = (text: string) => 'sec-' + text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const textOf = (node: ReactNode): string =>
+  typeof node === 'string' || typeof node === 'number'
+    ? String(node)
+    : Array.isArray(node)
+      ? node.map(textOf).join('')
+      : node && typeof node === 'object' && 'props' in node
+        ? textOf((node.props as { children?: ReactNode }).children)
+        : '';
+const sectionsOf = (body: string) =>
+  [...body.matchAll(/^## (.+)$/gm)].map((m) => {
+    const label = plain(m[1]);
+    return { id: slug(label), label };
+  });
+
 const md: Components = {
   h1: ({ children }) => <h1 className="text-h3 font-bold text-ink">{children}</h1>,
-  h2: ({ children }) => <h2 className="mt-12 border-t border-line pt-8 text-h4 font-bold text-ink">{children}</h2>,
+  h2: ({ children }) => <h2 id={slug(textOf(children))} className="scroll-mt-6 mt-12 border-t border-line pt-8 text-h4 font-bold text-ink">{children}</h2>,
   h3: ({ children }) => <h3 className="mt-8 text-title font-bold text-ink">{children}</h3>,
   p: ({ children }) => <p className="mt-4 text-base leading-[28px] text-body">{children}</p>,
   ul: ({ children }) => <ul className="mt-4 list-disc space-y-2 pl-6 text-base leading-[28px] text-body marker:text-subtle">{children}</ul>,
@@ -55,8 +73,8 @@ const md: Components = {
 export function DocBody({ body }: { body: string }) {
   const segments = useMemo(() => splitDirectives(body), [body]);
   return (
-    // Text, tables and embeds share one width, up to 1120px.
-    <article className="max-w-[1120px]">
+    // One column for text, tables and embeds alike, so every block shares the same edges.
+    <article className="max-w-[840px]">
       {segments.map((s, i) =>
         s.kind === 'md' ? (
           <Markdown key={i} remarkPlugins={[remarkGfm]} components={md}>
@@ -73,8 +91,10 @@ export function DocBody({ body }: { body: string }) {
 /** One document: its file path, then the rendered markdown, or "Coming next" while it's still empty. */
 function DocPanel({ id }: { id: DocId }) {
   const doc = DOCS.find((d) => d.id === id)!;
+  const sections = useMemo(() => sectionsOf(doc.body), [doc.body]);
   return (
-    <>
+    <div className="min-[1400px]:grid min-[1400px]:grid-cols-[minmax(0,840px)_200px] min-[1400px]:gap-16">
+      <div className="min-w-0">
       <p className="mb-6 font-mono text-caption text-subtle">docs/{doc.file}</p>
       {isEmpty(doc.body) ? (
         <div className="max-w-[720px]">
@@ -87,7 +107,57 @@ function DocPanel({ id }: { id: DocId }) {
       ) : (
         <DocBody body={doc.body} />
       )}
-    </>
+      </div>
+      {sections.length > 1 && <OnThisPage key={id} sections={sections} />}
+    </div>
+  );
+}
+
+/** Wide screens only: the open document's sections, the one being read highlighted as you scroll. */
+function OnThisPage({ sections }: { sections: { id: string; label: string }[] }) {
+  const [active, setActive] = useState(sections[0].id);
+  useEffect(() => {
+    // Listens in the capture phase, so it hears whichever container actually scrolls (the window or the shell's pane).
+    const onScroll = (e: Event) => {
+      const box = e.target instanceof HTMLElement ? e.target : document.scrollingElement;
+      // At the very bottom the last sections can't reach the top of the screen, so the last one wins.
+      if (box && box.scrollTop + box.clientHeight >= box.scrollHeight - 2) return setActive(sections[sections.length - 1].id);
+      // Otherwise: the last heading that has passed the top fifth of the screen.
+      let current = sections[0].id;
+      for (const s of sections) {
+        const el = document.getElementById(s.id);
+        if (el && el.getBoundingClientRect().top < window.innerHeight * 0.2) current = s.id;
+      }
+      setActive(current);
+    };
+    document.addEventListener('scroll', onScroll, { capture: true, passive: true });
+    return () => document.removeEventListener('scroll', onScroll, { capture: true });
+  }, [sections]);
+  const go = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setActive(id);
+  };
+  return (
+    <nav aria-label="On this page" className="hidden min-[1400px]:block">
+      <div className="sticky top-10 pt-12">
+        <p className="text-caption font-bold tracking-wide text-muted uppercase">On this page</p>
+        <ul className="mt-3 space-y-1 border-l border-line-light">
+          {sections.map((s) => (
+            <li key={s.id}>
+              <button
+                type="button"
+                onClick={() => go(s.id)}
+                className={`-ml-px block border-l py-1 pl-3 text-left text-sm leading-[20px] ${
+                  active === s.id ? 'border-ink font-medium text-ink' : 'border-transparent text-muted hover:text-ink'
+                }`}
+              >
+                {s.label}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </nav>
   );
 }
 

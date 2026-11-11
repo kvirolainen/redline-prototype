@@ -2,7 +2,8 @@ import type { ReactNode } from 'react';
 import { Button } from '../../components/ui/Button';
 import { SegmentedProgress } from '../../components/ui/Stepper';
 import { money } from '../../domain/format';
-import { carName, DATES, DEALER, KNOWN_CARS, kmLabel, reference } from './fixtures';
+import { carName, DEALER, kmLabel, reference } from './fixtures';
+import { useTradeInEnv } from './env';
 import { FULL_QUESTIONS, INSTANT_KM_LIMIT, type Question, type QuestionId, type Quote } from './pricing';
 import { useTradeIn, type TradeIn } from './useTradeIn';
 
@@ -154,6 +155,7 @@ export function TradeInVariantB2({ onOpenBackOffice }: { onOpenBackOffice?: () =
 
 /** Slim title bar; the app shell above it already says who is viewing. */
 function Header() {
+  const { dates: DATES } = useTradeInEnv();
   return (
     <header className="flex h-12 items-center justify-between border-b border-line bg-white px-8">
       <h1 className="text-base font-bold text-ink">New trade-in</h1>
@@ -166,6 +168,7 @@ function Header() {
 
 /** VIN and odometer. A full VIN looks the car up by itself. */
 function CarRow({ t }: { t: TradeIn }) {
+  const { demoCars } = useTradeInEnv();
   const note = kmNote(t);
   return (
     <div className="px-8 py-5 min-[1400px]:px-10 min-[1400px]:py-6 [@media(max-height:940px)]:py-4">
@@ -201,7 +204,7 @@ function CarRow({ t }: { t: TradeIn }) {
       {!t.car && (
         <p className="mt-2 text-caption text-muted">
           Demo cars:{' '}
-          {KNOWN_CARS.map((c, i) => (
+          {demoCars.map((c, i) => (
             <span key={c.vin}>
               {i > 0 && ' · '}
               <button type="button" className="underline hover:text-ink" onClick={() => t.pick(c)}>
@@ -305,6 +308,7 @@ function Answer({ q, t, wide }: { q: Question; t: TradeIn; wide: boolean }) {
 
 /** The price box, top right. Shows progress until every answer is in, then the one result. */
 function OfferBox({ t }: { t: TradeIn }) {
+  const { dates: DATES } = useTradeInEnv();
   const q = t.quote;
   const reasons = reviewReasons(t);
   const answered = FULL_QUESTIONS.filter((x) => t.answers[x.id]?.length).length;
@@ -322,7 +326,7 @@ function OfferBox({ t }: { t: TradeIn }) {
               Holds until {DATES.validUntil}
             </p>
           </div>
-          <Button className="shrink-0 px-8" onClick={() => t.setOutcome('accepted')}>
+          <Button className="shrink-0 px-8" disabled={t.submitting} onClick={() => t.setOutcome('accepted')}>
             Accept offer
           </Button>
         </div>
@@ -376,6 +380,7 @@ function Missing({ t }: { t: TradeIn }) {
 
 /** No instant offer: when it comes and why on the left, the one action on the right. */
 function ByHand({ t, q, reasons }: { t: TradeIn; q: Quote; reasons: string[] }) {
+  const { dates: DATES } = useTradeInEnv();
   return (
     <div className="flex items-center justify-between gap-6">
       <div>
@@ -383,7 +388,7 @@ function ByHand({ t, q, reasons }: { t: TradeIn; q: Quote; reasons: string[] }) 
         <p className="mt-1 text-sm text-muted">A Clutch appraiser prices this one:</p>
         <p className="mt-0.5 text-sm font-medium text-ink">{reasons.join(' · ')}</p>
       </div>
-      <Button className="shrink-0 px-6" disabled={!q.complete} onClick={() => t.setOutcome('review-sent')}>
+      <Button className="shrink-0 px-6" disabled={!q.complete} onClick={() => t.setOutcome('review-sent', reasons)}>
         {q.complete ? 'Send to Clutch' : `${q.answered} of ${q.total} answered`}
       </Button>
     </div>
@@ -392,6 +397,7 @@ function ByHand({ t, q, reasons }: { t: TradeIn; q: Quote; reasons: string[] }) 
 
 /** After the action, in Clutch's own offer-card style: the result, what happens next, two ways on. */
 function Done({ t, q, onOpenBackOffice }: { t: TradeIn; q: Quote; onOpenBackOffice?: () => void }) {
+  const { dates: DATES } = useTradeInEnv();
   const car = t.car!;
   const review = t.outcome === 'review-sent';
   const reasons = reviewReasons(t);

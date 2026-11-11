@@ -37,7 +37,13 @@ export const F150: DecodedCar = {
   transmission: 'Automatic', colour: 'Oxford White', listKm: 214600, baseFirm: 13200, auctionNet: 11300,
 };
 
-export const KNOWN_CARS = [CIVIC, ELANTRA, F150];
+// Not on Clutch's books yet in the live demo (the Civic already is), so a reviewer can trade it in for real.
+export const HRV: DecodedCar = {
+  vin: '3CZRU6H35LM712406', year: 2020, make: 'Honda', model: 'HR-V', trim: 'Sport AWD', body: 'SUV',
+  transmission: 'Automatic (CVT)', colour: 'Platinum White', listKm: 61200, baseFirm: 19600, auctionNet: 18100,
+};
+
+export const KNOWN_CARS = [CIVIC, ELANTRA, F150, HRV];
 
 /** Today's trade-ins on the dealer's list: what Maria would otherwise copy the VIN from. */
 export const TRADE_IN_LIST = [

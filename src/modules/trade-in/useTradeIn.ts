@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { CIVIC, decodeVin, type DecodedCar } from './fixtures';
+import { useTradeInEnv } from './env';
 import { QUESTIONS, quote as priceQuote, type Answers, type Question, type QuestionId } from './pricing';
 
 export type Outcome = null | 'accepted' | 'floor-accepted' | 'review-sent';
@@ -13,7 +14,9 @@ export function useTradeIn(scope: Question[] = QUESTIONS, start: 'demo' | 'blank
   const [car, setCar] = useState<DecodedCar | null>(null);
   const [vinError, setVinError] = useState<string | null>(null);
   const [answers, setAnswers] = useState<Answers>({});
-  const [outcome, setOutcome] = useState<Outcome>(null);
+  const [outcome, setOutcomeState] = useState<Outcome>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const env = useTradeInEnv();
 
   const km = Number(kmText.replace(/[^0-9]/g, '')) || 0;
 
@@ -60,15 +63,30 @@ export function useTradeIn(scope: Question[] = QUESTIONS, start: 'demo' | 'blank
     setKmText(startKm);
     setCar(null);
     setAnswers({});
-    setOutcome(null);
+    setOutcomeState(null);
     setVinError(null);
   }
 
   const quote = car && km > 0 ? priceQuote(car, km, answers, scope, all) : null;
 
+  /** Finish the trade-in. In the app this saves the car first; a refusal (e.g. the car is already with Clutch)
+   *  shows under the VIN and keeps the screen as it is. */
+  async function setOutcome(o: Outcome, reviewReasons: string[] = []) {
+    if (o && o !== 'floor-accepted' && env.submit && car && quote) {
+      setSubmitting(true);
+      const err = await env.submit({ car, km, answers, quote, mode: o, reviewReasons });
+      setSubmitting(false);
+      if (err) {
+        setVinError(err);
+        return;
+      }
+    }
+    setOutcomeState(o);
+  }
+
   return {
     vin, setVin, kmText, setKmText, km, car, vinError, lookup, pick, clearCar,
-    answers, answer, quote, outcome, setOutcome, reset,
+    answers, answer, quote, outcome, setOutcome, submitting, reset,
   };
 }
 

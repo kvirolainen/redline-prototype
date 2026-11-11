@@ -2,10 +2,10 @@ import { useState, type ReactNode } from 'react';
 import { Button } from '../../components/ui/Button';
 import { StatusChip } from '../../components/ui/StatusChip';
 import { money } from '../../domain/format';
-import { AUCTION_HOURS_PER_CAR, DEALER, MONTHS, NEXT_PICKUP, TODAY, type BackOfficeCar } from './fixtures';
+import { AUCTION_HOURS_PER_CAR, MONTHS, type BackOfficeCar } from './fixtures';
 import { km } from './format';
 import { CarDetail, DecidedNote, Drawer, ExpiringOffer, ExpiryTag, RepriceDecision } from './parts';
-import { AUCTION_DAYS_TO_CASH, computeStats, useBackOffice, type BackOffice } from './useBackOffice';
+import { AUCTION_DAYS_TO_CASH, computeStats, useBackOffice, useBackOfficeEnv, type BackOffice } from './useBackOffice';
 
 // Back office B2: one page for the dealership, two people.
 // Dave (sales director) drops in to decide: the top-left inbox. Maria (sales manager) works the
@@ -78,6 +78,7 @@ function Card({ label, title, onTimeline, done, children }: { label: string; tit
 }
 
 function KeepOrSend({ office, onOpen }: { office: BackOffice; onOpen: (vin: string) => void }) {
+  const { nextPickup: NEXT_PICKUP } = useBackOfficeEnv();
   const cars = office.nextRun;
   if (!cars.length) return null;
   return (
@@ -183,22 +184,24 @@ function CarRow({ car, office, onOpen, mode }: { car: BackOfficeCar; office: Bac
   const sub = [car.vin.slice(-6), km(car.km)];
   if (car.note && car.status !== 'kept' && (car.status === 'not_ready' || mode === 'ready')) sub.push(car.note);
   if (car.fromReview && car.status === 'offered') sub.push('Priced by a Clutch appraiser');
+  if (car.status === 'appraising') sub.push('With a Clutch appraiser');
   return (
     <div className="flex items-center gap-4 border-b border-line-light px-4 py-3 last:border-b-0 hover:bg-canvas">
       <button type="button" onClick={onOpen} className="min-w-0 flex-1 text-left">
         <span className="block truncate text-sm font-medium text-ink">{car.car}</span>
         <span className="block truncate text-caption text-muted">{sub.join(' · ')}</span>
       </button>
-      <span className="hidden w-20 text-right text-sm font-bold text-ink sm:block">{money(car.offer)}</span>
+      <span className="hidden w-20 text-right text-sm font-bold text-ink sm:block">{car.status === 'appraising' ? '' : money(car.offer)}</span>
       <span className="flex w-44 justify-end">
         {mode === 'ready' && car.status !== 'kept' && <ReadyTick car={car} office={office} />}
         {mode === 'ready' && car.status === 'kept' && <StatusChip status="kept" />}
-        {mode === 'offer' && car.fromReview && (
+        {mode === 'offer' && car.status === 'appraising' && <span className="text-caption font-medium text-ink">Offer by 3:00 pm</span>}
+        {mode === 'offer' && car.status === 'offered' && car.fromReview && (
           <Button variant="dark-small" onClick={() => office.acceptOffer(car.vin)}>
             Accept {money(car.offer)}
           </Button>
         )}
-        {mode === 'offer' && !car.fromReview && <ExpiryTag car={car} />}
+        {mode === 'offer' && car.status === 'offered' && !car.fromReview && <ExpiryTag car={car} />}
         {mode === 'status' && <StatusChip status={car.status} />}
       </span>
       <span className="text-subtle" aria-hidden>
@@ -209,13 +212,14 @@ function CarRow({ car, office, onOpen, mode }: { car: BackOfficeCar; office: Bac
 }
 
 function CarGroups({ office, onOpen }: { office: BackOffice; onOpen: (vin: string) => void }) {
+  const { today: TODAY, nextPickup: NEXT_PICKUP } = useBackOfficeEnv();
   const next = office.nextRun;
   const readyCount = next.filter((c) => c.ready && c.status !== 'kept').length;
   const going = next.filter((c) => c.status !== 'kept').length;
   const groups: { title: string; hint?: string; cars: BackOfficeCar[]; mode: 'ready' | 'offer' | 'status' }[] = [
     { title: `Next pickup · ${NEXT_PICKUP}`, hint: `${readyCount} of ${going} ready`, cars: next, mode: 'ready' },
     { title: `Today’s pickup · ${TODAY}`, cars: office.cars.filter((c) => c.pickup === TODAY && c.status !== 'declined'), mode: 'status' },
-    { title: 'Open offers', hint: 'not accepted yet', cars: office.cars.filter((c) => c.status === 'offered'), mode: 'offer' },
+    { title: 'Open offers', hint: 'not accepted yet', cars: office.cars.filter((c) => c.status === 'offered' || c.status === 'appraising'), mode: 'offer' },
     { title: 'Paid', cars: office.cars.filter((c) => c.status === 'paid'), mode: 'status' },
     { title: 'Stayed with you', cars: office.cars.filter((c) => c.status === 'declined' || (c.status === 'kept' && c.pickup !== NEXT_PICKUP)), mode: 'status' },
   ];
@@ -338,6 +342,7 @@ function Results({ office }: { office: BackOffice }) {
 
 /** B2 · Decide and track: Dave's decisions on the left, the cars by pickup on the right, results in a tab. */
 export function VariantB2() {
+  const { dealer: DEALER, today: TODAY } = useBackOfficeEnv();
   const office = useBackOffice();
   const [tab, setTab] = useState<Tab>('today');
   const [open, setOpen] = useState<string | null>(null);

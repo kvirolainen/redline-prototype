@@ -1,21 +1,11 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { AppShell } from './shell/AppShell';
+import { BackendContext } from './live/world';
 
-function Home() {
-  return (
-    <main className="mx-auto max-w-[1080px] px-4 py-16">
-      <h1 className="text-[40px] leading-[50px] font-bold text-ink">Redline</h1>
-      <p className="mt-2 text-muted">Clutch buys trade-ins from dealerships. Prototype.</p>
-      <button className="bg-cta mt-8 h-12 rounded-pill px-8 font-medium text-white">Get started</button>
-    </main>
-  )
-}
-
+/** The app: the same shell as in Storybook, with the live backend switched on. */
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-      </Routes>
-    </BrowserRouter>
-  )
+    <BackendContext.Provider value={true}>
+      <AppShell />
+    </BackendContext.Provider>
+  );
 }

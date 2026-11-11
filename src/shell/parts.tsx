@@ -1,40 +1,128 @@
-import type { ReactNode } from 'react';
-import { MODULES, persona, type PersonaId } from '../domain/personas';
+import { Suspense, useState, type ReactNode } from 'react';
+import { useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
+import { Button } from '../components/ui/Button';
+import { clockAmPm, shortDate } from '../domain/calendar';
+import { MODULES, persona, type ModuleId, type PersonaId } from '../domain/personas';
+import { BackOfficeLive } from '../live/BackOfficeLive';
+import { TradeInLive } from '../live/TradeInLive';
+import { useDemoNow, useHasBackend, useWorld, WorldProvider } from '../live/world';
+import { VariantB2 as BackOfficeB2 } from '../modules/back-office/VariantB2';
+import { InspectorVariantC } from '../modules/inspector/VariantC';
+import { VariantD as OpsD } from '../modules/ops-board/VariantD';
+import { TradeInVariantB2 } from '../modules/trade-in/VariantB2';
 
 function PhoneFrame({ children }: { children: ReactNode }) {
   return (
-    <div className="mx-auto w-[360px] rounded-[40px] border border-line bg-white p-3">
+    <div className="mx-auto w-[414px] rounded-[44px] border border-line bg-white p-3">
       <div className="mx-auto mb-3 h-1.5 w-20 rounded-pill bg-line-light" />
-      <div className="h-[640px] overflow-hidden rounded-[28px] border border-line-light bg-canvas">{children}</div>
+      <div className="h-[780px] overflow-y-auto rounded-[32px] border border-line-light bg-canvas">{children}</div>
     </div>
   );
 }
 
-// Placeholder for a persona's module. Modules are designed in the next step; this keeps the shell honest about that.
-export function DemoModule({ personaId }: { personaId: PersonaId }) {
-  const p = persona(personaId);
-  const m = MODULES[p.module];
-  const body = (
-    <div className={`flex h-full flex-col ${m.device === 'phone' ? 'p-5' : 'p-8'}`}>
-      <p className="text-caption font-medium text-muted">
-        {p.name} · {p.role} · {p.org}
-      </p>
-      <h2 className="mt-1 text-h4 font-bold text-ink">{m.label}</h2>
-      <p className="mt-1 text-sm text-muted">{m.summary}</p>
-      <div className="mt-6 grid flex-1 place-items-center rounded-panel border border-dashed border-subtle bg-white p-6 text-center">
-        <div>
-          <span className="rounded-pill bg-line-light px-3 py-1 text-caption font-medium text-muted">Placeholder</span>
-          <p className="mt-3 text-title font-bold text-ink">{m.label} screen</p>
-          <p className="mx-auto mt-1 max-w-[320px] text-sm text-muted">Designed in the prototypes step, then built on the live backend.</p>
+/** The picked version of each module. The explored ones stay in Storybook. */
+function PickedScreen({ module, onSwitch }: { module: ModuleId; onSwitch: (id: PersonaId) => void }) {
+  switch (module) {
+    case 'trade-in':
+      return <TradeInVariantB2 onOpenBackOffice={() => onSwitch('dave')} />;
+    case 'back-office':
+      return <BackOfficeB2 />;
+    case 'ops-board':
+      return <OpsD />;
+    case 'inspector':
+      return <InspectorVariantC />;
+  }
+}
+
+/** Wraps a module in its live adapter, so it reads and writes the shared backend instead of its fixtures. */
+function Live({ module, children }: { module: ModuleId; children: ReactNode }) {
+  if (module === 'trade-in') return <TradeInLive>{children}</TradeInLive>;
+  if (module === 'back-office') return <BackOfficeLive>{children}</BackOfficeLive>;
+  return <>{children}</>;
+}
+
+/** One person's module: live in the app, on fixtures in Storybook. */
+export function DemoModule({ personaId, onSwitch }: { personaId: PersonaId; onSwitch: (id: PersonaId) => void }) {
+  const hasBackend = useHasBackend();
+  const module = persona(personaId).module;
+  const screen = <PickedScreen module={module} onSwitch={onSwitch} />;
+  const body = hasBackend ? <Live module={module}>{screen}</Live> : screen;
+  return (
+    <Suspense fallback={null}>
+      {MODULES[module].device === 'phone' ? (
+        <div className="py-8">
+          <PhoneFrame>{body}</PhoneFrame>
         </div>
+      ) : (
+        body
+      )}
+    </Suspense>
+  );
+}
+
+// ---- Demo controls -------------------------------------------------------------------------------------------------
+
+/** Shown when the backend has no data yet: one button loads the starting story. */
+export function EmptyWorld() {
+  const reset = useMutation(api.demo.reset);
+  return (
+    <div className="grid flex-1 place-items-center p-10 text-center">
+      <div>
+        <p className="text-title font-bold text-ink">No demo data yet</p>
+        <p className="mt-1 text-sm text-muted">Load the starting story: Thursday pickup day at Yorkdale Honda.</p>
+        <Button className="mt-4 px-8" onClick={() => void reset()}>
+          Load demo data
+        </Button>
       </div>
     </div>
   );
-  return m.device === 'phone' ? (
-    <div className="py-8">
-      <PhoneFrame>{body}</PhoneFrame>
+}
+
+/** A thin strip under the header: the demo clock, and the two controls that make a week fit in a few minutes. */
+export function DemoBar() {
+  const world = useWorld();
+  const reset = useMutation(api.demo.reset);
+  const skip = useMutation(api.demo.skipToPickup);
+  if (!world) return null;
+  return <DemoBarInner today={world.meta.today} meta={world.meta} onReset={() => void reset()} onSkip={() => void skip()} />;
+}
+
+function DemoBarInner({ today, meta, onReset, onSkip }: { today: string; meta: Parameters<typeof useDemoNow>[0]; onReset: () => void; onSkip: () => void }) {
+  const now = useDemoNow(meta);
+  const [confirming, setConfirming] = useState(false);
+  return (
+    <div className="flex h-9 items-center justify-end gap-4 border-b border-line-light bg-canvas px-6 text-caption text-muted">
+      <span>
+        Demo time <span className="font-medium text-ink">{shortDate(today)}, {clockAmPm(now)}</span>
+      </span>
+      <button type="button" onClick={onSkip} className="font-medium text-ink underline hover:text-brand">
+        Skip to next pickup day
+      </button>
+      {confirming ? (
+        <span>
+          Start over for everyone?{' '}
+          <button
+            type="button"
+            onClick={() => {
+              onReset();
+              setConfirming(false);
+            }}
+            className="font-medium text-brand underline"
+          >
+            Reset
+          </button>{' '}
+          <button type="button" onClick={() => setConfirming(false)} className="underline hover:text-ink">
+            Cancel
+          </button>
+        </span>
+      ) : (
+        <button type="button" onClick={() => setConfirming(true)} className="underline hover:text-ink">
+          Reset demo
+        </button>
+      )}
     </div>
-  ) : (
-    <div className="h-full min-h-[560px]">{body}</div>
   );
 }
+
+export { WorldProvider };

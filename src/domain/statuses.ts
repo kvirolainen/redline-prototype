@@ -1,5 +1,6 @@
 // Car statuses for the Redline prototype. One car moves through these; every change writes an event.
 export type CarStatus =
+  | 'appraising'
   | 'offered'
   | 'awaiting_pickup'
   | 'not_ready'
@@ -15,6 +16,7 @@ export type CarStatus =
 export type StatusTone = 'neutral' | 'active' | 'attention' | 'done' | 'closed';
 
 export const STATUS: Record<CarStatus, { label: string; tone: StatusTone; hint: string }> = {
+  appraising: { label: 'With an appraiser', tone: 'attention', hint: 'Clutch prices it by hand, offer by 3:00 pm' },
   offered: { label: 'Offer made', tone: 'neutral', hint: 'Firm offer, holds for 7 days' },
   awaiting_pickup: { label: 'Awaiting pickup', tone: 'active', hint: 'Joined the next pickup day' },
   not_ready: { label: 'Not ready', tone: 'attention', hint: 'Rolls to the next pickup day' },
@@ -29,6 +31,6 @@ export const STATUS: Record<CarStatus, { label: string; tone: StatusTone; hint: 
 };
 
 export const STATUS_ORDER: CarStatus[] = [
-  'offered', 'awaiting_pickup', 'not_ready', 'confirmed', 'reprice_pending',
+  'appraising', 'offered', 'awaiting_pickup', 'not_ready', 'confirmed', 'reprice_pending',
   'picked_up', 'paid', 'declined', 'expired', 'cancelled', 'kept',
 ];

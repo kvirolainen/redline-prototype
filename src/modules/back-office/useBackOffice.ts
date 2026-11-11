@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react';
+import { createContext, useContext, useMemo, useState } from 'react';
 import { money } from '../../domain/format';
 import type { CarStatus } from '../../domain/statuses';
-import { AUCTION_DAYS_TO_CASH, BACK_OFFICE_CARS, DEALER, NEXT_PICKUP, OFFERS_NOT_TAKEN, type BackOfficeCar } from './fixtures';
+import { AUCTION_DAYS_TO_CASH, BACK_OFFICE_CARS, DEALER, NEXT_PICKUP, OFFERS_NOT_TAKEN, TODAY, type BackOfficeCar } from './fixtures';
 
 const SOLD: CarStatus[] = ['awaiting_pickup', 'not_ready', 'reprice_pending', 'confirmed', 'picked_up', 'paid'];
 
@@ -29,8 +29,35 @@ export function computeStats(cars: BackOfficeCar[]): Stats {
 
 export { AUCTION_DAYS_TO_CASH };
 
-/** Local stand-in for the shared backend: the cars plus the three things the dealer can do. */
-export function useBackOffice(initial: BackOfficeCar[] = BACK_OFFICE_CARS) {
+/** Derived lists every version shows: cars the dealer can still pull from the next pickup, and what needs a decision. */
+export function summarize(cars: BackOfficeCar[], nextPickup: string) {
+  return {
+    stats: computeStats(cars),
+    nextRun: cars.filter((c) => c.pickup === nextPickup && (c.status === 'awaiting_pickup' || c.status === 'not_ready' || c.status === 'kept')),
+    needsYou: cars.filter((c) => c.status === 'reprice_pending' || (c.status === 'offered' && c.expiresSoon)),
+  };
+}
+
+/** What the screen needs from outside: the dealer, the dates, and in the app the live cars and actions. */
+export interface BackOfficeEnv {
+  dealer: string;
+  today: string;
+  nextPickup: string;
+  live?: BackOffice;
+}
+
+export const BackOfficeEnvContext = createContext<BackOfficeEnv>({ dealer: DEALER, today: TODAY, nextPickup: NEXT_PICKUP });
+export const useBackOfficeEnv = () => useContext(BackOfficeEnvContext);
+
+/** The live backend's cars and actions inside the app; local fixtures in Storybook. */
+export function useBackOffice(initial: BackOfficeCar[] = BACK_OFFICE_CARS): BackOffice {
+  const env = useBackOfficeEnv();
+  const local = useLocalBackOffice(initial);
+  return env.live ?? local;
+}
+
+/** Local stand-in for the shared backend: the cars plus the things the dealer can do. */
+function useLocalBackOffice(initial: BackOfficeCar[] = BACK_OFFICE_CARS) {
   const [cars, setCars] = useState<BackOfficeCar[]>(() => structuredClone(initial));
 
   const update = (vin: string, fn: (c: BackOfficeCar) => BackOfficeCar) =>
@@ -110,12 +137,19 @@ export function useBackOffice(initial: BackOfficeCar[] = BACK_OFFICE_CARS) {
       events: [...c.events, { at: 'Today, just now', who: 'Maria', text: `Accepted. Joined the next pickup, ${NEXT_PICKUP}`, kind: 'accept' }],
     }));
 
-  const stats = useMemo(() => computeStats(cars), [cars]);
-  /** Cars on the next pickup the dealer can still pull back for its own lot. */
-  const nextRun = cars.filter((c) => c.pickup === NEXT_PICKUP && (c.status === 'awaiting_pickup' || c.status === 'not_ready' || c.status === 'kept'));
-  const needsYou = cars.filter((c) => c.status === 'reprice_pending' || (c.status === 'offered' && c.expiresSoon));
+  const { stats, nextRun, needsYou } = useMemo(() => summarize(cars, NEXT_PICKUP), [cars]);
 
   return { cars, stats, needsYou, nextRun, acceptReprice, declineReprice, refreshOffer, keep, undoKeep, setReady, acceptOffer };
 }
 
-export type BackOffice = ReturnType<typeof useBackOffice>;
+type Act = (vin: string) => void;
+export interface BackOffice extends ReturnType<typeof summarize> {
+  cars: BackOfficeCar[];
+  acceptReprice: Act;
+  declineReprice: Act;
+  refreshOffer: Act;
+  keep: Act;
+  undoKeep: Act;
+  setReady: (vin: string, ready: boolean) => void;
+  acceptOffer: Act;
+}
