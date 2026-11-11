@@ -21,10 +21,10 @@ export type { BackOfficeTab };
 
 // ───────────────────────── Shared ─────────────────────────
 
-function Panel({ title, count, aside, children }: { title: string; count?: number; aside?: ReactNode; children: ReactNode }) {
+function Panel({ title, count, aside, compact, children }: { title: string; count?: number; aside?: ReactNode; compact?: boolean; children: ReactNode }) {
   return (
-    <section className="overflow-hidden rounded-panel border border-line bg-white">
-      <header className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-8 pt-6 pb-4">
+    <section className="rounded-panel border border-line bg-white">
+      <header className={`flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 ${compact ? 'px-6 pt-5 pb-3' : 'px-8 pt-6 pb-4'}`}>
         <h2 className="flex items-center gap-2 text-title font-bold text-ink">
           {title}
           {!!count && <span className="grid h-6 min-w-6 place-items-center self-center rounded-pill bg-warning px-2 text-caption font-bold text-ink">{count}</span>}
@@ -228,17 +228,18 @@ function RowAction({ car, office, mode, onOpen }: { car: BackOfficeCar; office: 
 }
 
 function CarRow({ car, office, onOpen, mode, urgent }: { car: BackOfficeCar; office: BackOffice; onOpen: () => void; mode: RowMode; urgent: boolean }) {
+  const detail = rowDetail(car, mode);
   return (
-    <div className={`grid grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_100px_210px_12px] items-center gap-6 px-8 py-4 ${urgent ? `${ATTENTION_EDGE} bg-nudge/50` : 'hover:bg-canvas'}`}>
+    <div className={`grid grid-cols-[minmax(0,1fr)_auto_auto_12px] items-center gap-4 px-6 py-3 ${urgent ? `${ATTENTION_EDGE} bg-nudge/50` : 'hover:bg-canvas'}`}>
       <button type="button" onClick={onOpen} className="min-w-0 text-left">
         <span className="block truncate text-base font-medium text-ink">{car.car}</span>
         <span className="block truncate text-sm text-muted">
           {car.vin.slice(-6)} · {km(car.km)}
         </span>
+        {detail && <span className="mt-0.5 block truncate text-sm text-muted">{detail}</span>}
       </button>
-      <span className="min-w-0 truncate text-sm text-muted">{rowDetail(car, mode)}</span>
-      <span className="text-right text-base font-bold text-ink">{car.status === 'appraising' ? '' : money(car.offer)}</span>
-      <span className="flex justify-end">
+      <span className="w-20 text-right text-base font-bold text-ink">{car.status === 'appraising' ? '' : money(car.offer)}</span>
+      <span className="flex min-w-[150px] justify-end">
         <RowAction car={car} office={office} mode={mode} onOpen={onOpen} />
       </span>
       <span className="text-subtle" aria-hidden>
@@ -248,17 +249,37 @@ function CarRow({ car, office, onOpen, mode, urgent }: { car: BackOfficeCar; off
   );
 }
 
+type Group = { title: string; aside: string; cars: BackOfficeCar[]; mode: RowMode };
+
+function GroupPanel({ g, office, onOpen }: { g: Group; office: BackOffice; onOpen: (vin: string) => void }) {
+  const { nextPickup, checkDueSoon = false } = useBackOfficeEnv();
+  if (!g.cars.length) return null;
+  return (
+    <Panel title={g.title} aside={g.aside || `${g.cars.length} ${g.cars.length === 1 ? 'car' : 'cars'}`} compact>
+      <div className="divide-y divide-line-light border-t border-line-light">
+        {g.cars.map((c) => (
+          <CarRow key={c.vin} car={c} office={office} mode={g.mode} urgent={isUrgent(c, nextPickup, checkDueSoon)} onOpen={() => onOpen(c.vin)} />
+        ))}
+      </div>
+    </Panel>
+  );
+}
+
+/** Two columns so the whole picture fits one screen: the pickups (what's moving) on the left, the open offers and
+ *  what's settled on the right. On pickup day, today's run leads. */
 function Pickups({ office, onOpen }: { office: BackOffice; onOpen: (vin: string) => void }) {
-  const { today: TODAY, nextPickup: NEXT_PICKUP, checkDueSoon = false } = useBackOfficeEnv();
+  const { today: TODAY, nextPickup: NEXT_PICKUP } = useBackOfficeEnv();
   const next = office.nextRun;
   const going = next.filter((c) => c.status !== 'kept');
   const readyCount = going.filter((c) => c.ready).length;
-  const groups: { title: string; aside: string; cars: BackOfficeCar[]; mode: RowMode }[] = [
-    { title: `Next pickup · ${NEXT_PICKUP}`, aside: `${readyCount} of ${going.length} ready · check each car by Wed 5 pm`, cars: next, mode: 'ready' },
+  const left: Group[] = [
     { title: `Today’s pickup · ${TODAY}`, aside: '', cars: office.cars.filter((c) => c.pickup === TODAY && c.status !== 'declined'), mode: 'status' },
+    { title: `Next pickup · ${NEXT_PICKUP}`, aside: `${readyCount} of ${going.length} ready · check by Wed 5 pm`, cars: next, mode: 'ready' },
+  ];
+  const right: Group[] = [
     {
       title: 'Open offers',
-      aside: 'The customer hasn’t traded yet',
+      aside: 'Not traded yet',
       cars: office.cars.filter((c) => c.status === 'offered' || c.status === 'appraising' || c.status === 'expired'),
       mode: 'offer',
     },
@@ -266,18 +287,17 @@ function Pickups({ office, onOpen }: { office: BackOffice; onOpen: (vin: string)
     { title: 'Stayed with you', aside: '', cars: office.cars.filter((c) => c.status === 'declined' || (c.status === 'kept' && c.pickup !== NEXT_PICKUP)), mode: 'status' },
   ];
   return (
-    <div className="mt-6 space-y-4">
-      {groups.map((g) =>
-        g.cars.length ? (
-          <Panel key={g.title} title={g.title} aside={g.aside || `${g.cars.length} ${g.cars.length === 1 ? 'car' : 'cars'}`}>
-            <div className="divide-y divide-line-light border-t border-line-light">
-              {g.cars.map((c) => (
-                <CarRow key={c.vin} car={c} office={office} mode={g.mode} urgent={isUrgent(c, NEXT_PICKUP, checkDueSoon)} onOpen={() => onOpen(c.vin)} />
-              ))}
-            </div>
-          </Panel>
-        ) : null,
-      )}
+    <div className="mt-6 grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-start gap-4 xl:grid-cols-[minmax(0,7fr)_minmax(0,6fr)]">
+      <div className="space-y-4">
+        {left.map((g) => (
+          <GroupPanel key={g.title} g={g} office={office} onOpen={onOpen} />
+        ))}
+      </div>
+      <div className="space-y-4">
+        {right.map((g) => (
+          <GroupPanel key={g.title} g={g} office={office} onOpen={onOpen} />
+        ))}
+      </div>
     </div>
   );
 }

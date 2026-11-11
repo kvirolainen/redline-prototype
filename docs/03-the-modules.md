@@ -59,7 +59,7 @@ _The dealership's page for cars sold to Clutch · Dave drops in between deals ·
 - Maria: which cars go on the next truck, and exactly what's missing on the rest.
 
 **The main call: one page that opens on where the cars are.** Clutch's whiteboard named two needs: sales managers need a back office (where cars are, when Clutch picks up, issues), and sales directors need the value at a glance. Clutch's feedback on the first sketch: the summary took too much room, and the table should open on cars awaiting pickup. So the page has two tabs:
-- **Pickups, first and the default.** Every car by pickup, opening on the next one: readiness, the offers still open (refresh an expiring one, accept one an appraiser priced after the desk), what was paid. It answers "where are my cars?", the question both people arrive with.
+- **Pickups, first and the default.** Two columns so the whole picture fits one screen: the pickups on the left (today's run on pickup day, then the next one with each car's readiness), the open offers and what's settled on the right (refresh an expiring offer, accept one an appraiser priced after the desk, what was paid). It answers "where are my cars?", the question both people arrive with.
 - **Overview, Dave's.** **Needs you** across the top holds only re-prices from the lot; most days it says nothing needs him. Below it, **Results**: cars sold, the total against the auction estimate, days to payment, how often inspection changed the price, by month. Stated as plain facts, not as a pitch: Dave should be able to trust the numbers, not feel sold to. Next to it, this week's pickups at a glance and the latest re-prices.
 
 **Other calls:**
