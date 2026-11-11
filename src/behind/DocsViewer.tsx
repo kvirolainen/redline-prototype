@@ -138,7 +138,7 @@ export function DocsViewer({ initial = 'concept', selected, onSelect }: Props) {
             const firstExtra = d.n === undefined && DOCS[i - 1]?.n !== undefined;
             return (
               <li key={d.id} className={firstExtra ? 'lg:mt-4 lg:border-t lg:border-line-light lg:pt-4' : undefined}>
-                {firstExtra && <p className="hidden px-3 pb-1 text-caption font-bold tracking-wide text-muted uppercase lg:block">More</p>}
+                {firstExtra && <p className="hidden px-3 pb-3 text-caption font-bold tracking-wide text-muted uppercase lg:block">More</p>}
                 <DocLink doc={d} active={d.id === current} onPick={pick} />
               </li>
             );

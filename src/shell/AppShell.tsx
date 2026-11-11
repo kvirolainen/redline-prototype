@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { fromPath, HOME, toPath, type Route } from './route';
 import { navClick, setRouted } from './link';
 import { Lockup } from '../components/brand/Lockup';
@@ -53,7 +53,8 @@ function MenuLine({ view, active }: { view: View; active?: boolean }) {
   );
 }
 
-function ViewSwitcher({ view, onChange }: { view: View; onChange: (v: View) => void }) {
+/** `footer`: Reset demo, kept at the bottom of the menu so the top bar stays clean. */
+function ViewSwitcher({ view, onChange, footer }: { view: View; onChange: (v: View) => void; footer?: ReactNode }) {
   const [open, setOpen] = useState(false);
   const pick = (v: View) => {
     onChange(v);
@@ -92,6 +93,12 @@ function ViewSwitcher({ view, onChange }: { view: View; onChange: (v: View) => v
             {PERSONAS.map((p) => item(p.id))}
             <div className="mx-2 my-2 border-t border-line-light" />
             {item('behind')}
+            {footer && (
+              <>
+                <div className="mx-2 my-2 border-t border-line-light" />
+                <div className="px-2 py-1.5">{footer}</div>
+              </>
+            )}
           </div>
         </>
       )}
@@ -99,9 +106,9 @@ function ViewSwitcher({ view, onChange }: { view: View; onChange: (v: View) => v
   );
 }
 
-/** Always-on pointer drawn on the canvas under the switcher: says there are four modules and offers them
- *  directly, in the car's order. Lives on the Car journey tab only. */
-function ScreensPointer({ onPick }: { onPick: (id: PersonaId) => void }) {
+/** Always-on pointer drawn on the canvas under the switcher: says there are four modules, in the car's order, and
+ *  points at the switcher, the one way to open them. Lives on the Car journey tab only. */
+function ScreensPointer() {
   return (
     <div className="pointer-events-none flex justify-end px-6 pt-2 xl:absolute xl:top-0 xl:right-0">
       <div className="pointer-events-auto flex items-start gap-1">
@@ -114,16 +121,11 @@ function ScreensPointer({ onPick }: { onPick: (id: PersonaId) => void }) {
             {PERSONAS.map((p) => {
               const id = p.id;
               return (
-                <button
-                  key={id}
-                  type="button"
-                  {...navClick(toPath({ ...HOME, view: id }), () => onPick(id))}
-                  className="flex items-center gap-2 rounded-pill border border-line bg-white px-3 py-1.5 text-left text-caption whitespace-nowrap hover:border-ink"
-                >
+                <span key={id} className="flex items-center gap-2 rounded-pill border border-line bg-white px-3 py-1.5 text-caption whitespace-nowrap">
                   <Icon name={MODULE_ICON[p.module]} className="size-3.5 shrink-0 text-muted" />
                   <span className="font-medium text-ink">{MODULES[p.module].label}</span>
                   <span className="ml-auto text-muted">{p.name}</span>
-                </button>
+                </span>
               );
             })}
           </div>
@@ -204,13 +206,12 @@ export function AppShell({ initialView = 'behind', initialTab = 'car-journey', i
           )}
         </div>
         <div className="flex items-center gap-6">
-          {hasBackend && view !== 'behind' && <DemoBar />}
-          <ViewSwitcher view={view} onChange={(v) => navigate({ view: v, office: 'pickups' })} />
+          <ViewSwitcher view={view} onChange={(v) => navigate({ view: v, office: 'pickups' })} footer={hasBackend ? <DemoBar /> : undefined} />
         </div>
       </header>
 
       <main className="relative flex flex-1 flex-col">
-        {pointerOn && <ScreensPointer onPick={showPerson} />}
+        {pointerOn && <ScreensPointer />}
         {view !== 'behind' ? (
           hasBackend ? (
             // In the app the module reads the shared backend; the demo bar sits on top of it.
@@ -221,7 +222,7 @@ export function AppShell({ initialView = 'behind', initialTab = 'car-journey', i
             <DemoModule key={view} personaId={view} onSwitch={showPerson} office={officeProps} />
           )
         ) : tab === 'car-journey' ? (
-          <CarJourney onPick={showPerson} />
+          <CarJourney />
         ) : (
           <DocsViewer selected={doc} onSelect={setDoc} />
         )}

@@ -1,6 +1,6 @@
 # Demo
 
-Press **Reset demo** in the header first. The story starts on Thursday, pickup day at Yorkdale Honda, with Sam, the inspector, on the lot. Switch modules from the top-right switcher.
+Press **Reset demo** first (bottom of the top-right menu). The story starts on Thursday, pickup day at Yorkdale Honda, with Sam, the inspector, on the lot. Switch modules from the top-right switcher.
 
 ## Showcase: one car, one re-price
 

@@ -21,7 +21,7 @@ const COLUMNS =
 function ModuleChip({ owner }: { owner: PersonaId }) {
   const m = persona(owner).module;
   return (
-    <span className="inline-flex items-center gap-1 rounded-pill border border-line bg-white px-2 py-0.5 text-caption font-medium whitespace-nowrap text-ink">
+    <span className="inline-flex items-center gap-1 text-caption whitespace-nowrap text-muted">
       <Icon name={MODULE_ICON[m]} className="size-3.5 text-muted" />
       {MODULES[m].label}
     </span>
@@ -138,7 +138,9 @@ export function JourneyDiagram({ shape = 'circle', fork = 'arc', onPick }: Props
 
 /** Car journey: the Behind-the-build landing page. */
 export function CarJourney({ shape = 'circle', fork, onPick }: Props) {
+  // A little extra air above the heading balances it against the wide diagram below.
   return (
+    <div className="pt-4 lg:pt-12">
     <CenteredPage
       title="One car, start to finish"
       intro="From the dealer’s desk to payment. Each step happens in one of four modules; the inspection is the only place the path can fork."
@@ -148,5 +150,6 @@ export function CarJourney({ shape = 'circle', fork, onPick }: Props) {
         <JourneyDiagram shape={shape} fork={fork} onPick={onPick} />
       </div>
     </CenteredPage>
+    </div>
   );
 }
