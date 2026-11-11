@@ -1,9 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { ProcessPage } from '../../behind/Process';
+import { fn } from 'storybook/test';
+import { Process } from '../../behind/Process';
 
-const meta = { title: 'Behind the build/Process', component: ProcessPage, parameters: { layout: 'fullscreen' } } satisfies Meta<typeof ProcessPage>;
+const meta = {
+  title: 'Behind the build/Process',
+  component: Process,
+  parameters: { layout: 'fullscreen' },
+  args: { onOpenDoc: fn() },
+} satisfies Meta<typeof Process>;
 export default meta;
-type Story = StoryObj<typeof meta>;
 
-export const Concept: Story = { name: 'Concept open', args: { initial: 'concept' } };
-export const Research: Story = { name: 'Research open', args: { initial: 'research' } };
+// Named like the component so the sidebar shows a single "Process" entry. In the app, "Read" opens the Docs tab.
+export const Process_: StoryObj<typeof meta> = { name: 'Process', args: { initial: 'research' } };

@@ -44,11 +44,11 @@ export function DocBody({ body }: { body: string }) {
 }
 
 /** One document: its file path, then the rendered markdown, or "Coming next" while it's still empty. */
-export function DocPanel({ id, showPath = true }: { id: DocId; showPath?: boolean }) {
+function DocPanel({ id }: { id: DocId }) {
   const doc = DOCS.find((d) => d.id === id)!;
   return (
     <>
-      {showPath && <p className="mb-6 font-mono text-caption text-subtle">docs/{doc.file}</p>}
+      <p className="mb-6 font-mono text-caption text-subtle">docs/{doc.file}</p>
       {isEmpty(doc.body) ? (
         <div className="max-w-[720px]">
           <h1 className="text-h3 font-bold text-ink">{doc.label}</h1>
@@ -64,21 +64,37 @@ export function DocPanel({ id, showPath = true }: { id: DocId; showPath?: boolea
   );
 }
 
-export function DocsViewer({ initial = 'concept' }: { initial?: DocId }) {
-  const [current, setCurrent] = useState<DocId>(initial);
+interface Props {
+  /** Doc open on first render (uncontrolled). */
+  initial?: DocId;
+  /** Controlled selection, e.g. set by the shell when a Process step's "Read" chip is clicked. */
+  selected?: DocId;
+  onSelect?: (id: DocId) => void;
+}
+
+/** Docs: the repo's documents with a list on the left (on top below 1024px). */
+export function DocsViewer({ initial = 'concept', selected, onSelect }: Props) {
+  const [own, setOwn] = useState<DocId>(initial);
+  const current = selected ?? own;
+  const pick = (id: DocId) => {
+    setOwn(id);
+    onSelect?.(id);
+  };
   return (
-    <div className="grid min-h-full grid-cols-[220px_1fr]">
-      <nav className="border-r border-line bg-white px-3 py-8" aria-label="Docs">
-        <p className="px-3 text-caption font-bold tracking-wide text-muted uppercase">Docs</p>
-        <ul className="mt-3 space-y-1">
+    <div className="grid min-h-full flex-1 lg:grid-cols-[220px_1fr]">
+      <nav className="border-b border-line bg-white px-6 py-4 lg:border-r lg:border-b-0 lg:px-3 lg:py-8" aria-label="Docs">
+        <p className="hidden px-3 text-caption font-bold tracking-wide text-muted uppercase lg:block">Docs</p>
+        <ul className="flex flex-wrap gap-1 lg:mt-3 lg:block lg:space-y-1">
           {DOCS.map((d) => {
             const empty = isEmpty(d.body);
             const active = d.id === current;
             return (
               <li key={d.id}>
                 <button
-                  onClick={() => setCurrent(d.id)}
-                  className={`flex w-full items-center justify-between rounded-pill px-3 py-2 text-left text-sm ${
+                  type="button"
+                  onClick={() => pick(d.id)}
+                  aria-current={active ? 'page' : undefined}
+                  className={`flex w-full items-center justify-between gap-2 rounded-pill px-3 py-2 text-left text-sm whitespace-nowrap ${
                     active ? 'bg-ink font-medium text-white' : empty ? 'text-subtle hover:bg-canvas' : 'text-ink hover:bg-canvas'
                   }`}
                 >
@@ -90,7 +106,7 @@ export function DocsViewer({ initial = 'concept' }: { initial?: DocId }) {
           })}
         </ul>
       </nav>
-      <div className="bg-white px-12 py-10">
+      <div className="min-w-0 bg-white px-6 py-8 lg:px-12 lg:py-10">
         <DocPanel id={current} />
       </div>
     </div>

@@ -11,7 +11,7 @@ export const DOCS: { id: DocId; label: string; file: string; body: string }[] = 
   { id: 'prototypes', label: 'Prototypes', file: '02-prototypes.md', body: prototypes },
   { id: 'build-plan', label: 'Build plan', file: '03-build-plan.md', body: buildPlan },
   { id: 'test-report', label: 'Test report', file: '04-test-report.md', body: testReport },
-  { id: 'decisions', label: 'Decisions', file: 'decisions.md', body: decisions },
+  { id: 'decisions', label: 'Decisions log', file: 'decisions.md', body: decisions },
 ];
 
 /** A doc is "empty" until it has more than its title and a placeholder line. */

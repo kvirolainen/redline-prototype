@@ -78,7 +78,8 @@ export function JourneyDiagram({ shape = 'circle', onPick }: Props) {
   );
 }
 
-export function JourneyPage({ shape = 'circle', onPick }: Props) {
+/** Car journey: the Behind-the-build landing page. */
+export function CarJourney({ shape = 'circle', onPick }: Props) {
   return (
     <CenteredPage
       title="One car, start to finish"

@@ -1,6 +1,5 @@
 import '../src/index.css'
 import type { Preview } from '@storybook/react-vite'
-import { IPAD_VIEWPORTS } from '../src/stories/viewports'
 
 const preview: Preview = {
   parameters: {
@@ -11,7 +10,19 @@ const preview: Preview = {
       },
     },
 
-    viewport: { options: IPAD_VIEWPORTS },
+    // iPad sizes in the toolbar, to check the Behind-the-build pages fit without sideways scrolling.
+    viewport: {
+      options: {
+        ipadLandscape: { name: 'iPad landscape 1024', styles: { width: '1024px', height: '768px' }, type: 'tablet' },
+        ipadPortrait: { name: 'iPad portrait 768', styles: { width: '768px', height: '1024px' }, type: 'tablet' },
+      },
+    },
+
+    options: {
+      storySort: {
+        order: ['App', 'Behind the build', ['Car journey', 'Process', 'Architecture', 'Docs'], 'Foundations', ['Brand', 'Components']],
+      },
+    },
 
     a11y: {
       // 'todo' - show a11y violations in the test UI only

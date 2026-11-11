@@ -6,7 +6,8 @@ const POINTS = [
   'Pricing is one isolated module with a labelled placeholder; Clutch’s real valuation engine plugs in there.',
 ];
 
-export function ArchitecturePage() {
+/** Architecture: the simplified system diagram and why Convex. */
+export function Architecture() {
   return (
     <CenteredPage title="Architecture, simplified" intro="One app, one shared live backend. A change on one screen shows on every other screen.">
       <div className="pb-2">

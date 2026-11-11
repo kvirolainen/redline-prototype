@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Lockup } from '../components/brand/Lockup';
-import { ArchitecturePage } from '../behind/Architecture';
+import { Architecture } from '../behind/Architecture';
+import { CarJourney } from '../behind/CarJourney';
+import type { DocId } from '../behind/docs';
+import { DocsViewer } from '../behind/DocsViewer';
 import { Icon } from '../behind/icons';
-import { JourneyPage } from '../behind/Journey';
-import { ProcessPage } from '../behind/Process';
+import { Process } from '../behind/Process';
 import { MODULE_ICON } from '../behind/moduleIcons';
 import { MODULES, PERSONAS, persona, personaLine, type PersonaId } from '../domain/personas';
 import { BEHIND_TABS, type BehindTab, type View } from './views';
@@ -31,7 +33,7 @@ const buttonLabel = (view: View) => (view === 'behind' ? 'Behind the build' : `$
 
 /** Menu item: module name in bold, the person on the second line. */
 function MenuLine({ view, active }: { view: View; active?: boolean }) {
-  const [title, sub] = view === 'behind' ? ['Behind the build', 'Journey, process, architecture'] : [MODULES[persona(view).module].label, personaLine(persona(view))];
+  const [title, sub] = view === 'behind' ? ['Behind the build', 'Car journey, process, architecture, docs'] : [MODULES[persona(view).module].label, personaLine(persona(view))];
   return (
     <span className="flex min-w-0 items-center gap-3 text-left">
       <ViewIcon view={view} active={active} />
@@ -113,24 +115,53 @@ function CoachMark({ onDismiss }: { onDismiss: () => void }) {
   );
 }
 
+// The pointer at the switcher is shown until someone dismisses it or uses the switcher, then stays away.
+const POINTER_KEY = 'redline.switcherPointerDismissed';
+const pointerDismissed = () => {
+  try {
+    return localStorage.getItem(POINTER_KEY) === '1';
+  } catch {
+    return false;
+  }
+};
+const rememberPointerDismissed = () => {
+  try {
+    localStorage.setItem(POINTER_KEY, '1');
+  } catch {
+    // Storage blocked: the pointer just comes back next time.
+  }
+};
+
 interface Props {
   initialView?: View;
   initialTab?: BehindTab;
-  /** Show the pointer at the switcher (on by default when landing on Behind the build). */
+  initialDoc?: DocId;
+  /** Show the pointer at the switcher. By default it shows on Behind the build until it has been dismissed once. */
   coach?: boolean;
 }
 
-/** The app shell: the logo, one switcher at the top right, and either the
- *  Behind-the-build pages (with a light sub-nav) or the selected person's module. */
-export function AppShell({ initialView = 'behind', initialTab = 'journey', coach = initialView === 'behind' }: Props) {
+/** The app shell: the logo, one switcher at the top right, and either the Behind-the-build pages (with a light
+ *  sub-nav) or the selected person's module. The pages are the same components as in Storybook, rendered as-is. */
+export function AppShell({ initialView = 'behind', initialTab = 'car-journey', initialDoc = 'concept', coach }: Props) {
   const [view, setView] = useState<View>(initialView);
-  const [showCoach, setShowCoach] = useState(coach);
+  const [showCoach, setShowCoach] = useState(() => coach ?? (initialView === 'behind' && !pointerDismissed()));
   const [tab, setTab] = useState<BehindTab>(initialTab);
-  const go = (v: View) => {
-    setView(v);
+  const [doc, setDoc] = useState<DocId>(initialDoc);
+  const hideCoach = () => {
+    if (showCoach) rememberPointerDismissed();
     setShowCoach(false);
   };
+  const go = (v: View) => {
+    setView(v);
+    hideCoach();
+  };
   const showPerson = (id: PersonaId) => go(id);
+  const openDoc = (id: DocId) => {
+    setDoc(id);
+    setTab('docs');
+  };
+  // The pointer belongs to the landing page; on the other tabs it would sit over the content.
+  const pointerOn = showCoach && view === 'behind' && tab === 'car-journey';
 
   return (
     <div className="flex min-h-screen flex-col bg-canvas">
@@ -139,8 +170,8 @@ export function AppShell({ initialView = 'behind', initialTab = 'journey', coach
           <Lockup size={20} />
         </button>
         <div className="relative">
-          <ViewSwitcher view={view} onChange={go} highlight={showCoach} onOpen={() => setShowCoach(false)} />
-          {showCoach && <CoachMark onDismiss={() => setShowCoach(false)} />}
+          <ViewSwitcher view={view} onChange={go} highlight={pointerOn} onOpen={hideCoach} />
+          {pointerOn && <CoachMark onDismiss={hideCoach} />}
         </div>
       </header>
 
@@ -160,15 +191,17 @@ export function AppShell({ initialView = 'behind', initialTab = 'journey', coach
         </nav>
       )}
 
-      <main className="flex-1">
+      <main className="flex flex-1 flex-col">
         {view !== 'behind' ? (
           <DemoModule key={view} personaId={view} />
-        ) : tab === 'journey' ? (
-          <JourneyPage onPick={showPerson} />
+        ) : tab === 'car-journey' ? (
+          <CarJourney onPick={showPerson} />
         ) : tab === 'process' ? (
-          <ProcessPage />
+          <Process onOpenDoc={openDoc} />
+        ) : tab === 'architecture' ? (
+          <Architecture />
         ) : (
-          <ArchitecturePage />
+          <DocsViewer selected={doc} onSelect={setDoc} />
         )}
       </main>
     </div>
