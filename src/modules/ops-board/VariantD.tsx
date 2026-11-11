@@ -163,15 +163,15 @@ function TodayRow({ board, dealerId, dayId }: { board: DealerBoard; dealerId: st
   ].filter(([n]) => n) as [number, string][];
   const escalated = live.some((l) => l.escalated);
   return (
-    // Same columns as All dealers below, so the status column starts on the same edge in both panels.
+    // Same columns as All dealers below: the status starts under "Cars on the way", so the row is balanced.
     <div className={`grid gap-x-4 gap-y-2 px-6 py-4 ${COLS} ${escalated ? `${ATTENTION_EDGE} bg-nudge/50` : ''}`}>
-      <div className="min-w-0">
+      <div className="min-w-0 lg:col-span-2">
         <p className="text-base font-medium text-ink">{dl.name}</p>
         <p className="text-sm text-muted">
           {inspector ? `${inspector} ${cars.some((c) => c.status === 'awaiting_pickup' || c.status === 'reprice_pending' || c.status === 'confirmed') ? 'on site' : 'done here'}` : 'No inspector yet'} · {cars.length} {cars.length === 1 ? 'car' : 'cars'}
         </p>
       </div>
-      <div className="min-w-0 lg:col-span-6">
+      <div className="min-w-0 lg:col-span-5">
         <p className="text-base text-body">{parts.map(([n, l]) => `${n} ${l}`).join(' · ') || 'All cars handled'}</p>
         {live.map((l) => {
           const left = board.minutesTo(l.leaves);
