@@ -577,15 +577,17 @@ function CarScreen({
                   <button
                     type="button"
                     onClick={() => setOpen(area.id)}
-                    className="h-12 rounded-pill border border-line bg-white text-sm font-bold text-ink hover:border-ink"
+                    className="h-12 rounded-pill border border-line bg-white px-3 text-sm font-bold text-ink hover:border-ink"
                   >
-                    Something's different
+                    Doesn't match
                   </button>
+                  {/* Same weight as "Doesn't match" on purpose: a filled button would make
+                      the clean answer the easy one and invite tapping through unchecked. */}
                   <button
                     type="button"
                     onClick={() => allMatch(area.id)}
                     disabled={identity && !photosDone}
-                    className="inline-flex h-12 items-center justify-center gap-1.5 rounded-pill bg-ink text-sm font-bold text-white hover:bg-body disabled:bg-line-light disabled:text-subtle"
+                    className="inline-flex h-12 items-center justify-center gap-1.5 rounded-pill border border-line bg-white px-3 text-sm font-bold text-ink hover:border-ink disabled:border-line-light disabled:text-subtle"
                   >
                     <Icon name="check" className="size-4" /> All match
                   </button>
