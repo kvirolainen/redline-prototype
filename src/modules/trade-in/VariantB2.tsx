@@ -97,8 +97,8 @@ function kmNote(t: TradeIn): string | null {
   if (!t.car || !t.km) return null;
   if (t.km > INSTANT_KM_LIMIT) return null; // the offer box says why
   const age = 2026 - t.car.year;
-  if (t.km > age * 40000) return 'That looks high for this car’s age. Check the odometer so the offer is right.';
-  if (t.km < age * 3000) return 'That looks low for this car’s age. Check the odometer so the offer is right.';
+  if (t.km > age * 40000) return 'High for its age: check the odometer';
+  if (t.km < age * 3000) return 'Low for its age: check the odometer';
   return null;
 }
 
@@ -195,14 +195,16 @@ function CarRow({ t }: { t: TradeIn }) {
           onBlur={() => t.km && t.setKmText(t.km.toLocaleString('en-CA'))}
         />
       </div>
-      {t.car && (
-        <p className="mt-3 text-sm text-muted">
-          <span className="font-bold text-ink">{carName(t.car)}</span> · {t.car.colour} · {t.car.transmission}
-        </p>
-      )}
-      {note && <Note>{note}</Note>}
-      {!t.car && (
-        <p className="mt-2 text-caption text-muted">
+      {/* One line of fixed height under the fields, whatever it holds, so the questions below never move. */}
+      {t.car ? (
+        <div className="mt-2 flex h-7 items-center gap-3 overflow-hidden whitespace-nowrap">
+          <p className="truncate text-sm text-muted">
+            <span className="font-bold text-ink">{carName(t.car)}</span> · {t.car.colour} · {t.car.transmission}
+          </p>
+          {note && <span className="ml-auto shrink-0 rounded-card bg-nudge px-2.5 py-1 text-caption text-body">{note}</span>}
+        </div>
+      ) : (
+        <p className="mt-2 h-7 truncate text-caption leading-7 text-muted">
           Demo cars:{' '}
           {demoCars.map((c, i) => (
             <span key={c.vin}>
@@ -247,8 +249,13 @@ function Input({
           {...rest}
         />
         {suffix && <span className="ml-2 text-sm text-subtle">{suffix}</span>}
+        {/* Inside the field, so an error never adds a line and moves the questions below. */}
+        {error && (
+          <span className="ml-3 shrink-0 text-sm font-medium text-error" title={error}>
+            Not found, check it
+          </span>
+        )}
       </span>
-      {error && <span className="mt-1 block text-caption font-medium text-error">{error}</span>}
     </label>
   );
 }
@@ -314,7 +321,8 @@ function OfferBox({ t }: { t: TradeIn }) {
   const answered = FULL_QUESTIONS.filter((x) => t.answers[x.id]?.length).length;
   const total = FULL_QUESTIONS.length;
   return (
-    <div className="flex flex-col justify-center border-l border-line-light px-8 py-5 min-[1400px]:px-10">
+    // Fixed height for every state (progress, firm offer, by hand), so the questions below never move.
+    <div className="flex h-[148px] flex-col justify-center border-l border-line-light px-8 min-[1400px]:h-[160px] min-[1400px]:px-10">
       {reasons.length && q ? (
         <ByHand t={t} q={q} reasons={reasons} />
       ) : q?.complete ? (
@@ -344,7 +352,7 @@ function OfferBox({ t }: { t: TradeIn }) {
           <p className="mt-3 text-sm text-muted">
             {!t.car ? 'Shows here once the VIN and every answer are in.' : !t.km ? 'Shows here once the odometer and every answer are in.' : 'Shows here once every answer is in.'}
           </p>
-          {answered > 0 && <Missing t={t} />}
+          <Missing t={t} />
         </>
       )}
     </div>
@@ -354,7 +362,8 @@ function OfferBox({ t }: { t: TradeIn }) {
 /** The questions still open, each a link that jumps to it, so a skipped one is easy to find. */
 function Missing({ t }: { t: TradeIn }) {
   const open = FULL_QUESTIONS.filter((x) => !t.answers[x.id]?.length);
-  if (!open.length) return null;
+  // Always one line tall, empty or not: it appearing after the first answer is what made the screen jump.
+  if (open.length === FULL_QUESTIONS.length || !open.length) return <p className="mt-1 h-5" aria-hidden />;
   const shown = open.slice(0, 4);
   const jump = (id: QuestionId) => {
     const el = document.getElementById(`q-${id}`);
@@ -363,7 +372,7 @@ function Missing({ t }: { t: TradeIn }) {
     el.animate([{ backgroundColor: 'var(--color-nudge)' }, { backgroundColor: 'transparent' }], { duration: 1400 });
   };
   return (
-    <p className="mt-1 text-sm text-muted">
+    <p className="mt-1 h-5 truncate text-sm text-muted">
       Left:{' '}
       {shown.map((x, i) => (
         <span key={x.id}>
@@ -386,7 +395,7 @@ function ByHand({ t, q, reasons }: { t: TradeIn; q: Quote; reasons: string[] }) 
       <div>
         <p className="text-title font-bold text-ink">Offer by {DATES.firmBy}</p>
         <p className="mt-1 text-sm text-muted">A Clutch appraiser prices this one:</p>
-        <p className="mt-0.5 text-sm font-medium text-ink">{reasons.join(' · ')}</p>
+        <p className="mt-0.5 line-clamp-2 text-sm font-medium text-ink" title={reasons.join(' · ')}>{reasons.join(' · ')}</p>
       </div>
       <Button className="shrink-0 px-6" disabled={!q.complete || t.submitting} onClick={() => t.setOutcome('review-sent', reasons)}>
         {q.complete ? 'Send to Clutch' : `${q.answered} of ${q.total} answered`}
