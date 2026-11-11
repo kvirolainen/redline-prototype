@@ -17,12 +17,12 @@ const imageUrl = (src?: string) => {
 const isEmpty = isEmptyDoc;
 
 const md: Components = {
-  h1: ({ children }) => <h1 className="text-h3 font-bold text-ink">{children}</h1>,
+  h1: ({ children }) => <h1 className="max-w-[720px] text-h3 font-bold text-ink">{children}</h1>,
   h2: ({ children }) => <h2 className="mt-12 border-t border-line pt-8 text-h4 font-bold text-ink">{children}</h2>,
-  h3: ({ children }) => <h3 className="mt-8 text-title font-bold text-ink">{children}</h3>,
-  p: ({ children }) => <p className="mt-4 text-base leading-[28px] text-body">{children}</p>,
-  ul: ({ children }) => <ul className="mt-4 list-disc space-y-2 pl-6 text-base leading-[28px] text-body marker:text-subtle">{children}</ul>,
-  ol: ({ children }) => <ol className="mt-4 list-decimal space-y-3 pl-6 text-base leading-[28px] text-body marker:font-bold marker:text-ink">{children}</ol>,
+  h3: ({ children }) => <h3 className="max-w-[720px] mt-8 text-title font-bold text-ink">{children}</h3>,
+  p: ({ children }) => <p className="max-w-[720px] mt-4 text-base leading-[28px] text-body">{children}</p>,
+  ul: ({ children }) => <ul className="max-w-[720px] mt-4 list-disc space-y-2 pl-6 text-base leading-[28px] text-body marker:text-subtle">{children}</ul>,
+  ol: ({ children }) => <ol className="max-w-[720px] mt-4 list-decimal space-y-3 pl-6 text-base leading-[28px] text-body marker:font-bold marker:text-ink">{children}</ol>,
   li: ({ children }) => <li className="pl-1 [&>p]:mt-0">{children}</li>,
   strong: ({ children }) => <strong className="font-bold text-ink">{children}</strong>,
   em: ({ children }) => <em className="text-ink italic">{children}</em>,
@@ -31,7 +31,7 @@ const md: Components = {
       {children}
     </a>
   ),
-  blockquote: ({ children }) => <blockquote className="mt-4 border-l-2 border-ink pl-4 text-muted">{children}</blockquote>,
+  blockquote: ({ children }) => <blockquote className="max-w-[720px] mt-4 border-l-2 border-ink pl-4 text-muted">{children}</blockquote>,
   code: ({ children }) => <code className="rounded-xs bg-line-light px-1.5 py-0.5 font-mono text-[0.875em] text-ink">{children}</code>,
   // Markdown wraps a lone image in a paragraph; render that paragraph as a figure so the caption isn't nested in <p>.
   img: ({ src, alt }) => (
@@ -55,7 +55,8 @@ const md: Components = {
 export function DocBody({ body }: { body: string }) {
   const segments = useMemo(() => splitDirectives(body), [body]);
   return (
-    <article className="max-w-[720px]">
+    // Text stays at a readable 720px; tables, images and embeds use the full width (up to 1120px).
+    <article className="max-w-[1120px]">
       {segments.map((s, i) =>
         s.kind === 'md' ? (
           <Markdown key={i} remarkPlugins={[remarkGfm]} components={md}>

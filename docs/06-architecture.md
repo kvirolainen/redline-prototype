@@ -6,15 +6,15 @@ Everyone opens the same app in a browser, and it talks straight to one live back
 
 ## Stack and why
 
-Picked for speed in 48 hours, with Clutch's equivalent next to each part.
+Picked for speed in 48 hours.
 
-| Part | Picked | Why | Clutch uses |
-|---|---|---|---|
-| Screens | React + TypeScript | Same as Clutch | React + TypeScript |
-| Styling | Tailwind CSS | Quick to match Clutch's look by hand | Material UI |
-| Backend | Convex | Database, server functions and live updates in one service: no API or socket server to build | Express + Postgres |
-| Hosting | Vercel | One command to a live link | AWS |
-| Design review | Storybook | Each screen's versions side by side before picking one | |
+| Part | Picked | Why |
+|---|---|---|
+| Screens | React + TypeScript | Same as Clutch |
+| Styling | Tailwind CSS | Quick to match Clutch's look by hand |
+| Backend | Convex | Database, server functions and live updates in one service: no API or socket server to build |
+| Hosting | Vercel | One command to a live link |
+| Design review | Storybook | Each screen's versions side by side before picking one |
 
 ## One hand-off, step by step
 
