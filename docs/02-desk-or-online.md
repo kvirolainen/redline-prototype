@@ -1,6 +1,6 @@
 # Desk or online?
 
-A trade-in needs a price before the new-car deal can close. Redline could give that price in two places: **at the dealer's desk**, during the visit, or **online**, before the customer walks in. The choice decides who looks at the screen, when the price gets settled, and how much the dealer has to change how they work.
+Where does the trade-in happen: **at the dealer's desk** or **online, before the visit**?
 
 ## A. At the desk
 
