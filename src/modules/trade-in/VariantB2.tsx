@@ -277,13 +277,17 @@ function Input({
 /** A note on an answer: a small icon beside the label, the text on hover or focus, so nothing below moves. */
 function NoteTip({ text }: { text: string }) {
   return (
-    <span className="group relative ml-1.5 inline-flex align-middle">
+    <span className="group relative ml-1 inline-flex -translate-y-px align-middle">
       <button
         type="button"
         aria-label={text}
-        className="grid size-5 place-items-center rounded-full bg-nudge text-[12px] font-bold leading-none text-body ring-1 ring-black/10 outline-none focus-visible:ring-ink"
+        className="grid size-5 place-items-center rounded-full text-subtle outline-none hover:text-ink focus-visible:text-ink focus-visible:ring-1 focus-visible:ring-ink"
       >
-        i
+        <svg viewBox="0 0 16 16" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" aria-hidden>
+          <circle cx="8" cy="8" r="6.3" />
+          <path d="M8 7.2v3.8" />
+          <circle cx="8" cy="4.9" r="0.4" fill="currentColor" />
+        </svg>
       </button>
       <span
         role="tooltip"
