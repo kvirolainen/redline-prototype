@@ -12,11 +12,12 @@ import { useTradeIn, type TradeIn } from './useTradeIn';
 // nobody watches a number move while they answer.
 
 /** Two columns that each flow on their own with an even rhythm: the car's history and body, then what comes with it.
- *  Rows are as tall as their content; nothing stretches to fill the screen. Short questions sit two to a line,
- *  on the column's half-way mark, so every answer starts on one of two edges. */
+ *  Rows are as tall as their content; nothing stretches to fill the screen. One question per line, except pairs that
+ *  read as one thought (mechanical + driveable, rims + tire sets, the two tire questions); Rust sits right under
+ *  Exterior damage. */
 const COLUMNS: { title: string; rows: QuestionId[][] }[] = [
-  { title: 'History and damage', rows: [['title'], ['accidents', 'rust'], ['exterior'], ['interior'], ['mechanical', 'driveable']] },
-  { title: 'Equipment and overall', rows: [['payout', 'keys'], ['features'], ['rims', 'tireSets'], ['tireType', 'tires'], ['condition']] },
+  { title: 'History and damage', rows: [['title'], ['accidents'], ['exterior'], ['rust'], ['interior'], ['mechanical', 'driveable']] },
+  { title: 'Equipment and overall', rows: [['payout'], ['keys'], ['features'], ['rims', 'tireSets'], ['tireType', 'tires'], ['condition']] },
 ];
 
 const Q = (id: QuestionId) => FULL_QUESTIONS.find((q) => q.id === id)!;
@@ -107,7 +108,7 @@ function reviewReasons(t: TradeIn): string[] {
   for (const q of FULL_QUESTIONS)
     for (const v of t.answers[q.id] ?? []) {
       const o = q.options.find((x) => x.value === v);
-      if (o?.review) out.push(`${o.title} declared`);
+      if (o?.review) out.push(o.title);
     }
   return out;
 }
@@ -127,18 +128,18 @@ export function TradeInVariantB2({ onOpenBackOffice }: { onOpenBackOffice?: () =
   return (
     <div className="flex min-h-screen flex-col bg-canvas">
       <Header />
-      <div className="mx-auto w-full max-w-[1400px] space-y-4 px-6 py-4 min-[1400px]:space-y-5 min-[1400px]:px-8 min-[1400px]:py-5">
+      <div className="mx-auto w-full max-w-[1400px] space-y-4 px-6 py-4 min-[1400px]:space-y-5 min-[1400px]:px-8 min-[1400px]:py-5 [@media(max-height:940px)]:space-y-3 [@media(max-height:940px)]:py-3">
         {/* The car and its price, across the top: where both people look first. */}
-        <div className="grid grid-cols-[1fr_380px] rounded-panel border border-line bg-white min-[1400px]:grid-cols-[1fr_440px]">
+        <div className="grid grid-cols-[1fr_450px] rounded-panel border border-line bg-white min-[1400px]:grid-cols-[1fr_480px]">
           <CarRow t={t} />
           <OfferBox t={t} />
         </div>
         {/* The questions get the full width, so answers have room and never wrap. */}
         <div className="grid grid-cols-2 divide-x divide-line-light rounded-panel border border-line bg-white">
           {COLUMNS.map((c) => (
-            <section key={c.title} className="px-8 pt-4 pb-5 min-[1400px]:px-10 min-[1400px]:pt-6 min-[1400px]:pb-7">
+            <section key={c.title} className="px-8 pt-4 pb-5 min-[1400px]:px-10 min-[1400px]:pt-6 min-[1400px]:pb-7 [@media(max-height:940px)]:pt-4 [@media(max-height:940px)]:pb-5">
               <h2 className="text-caption font-bold tracking-wide text-muted uppercase">{c.title}</h2>
-              <div className="mt-3 space-y-5 min-[1400px]:mt-4 min-[1400px]:space-y-6">
+              <div className="mt-3 space-y-5 min-[1400px]:mt-4 min-[1400px]:space-y-6 [@media(max-height:940px)]:mt-3 [@media(max-height:940px)]:space-y-3.5">
                 {c.rows.map((ids) => (
                   <Line key={ids.join()} ids={ids} t={t} />
                 ))}
@@ -167,7 +168,7 @@ function Header() {
 function CarRow({ t }: { t: TradeIn }) {
   const note = kmNote(t);
   return (
-    <div className="px-8 py-5 min-[1400px]:px-10 min-[1400px]:py-6">
+    <div className="px-8 py-5 min-[1400px]:px-10 min-[1400px]:py-6 [@media(max-height:940px)]:py-4">
       <div className="grid grid-cols-[1fr_220px] gap-4">
         <Input
           label="VIN"
@@ -273,13 +274,13 @@ function Line({ ids, t }: { ids: QuestionId[]; t: TradeIn }) {
 function Answer({ q, t, wide }: { q: Question; t: TradeIn; wide: boolean }) {
   const picked = t.answers[q.id] ?? [];
   return (
-    <fieldset className={wide ? 'col-span-2' : ''}>
+    <fieldset id={`q-${q.id}`} className={`scroll-mt-24 rounded-card ${wide ? 'col-span-2' : ''}`}>
       <legend className="text-base font-medium text-ink">
         {LABEL[q.id] ?? q.label}
         {q.multi && <span className="font-normal text-subtle"> · all that apply</span>}
         {HINT[q.id] && <span className="font-normal text-subtle"> · {HINT[q.id]}</span>}
       </legend>
-      <div className="mt-2 flex flex-wrap gap-2">
+      <div className="mt-2 flex flex-wrap gap-2 [@media(max-height:940px)]:mt-1.5">
         {q.options.map((o) => {
           const on = picked.includes(o.value);
           return (
@@ -313,7 +314,7 @@ function OfferBox({ t }: { t: TradeIn }) {
       {reasons.length && q ? (
         <ByHand t={t} q={q} reasons={reasons} />
       ) : q?.complete ? (
-        <div className="flex items-end justify-between gap-6">
+        <div className="flex items-center justify-between gap-6">
           <div>
             <p className="text-sm text-muted">Clutch’s firm offer</p>
             <p className="mt-1 text-[40px] leading-[44px] font-bold text-ink tabular-nums">{money(q.firm)}</p>
@@ -339,31 +340,53 @@ function OfferBox({ t }: { t: TradeIn }) {
           <p className="mt-3 text-sm text-muted">
             {!t.car ? 'Shows here once the VIN and every answer are in.' : !t.km ? 'Shows here once the odometer and every answer are in.' : 'Shows here once every answer is in.'}
           </p>
+          {answered > 0 && <Missing t={t} />}
         </>
       )}
     </div>
   );
 }
 
-/** No instant offer: when it comes, why, then send. */
+/** The questions still open, each a link that jumps to it, so a skipped one is easy to find. */
+function Missing({ t }: { t: TradeIn }) {
+  const open = FULL_QUESTIONS.filter((x) => !t.answers[x.id]?.length);
+  if (!open.length) return null;
+  const shown = open.slice(0, 4);
+  const jump = (id: QuestionId) => {
+    const el = document.getElementById(`q-${id}`);
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    el.animate([{ backgroundColor: 'var(--color-nudge)' }, { backgroundColor: 'transparent' }], { duration: 1400 });
+  };
+  return (
+    <p className="mt-1 text-sm text-muted">
+      Left:{' '}
+      {shown.map((x, i) => (
+        <span key={x.id}>
+          {i > 0 && ', '}
+          <button type="button" className="font-medium text-ink underline hover:text-brand" onClick={() => jump(x.id)}>
+            {LABEL[x.id] ?? x.label}
+          </button>
+        </span>
+      ))}
+      {open.length > shown.length && ` and ${open.length - shown.length} more`}
+    </p>
+  );
+}
+
+/** No instant offer: when it comes and why on the left, the one action on the right. */
 function ByHand({ t, q, reasons }: { t: TradeIn; q: Quote; reasons: string[] }) {
   return (
-    <>
-      <p className="text-title font-bold text-ink">Offer by {DATES.firmBy}</p>
-      <p className="mt-1 text-sm text-muted">A Clutch appraiser prices this one. Why:</p>
-      <div className="mt-3 flex items-end justify-between gap-4">
-        <ul className="space-y-1.5">
-          {reasons.map((r) => (
-            <li key={r} className="rounded-card bg-nudge px-3 py-1.5 text-sm text-body">
-              {r}
-            </li>
-          ))}
-        </ul>
-        <Button className="shrink-0 px-6" disabled={!q.complete} onClick={() => t.setOutcome('review-sent')}>
-          {q.complete ? 'Send to Clutch' : `${q.answered} of ${q.total} answered`}
-        </Button>
+    <div className="flex items-center justify-between gap-6">
+      <div>
+        <p className="text-title font-bold text-ink">Offer by {DATES.firmBy}</p>
+        <p className="mt-1 text-sm text-muted">A Clutch appraiser prices this one:</p>
+        <p className="mt-0.5 text-sm font-medium text-ink">{reasons.join(' · ')}</p>
       </div>
-    </>
+      <Button className="shrink-0 px-6" disabled={!q.complete} onClick={() => t.setOutcome('review-sent')}>
+        {q.complete ? 'Send to Clutch' : `${q.answered} of ${q.total} answered`}
+      </Button>
+    </div>
   );
 }
 
