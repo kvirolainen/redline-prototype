@@ -137,6 +137,21 @@ export function IdentityPhotos({ odometer, vin, onTake }: { odometer: boolean; v
   );
 }
 
+/** Inside an opened area, an item that isn't different: one line with what was declared and a way to mark it. */
+export function DeclaredRow({ car, item, onDifferent }: { car: InspectionCar; item: CheckItem; onDifferent: () => void }) {
+  return (
+    <div className="flex items-center gap-3">
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm text-muted">{item.question}</span>
+        <span className="block text-base font-medium text-ink">{declaredFor(item, car)}</span>
+      </span>
+      <button type="button" onClick={onDifferent} className="h-10 shrink-0 rounded-pill border border-line px-4 text-sm font-bold text-ink hover:border-ink">
+        Different
+      </button>
+    </div>
+  );
+}
+
 /** Inside an opened area: what the dealer declared, big, then same / different, and the detail when it's different. */
 export function DeclaredItem({
   car,
@@ -247,7 +262,7 @@ export function OutcomeC2({
     lead = `Load the ${name} on ${truck}`;
     body = (
       <p>
-        Down from {money(outcome.accepted.from)}. {dealer} gets {money(outcome.accepted.to)} within 2 business days.
+        Down from {money(outcome.accepted.from)}. {dealer} is paid the new price.
       </p>
     );
     action = (
@@ -269,7 +284,7 @@ export function OutcomeC2({
     title = `${name} is on ${truck}`;
     body = (
       <p>
-        Picked up. {dealer} gets {money(car.offer)} within 2 business days.
+        Picked up. {dealer} is paid {money(car.offer)}.
       </p>
     );
   } else if (outcome.kind === 'reprice') {

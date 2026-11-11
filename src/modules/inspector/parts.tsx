@@ -233,7 +233,7 @@ export function OutcomeView({
         <>
           <p className="text-h4 font-bold text-ink">Load it on {truck}</p>
           <p className="mt-2">
-            Down from {money(outcome.accepted.from)}. {dealer} gets {money(outcome.accepted.to)} within 2 business days.
+            Down from {money(outcome.accepted.from)}. {dealer} is paid the new price.
           </p>
         </>
       );
@@ -254,7 +254,7 @@ export function OutcomeView({
       title = 'Picked up';
       body = (
         <p>
-          On {truck}. {dealer} gets {money(car.offer)} within 2 business days.
+          On {truck}. {dealer} is paid {money(car.offer)}.
         </p>
       );
     }

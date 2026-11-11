@@ -2,8 +2,8 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { StatusChip } from '../../components/ui/StatusChip';
 import { money } from '../../domain/format';
 import { C2DemoWorld, useC2Time } from './c2-demo';
-import { isAccepted, isSettled, isWaiting, leaveLabel, leaveMin, minutesLabel, shortCar, shortDealer } from './c2-model';
-import { DeclaredItem, DemoDave, IdentityPhotos, NotReadyC2, OutcomeC2, WaitStrip } from './c2-parts';
+import { isAccepted, isSettled, isWaiting, leaveLabel, leaveMin, shortCar, shortDealer } from './c2-model';
+import { DeclaredItem, DeclaredRow, DemoDave, IdentityPhotos, NotReadyC2, OutcomeC2, WaitStrip } from './c2-parts';
 import { useInspectorEnv } from './env';
 import { AREAS, CHECKS, declaredFor, type AreaId, type InspectionCar, type Stop } from './fixtures';
 import { BigButton, Icon, Progress, Screen } from './parts';
@@ -208,10 +208,9 @@ function stopSummary(run: Run, cars: InspectionCar[]) {
 
 /** A short line next to the status chip where the chip alone doesn't say what Sam does next. */
 function CarNote({ run, car, waited }: { run: Run; car: InspectionCar; waited: number | undefined }) {
-  const env = useInspectorEnv();
   const o = run.outcomes[car.id];
   let text: string | undefined;
-  if (isWaiting(o)) text = `Waiting on ${env.directorOf(car)}${waited !== undefined ? ` · ${minutesLabel(waited)}` : ''}`;
+  if (isWaiting(o)) text = waited !== undefined ? (waited < 1 ? 'Sent just now' : `Sent ${waited} min ago`) : undefined;
   else if (o?.kind === 'confirmed' && o.accepted && !o.loaded) text = `New price ${money(o.accepted.to)} · load it`;
   else if (o?.kind === 'confirmed' && !o.loaded) text = 'Load it';
   if (!text) return null;
@@ -404,19 +403,26 @@ function CarScreen({
                   <IdentityPhotos odometer={photos.odometer} vin={photos.vin} onTake={onPhoto} />
                 </div>
               )}
-              {items.map((item) => (
-                <div key={item.id} className={`border-b border-line-light px-4 py-4 last:border-b-0 ${answers[item.id]?.result === 'different' ? 'bg-nudge' : ''}`}>
-                  <DeclaredItem
-                    car={car}
-                    item={item}
-                    answer={answers[item.id]}
-                    onSame={() => run.setAnswer(car.id, item.id, { result: 'match' })}
-                    onDifferent={() => run.markDifferent(car, item.id)}
-                    onClear={() => run.setAnswer(car.id, item.id, undefined)}
-                    onPatch={(p) => run.patchDifferent(car.id, item.id, p)}
-                  />
-                </div>
-              ))}
+              {items.map((item) => {
+                const isDiff = answers[item.id]?.result === 'different';
+                return (
+                  <div key={item.id} className={`border-b border-line-light px-4 last:border-b-0 ${isDiff ? 'bg-nudge py-4' : 'py-3'}`}>
+                    {isDiff ? (
+                      <DeclaredItem
+                        car={car}
+                        item={item}
+                        answer={answers[item.id]}
+                        onSame={() => run.setAnswer(car.id, item.id, { result: 'match' })}
+                        onDifferent={() => run.markDifferent(car, item.id)}
+                        onClear={() => run.setAnswer(car.id, item.id, undefined)}
+                        onPatch={(p) => run.patchDifferent(car.id, item.id, p)}
+                      />
+                    ) : (
+                      <DeclaredRow car={car} item={item} onDifferent={() => run.markDifferent(car, item.id)} />
+                    )}
+                  </div>
+                );
+              })}
               <div className="border-t border-line px-4 py-3">
                 <BigButton variant="outline" disabled={identity && !photosDone} onClick={() => doneWith(area.id)}>
                   {identity && !photosDone ? 'Take both photos first' : 'Done, the rest matches'}
