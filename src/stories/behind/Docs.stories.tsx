@@ -21,6 +21,7 @@ export const Prototypes: Story = { args: { initial: 'prototypes' } };
 export const Architecture: Story = { args: { initial: 'architecture' } };
 export const BuildPlan: Story = { name: 'Build plan', args: { initial: 'build-plan' } };
 export const TestReport: Story = { name: 'Test report', args: { initial: 'test-report' } };
+export const DealerResearch: Story = { name: 'Dealer research', args: { initial: 'dealer-research' } };
 export const DecisionsLog: Story = { name: 'Decisions log', args: { initial: 'decisions' } };
 
 const DEMO = `# Embeds demo

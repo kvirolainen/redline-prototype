@@ -6,6 +6,7 @@ import prototypes from '../../docs/05-prototypes.md?raw';
 import architecture from '../../docs/06-architecture.md?raw';
 import buildPlan from '../../docs/07-build-plan.md?raw';
 import testReport from '../../docs/08-test-report.md?raw';
+import dealerResearch from '../../docs/09-dealer-research.md?raw';
 import decisions from '../../docs/decisions.md?raw';
 
 export type DocId =
@@ -17,6 +18,7 @@ export type DocId =
   | 'architecture'
   | 'build-plan'
   | 'test-report'
+  | 'dealer-research'
   | 'decisions';
 
 export interface Doc {
@@ -38,6 +40,7 @@ export const DOCS: Doc[] = [
   { id: 'architecture', n: 6, label: 'Architecture', file: '06-architecture.md', body: architecture },
   { id: 'build-plan', n: 7, label: 'Build plan', file: '07-build-plan.md', body: buildPlan },
   { id: 'test-report', n: 8, label: 'Test report', file: '08-test-report.md', body: testReport },
+  { id: 'dealer-research', n: 9, label: 'Dealer research', file: '09-dealer-research.md', body: dealerResearch },
   { id: 'decisions', label: 'Decisions log', file: 'decisions.md', body: decisions },
 ];
 

@@ -1,6 +1,6 @@
 import type { PersonaId } from './personas';
 
-export type JourneyStepId = 'offer' | 'accepted' | 'pickup' | 'inspection' | 'paid' | 'reprice' | 'director';
+export type JourneyStepId = 'offer' | 'accepted' | 'pickup' | 'inspection' | 'paid';
 
 export interface JourneyStep {
   id: JourneyStepId;
@@ -9,8 +9,7 @@ export interface JourneyStep {
   owner: PersonaId;
 }
 
-// One car's path. The main row runs offer → paid; the only fork is at inspection, when the car
-// doesn't match what was declared: the inspector re-prices and the director decides.
+// One car's path, offer → paid. The only fork is at inspection (JOURNEY_MISMATCH).
 export const JOURNEY_MAIN: JourneyStep[] = [
   { id: 'offer', title: 'Instant offer', detail: 'Firm number at the desk', owner: 'maria' },
   { id: 'accepted', title: 'Accepted', detail: 'Joins the next pickup day', owner: 'maria' },
@@ -19,7 +18,9 @@ export const JOURNEY_MAIN: JourneyStep[] = [
   { id: 'paid', title: 'Paid', detail: 'Picked up, dealer paid', owner: 'sam' },
 ];
 
-export const JOURNEY_FORK: JourneyStep[] = [
-  { id: 'reprice', title: 'Re-price', detail: 'New price with a reason', owner: 'sam' },
-  { id: 'director', title: 'Director decides', detail: 'Declines: car stays with the dealer', owner: 'dave' },
-];
+/** The one fork, drawn as an arc from inspection over to paid: the car doesn't match what was declared,
+ *  the inspector re-prices and the director decides. */
+export const JOURNEY_MISMATCH = {
+  path: 'Doesn’t match → re-price → director accepts',
+  exit: 'Declines: car stays with the dealer',
+} as const;

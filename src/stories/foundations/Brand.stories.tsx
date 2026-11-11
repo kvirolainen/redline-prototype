@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type { ReactNode } from 'react';
+import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { Lockup, type LockupOptions } from '../../components/brand/Lockup';
 import { Group, Page } from './Specimen';
 
@@ -45,13 +45,33 @@ const OPTIONS: { id: string; name: string; note: string; o: LockupOptions; pick?
   },
 ];
 
-/** Two faint guides at the baseline and the ascender line, to show both words sit on the same lines. */
+/** Two faint guides: the baseline (bottom of the letters) and the top of the tall letters (l, t, h / R, d, l), to show
+ *  both words sit on the same lines. The baseline is measured, not assumed: a zero-size probe aligned on the
+ *  lockup's baseline marks it, and the top line sits `size` px above (the lockup's ascender height). */
 function Guides({ children, size }: { children: ReactNode; size: number }) {
+  const probe = useRef<HTMLSpanElement>(null);
+  const [baseline, setBaseline] = useState<number | null>(null);
+  useLayoutEffect(() => {
+    const measure = () => {
+      if (probe.current) setBaseline(probe.current.offsetTop);
+    };
+    measure();
+    // Re-measure once Figtree has loaded; the fallback font sits differently.
+    document.fonts?.ready.then(measure);
+  }, []);
+  const line = (top: number) => (
+    <span className="pointer-events-none absolute inset-x-[-12px] border-t border-dashed border-brand/40" style={{ top }} aria-hidden />
+  );
   return (
-    <span className="relative inline-block">
-      <span className="pointer-events-none absolute inset-x-[-12px] border-t border-dashed border-brand/40" style={{ bottom: 0 }} aria-hidden />
-      <span className="pointer-events-none absolute inset-x-[-12px] border-t border-dashed border-brand/40" style={{ bottom: size }} aria-hidden />
-      <span className="block leading-none">{children}</span>
+    <span className="relative inline-flex items-baseline">
+      {children}
+      <span ref={probe} className="inline-block size-0" aria-hidden />
+      {baseline !== null && (
+        <>
+          {line(baseline)}
+          {line(baseline - size)}
+        </>
+      )}
     </span>
   );
 }

@@ -43,7 +43,7 @@ function MenuLine({ view, active }: { view: View; active?: boolean }) {
   );
 }
 
-function ViewSwitcher({ view, onChange, highlight, onOpen }: { view: View; onChange: (v: View) => void; highlight?: boolean; onOpen?: () => void }) {
+function ViewSwitcher({ view, onChange }: { view: View; onChange: (v: View) => void }) {
   const [open, setOpen] = useState(false);
   const pick = (v: View) => {
     onChange(v);
@@ -66,15 +66,10 @@ function ViewSwitcher({ view, onChange, highlight, onOpen }: { view: View; onCha
     <div className="relative">
       <button
         type="button"
-        onClick={() => {
-          setOpen(!open);
-          onOpen?.();
-        }}
+        onClick={() => setOpen(!open)}
         aria-expanded={open}
         aria-haspopup="menu"
-        className={`flex h-10 items-center gap-2 rounded-pill border py-1 pr-4 pl-1 transition-shadow hover:border-ink ${
-          highlight ? 'border-brand ring-4 ring-brand/15' : 'border-line'
-        }`}
+        className="flex h-10 items-center gap-2 rounded-pill border border-line py-1 pr-4 pl-1 hover:border-ink"
       >
         <ViewIcon view={view} />
         <span className="text-sm font-bold whitespace-nowrap text-ink">{buttonLabel(view)}</span>
@@ -95,67 +90,62 @@ function ViewSwitcher({ view, onChange, highlight, onOpen }: { view: View; onCha
   );
 }
 
-/** First-visit pointer at the switcher: says the four screens exist and where to find them. */
-function CoachMark({ onDismiss }: { onDismiss: () => void }) {
+/** Always-on pointer drawn on the canvas under the switcher: says there are four working screens and offers them
+ *  directly, in the car's order. Lives on the Car journey tab only. */
+function ScreensPointer({ onPick }: { onPick: (id: PersonaId) => void }) {
   return (
-    <div role="note" className="absolute top-full right-0 z-10 mt-3 w-[300px] rounded-panel border border-ink bg-white p-4 shadow-overlay">
-      {/* Small pointer up at the switcher. */}
-      <span className="absolute -top-[7px] right-10 size-3 rotate-45 border-t border-l border-ink bg-white" aria-hidden />
-      <div className="flex items-start gap-3">
-        <p className="text-sm text-body">
-          <span className="font-bold text-ink">Try the 4 working screens here.</span> Trade-in, Inspector, Back office and Ops board, one per role.
-        </p>
-        <button type="button" onClick={onDismiss} aria-label="Dismiss" className="-mt-1 -mr-1 grid size-7 shrink-0 place-items-center rounded-full text-muted hover:bg-canvas hover:text-ink">
-          <Icon name="close" className="size-4" />
-        </button>
+    <div className="pointer-events-none flex justify-end px-6 pt-2 xl:absolute xl:top-0 xl:right-0">
+      <div className="pointer-events-auto flex items-start gap-1">
+        <div className="mt-6 flex max-w-[236px] flex-col items-end text-right">
+          <p className="text-sm text-ink">
+            <span className="font-bold">4 working screens</span>, one per role
+          </p>
+          <div className="mt-2 flex flex-wrap justify-end gap-1.5">
+            {SCREEN_ORDER.map((id) => {
+              const m = persona(id).module;
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => onPick(id)}
+                  className="inline-flex items-center gap-1 rounded-pill border border-line bg-white px-2.5 py-1 text-caption font-medium whitespace-nowrap text-ink hover:border-ink"
+                >
+                  <Icon name={MODULE_ICON[m]} className="size-3.5 text-muted" />
+                  {MODULES[m].label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+        {/* Hand-drawn style arrow curving up to the switcher. */}
+        <svg viewBox="0 0 40 44" className="mr-8 h-11 w-10 shrink-0 text-ink" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <path d="M2 36C16 36 26 26 28 4" />
+          <path d="M22 9l6-6 5 7" />
+        </svg>
       </div>
     </div>
   );
 }
 
-// The pointer at the switcher is shown until someone dismisses it or uses the switcher, then stays away.
-const POINTER_KEY = 'redline.switcherPointerDismissed';
-const pointerDismissed = () => {
-  try {
-    return localStorage.getItem(POINTER_KEY) === '1';
-  } catch {
-    return false;
-  }
-};
-const rememberPointerDismissed = () => {
-  try {
-    localStorage.setItem(POINTER_KEY, '1');
-  } catch {
-    // Storage blocked: the pointer just comes back next time.
-  }
-};
+// The four screens in the order the car meets them.
+const SCREEN_ORDER: PersonaId[] = ['maria', 'jordan', 'sam', 'dave'];
 
 interface Props {
   initialView?: View;
   initialTab?: BehindTab;
   initialDoc?: DocId;
-  /** Show the pointer at the switcher. By default it shows on Behind the build until it has been dismissed once. */
-  coach?: boolean;
 }
 
 /** The app shell: the logo, one switcher at the top right, and either the Behind-the-build pages (with a light
  *  sub-nav) or the selected person's module. The pages are the same components as in Storybook, rendered as-is. */
-export function AppShell({ initialView = 'behind', initialTab = 'car-journey', initialDoc = 'concept', coach }: Props) {
+export function AppShell({ initialView = 'behind', initialTab = 'car-journey', initialDoc = 'concept' }: Props) {
   const [view, setView] = useState<View>(initialView);
-  const [showCoach, setShowCoach] = useState(() => coach ?? (initialView === 'behind' && !pointerDismissed()));
   const [tab, setTab] = useState<BehindTab>(initialTab);
   const [doc, setDoc] = useState<DocId>(initialDoc);
-  const hideCoach = () => {
-    if (showCoach) rememberPointerDismissed();
-    setShowCoach(false);
-  };
-  const go = (v: View) => {
-    setView(v);
-    hideCoach();
-  };
+  const go = (v: View) => setView(v);
   const showPerson = (id: PersonaId) => go(id);
   // The pointer belongs to the landing page; on the other tabs it would sit over the content.
-  const pointerOn = showCoach && view === 'behind' && tab === 'car-journey';
+  const pointerOn = view === 'behind' && tab === 'car-journey';
 
   return (
     <div className="flex min-h-screen flex-col bg-canvas">
@@ -163,10 +153,7 @@ export function AppShell({ initialView = 'behind', initialTab = 'car-journey', i
         <button type="button" onClick={() => go('behind')} aria-label="Home">
           <Lockup size={20} />
         </button>
-        <div className="relative">
-          <ViewSwitcher view={view} onChange={go} highlight={pointerOn} onOpen={hideCoach} />
-          {pointerOn && <CoachMark onDismiss={hideCoach} />}
-        </div>
+        <ViewSwitcher view={view} onChange={go} />
       </header>
 
       {view === 'behind' && (
@@ -185,7 +172,8 @@ export function AppShell({ initialView = 'behind', initialTab = 'car-journey', i
         </nav>
       )}
 
-      <main className="flex flex-1 flex-col">
+      <main className="relative flex flex-1 flex-col">
+        {pointerOn && <ScreensPointer onPick={showPerson} />}
         {view !== 'behind' ? (
           <DemoModule key={view} personaId={view} />
         ) : tab === 'car-journey' ? (

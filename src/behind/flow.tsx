@@ -55,7 +55,8 @@ export function FlowNode({ icon, label, sub, shape = 'circle', size = 'lg', tone
       </span>
       <span className={`mt-2 font-bold lg:mt-3 ${size === 'lg' ? 'text-sm lg:text-base' : 'text-sm'} ${tone === 'upcoming' ? 'text-muted' : 'text-ink'}`}>{label}</span>
       {sub && <span className="mt-0.5 text-caption leading-[17px] text-muted">{sub}</span>}
-      {foot && <span className="mt-2">{foot}</span>}
+      {/* mt-auto: in a row of nodes stretched to one height, the feet line up whatever the captions wrap to. */}
+      {foot && <span className="mt-auto pt-2">{foot}</span>}
     </Tag>
   );
 }
@@ -71,28 +72,6 @@ export function Connector({ size = 'lg', arrow, label, dashed }: { size?: 'lg' |
         </svg>
       )}
       {label && <span className="absolute inset-x-0 top-[calc(50%+6px)] text-center text-caption whitespace-nowrap text-muted">{label}</span>}
-    </div>
-  );
-}
-
-/** Vertical arrow for the one or two edge cases that leave the main row. */
-export function VArrow({ dir, label }: { dir: 'down' | 'up'; label?: string }) {
-  return (
-    <div className="relative flex h-14 justify-center" aria-hidden>
-      <svg viewBox="0 0 10 56" className="h-14 w-2.5 text-subtle" fill="none" stroke="currentColor" strokeWidth="1">
-        {dir === 'down' ? (
-          <>
-            <path d="M5 0v50" strokeDasharray="3 3" />
-            <path d="M1.5 47l3.5 5 3.5-5" />
-          </>
-        ) : (
-          <>
-            <path d="M5 56V6" strokeDasharray="3 3" />
-            <path d="M1.5 9l3.5-5 3.5 5" />
-          </>
-        )}
-      </svg>
-      {label && <span className="absolute top-1/2 left-[calc(50%+10px)] -translate-y-1/2 text-caption whitespace-nowrap text-muted">{label}</span>}
     </div>
   );
 }

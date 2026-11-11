@@ -18,7 +18,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Landing: Story = { name: 'Landing', args: { initialView: 'behind', initialTab: 'car-journey' } };
-export const Docs: Story = { name: 'Landing · The thinking', args: { initialView: 'behind', initialTab: 'docs', coach: false } };
+export const Docs: Story = { name: 'Landing · The thinking', args: { initialView: 'behind', initialTab: 'docs' } };
 export const Maria: Story = { name: 'Trade-in · Maria', args: { initialView: 'maria' } };
 export const Jordan: Story = { name: 'Ops board · Jordan', args: { initialView: 'jordan' } };
 export const Sam: Story = { name: 'Inspector · Sam', args: { initialView: 'sam' } };
