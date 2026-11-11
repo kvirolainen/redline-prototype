@@ -17,10 +17,12 @@ function Chevron() {
   );
 }
 
-function ViewIcon({ view, active }: { view: View; active?: boolean }) {
+/** `quiet`: Behind the build in the menu, a plain grey icon with no circle, so the modules lead. */
+function ViewIcon({ view, active, quiet }: { view: View; active?: boolean; quiet?: boolean }) {
   const icon = view === 'behind' ? 'layers' : MODULE_ICON[persona(view).module];
+  const look = active ? 'bg-ink text-white' : quiet ? 'text-muted' : 'border border-line bg-white text-ink';
   return (
-    <span className={`grid size-8 shrink-0 place-items-center rounded-full ${active ? 'bg-ink text-white' : 'border border-line bg-white text-ink'}`} aria-hidden>
+    <span className={`grid size-8 shrink-0 place-items-center rounded-full ${look}`} aria-hidden>
       <Icon name={icon} className="size-4" />
     </span>
   );
@@ -34,9 +36,9 @@ function MenuLine({ view, active }: { view: View; active?: boolean }) {
   const [title, sub] = view === 'behind' ? ['Behind the build', `Car journey, ${DOCS_TAB_LABEL.toLowerCase()}`] : [MODULES[persona(view).module].label, personaLine(persona(view))];
   return (
     <span className="flex min-w-0 items-center gap-3 text-left">
-      <ViewIcon view={view} active={active} />
+      <ViewIcon view={view} active={active} quiet={view === 'behind'} />
       <span className="min-w-0">
-        <span className="block truncate text-sm font-bold text-ink">{title}</span>
+        <span className={`block truncate text-sm ${view === 'behind' && !active ? 'font-medium text-muted' : 'font-bold text-ink'}`}>{title}</span>
         <span className="block truncate text-caption text-muted">{sub}</span>
       </span>
     </span>
@@ -79,10 +81,9 @@ function ViewSwitcher({ view, onChange }: { view: View; onChange: (v: View) => v
         <>
           <button type="button" aria-label="Close" className="fixed inset-0 z-10 cursor-default" onClick={() => setOpen(false)} />
           <div role="menu" className="absolute top-full right-0 z-20 mt-2 w-[300px] rounded-panel border border-line bg-white p-2 shadow-overlay">
-            {item('behind')}
-            <div className="mx-2 my-2 border-t border-line-light" />
-            <p className="px-3 pt-1 pb-1 text-caption font-bold text-muted">Try a module</p>
             {PERSONAS.map((p) => item(p.id))}
+            <div className="mx-2 my-2 border-t border-line-light" />
+            {item('behind')}
           </div>
         </>
       )}
