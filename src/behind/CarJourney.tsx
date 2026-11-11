@@ -140,13 +140,13 @@ export function JourneyDiagram({ shape = 'circle', fork = 'arc', onPick }: Props
 export function CarJourney({ shape = 'circle', fork, onPick }: Props) {
   // A little extra air above the heading balances it against the wide diagram below.
   return (
-    <div className="pt-4 lg:pt-12">
+    <div className="pt-4 lg:pt-28">
     <CenteredPage
       title="One car, start to finish"
-      intro="From the dealer’s desk to payment. Each step happens in one of four modules; the inspection is the only place the path can fork."
+      intro="From the dealer’s desk to payment. Each step happens in one of four modules."
     >
       {/* Extra air between the intro and the diagram (the fork arc sits close under the intro otherwise). */}
-      <div className="mt-10 lg:mt-20">
+      <div className="mt-6 lg:mt-8">
         <JourneyDiagram shape={shape} fork={fork} onPick={onPick} />
       </div>
     </CenteredPage>
