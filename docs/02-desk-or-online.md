@@ -1,6 +1,6 @@
 # Desk or online?
 
-Where does the customer first see Clutch's number? The whiteboard version put it at the dealer's desk. Building the trade-in screen raised a question about that.
+A trade-in needs a price before the new-car deal can close. Redline could give that price in two places: **at the dealer's desk**, during the visit, or **online**, before the customer walks in. The choice decides who looks at the screen, when the price gets settled, and how much the dealer has to change how they work.
 
 ## A. At the desk
 
