@@ -14,9 +14,11 @@ director approval → payment, plus a dealer back office and a Clutch ops board.
 - `npm run dev` (frontend), `npx convex dev` (backend), `npm run build` (typecheck + bundle).
 
 ## Conventions
-- Visual language follows Clutch's web design: brand red `#FF464C` with the CTA gradient (`bg-cta`),
-  near-black ink text, `#FAFAFA` canvas, white cards with 1px `#DDDDDD` borders, 32px pill buttons and
-  inputs, 8px cards, 16px panels, borders over shadows. Font: Figtree (substitute for Circular).
+- Visual language follows Clutch's web design: brand red `#FF464C`, near-black ink text, `#FAFAFA` canvas,
+  white cards with 1px `#DDDDDD` borders, 32px pill buttons, 8px cards, 16px panels, borders over shadows.
+  Font: Figtree (substitute for Circular). Inside product flows the primary button is a black pill and
+  selected states are black; the red CTA gradient (`bg-cta`) is for marketing CTAs only. Flow inputs are
+  56px with an 8px radius and a `#EEEEEE` outline. Reuse `src/components/ui/` and the Foundations stories.
 - Personas: Maria (Sales Manager, Yorkdale Honda), Dave (Sales Director, Yorkdale Honda),
   Sam (Clutch Inspector, phone layout), Jordan (Clutch Ops).
 - Pricing is a labelled placeholder for Clutch's real valuation engine — keep it isolated in one module.

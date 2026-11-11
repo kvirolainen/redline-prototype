@@ -1,7 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
-/* Clutch visual language: brand red, near-black text, light canvas, bordered white cards, pill controls. */
+/* Clutch visual language: brand red, near-black text, light canvas, bordered white cards, pill controls.
+   Red is for the brand mark and marketing CTAs; inside product flows the primary action is a black pill,
+   and selected states are black, not red (as in Clutch's own sell flow). */
 @theme {
   --font-sans: 'Circular', 'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
@@ -22,7 +24,36 @@
   --color-warning: #FBBB00;
   --color-error: #CE2929;
   --color-teal: #00817B;
+  --color-warm-grey: #8A847E;
+  --color-photo-bg: #F4F2EF;
+  --color-lavender: #F1EDF8;
+  --color-nudge: #FFF8E1;
+  --color-error-tint: #FDECEC;
+  --color-brand-tint: #FFF1F1;
 
+  /* Type scale from clutch.ca computed styles (mostly a 1.25 ratio). */
+  --text-caption: 12px;
+  --text-caption--line-height: 15px;
+  --text-sm: 14px;
+  --text-sm--line-height: 21px;
+  --text-base: 16px;
+  --text-base--line-height: 24px;
+  --text-title: 18px;
+  --text-title--line-height: 22px;
+  --text-h4: 24px;
+  --text-h4--line-height: 30px;
+  --text-lead: 24px;
+  --text-lead--line-height: 36px;
+  --text-h3: 32px;
+  --text-h3--line-height: 40px;
+  --text-price: 32px;
+  --text-price--line-height: 40px;
+  --text-h2: 40px;
+  --text-h2--line-height: 50px;
+  --text-display-l: 56px;
+  --text-display-l--line-height: 70px;
+
+  --radius-xs: 4px;
   --radius-badge: 6px;
   --radius-card: 8px;
   --radius-panel: 16px;
@@ -31,10 +62,16 @@
   --shadow-header: 0 4px 4px 0 rgba(0, 0, 0, 0.02);
   --shadow-overlay: 0 6px 16px -4px rgba(0, 0, 0, 0.12);
   --shadow-raised: 2px 2px 16px 0 rgba(0, 0, 0, 0.1);
+  --shadow-tile: 0 2px 5px rgba(0, 0, 0, 0.08);
 }
 
 @utility bg-cta {
   background-image: linear-gradient(90deg, #FF6258 0%, #FF464C 100%);
+}
+
+/* Disabled state of the big marketing CTA. */
+@utility bg-cta-disabled {
+  background-image: linear-gradient(90deg, #F7B9B5 0%, #FC9598 100%);
 }
 
 body {
