@@ -60,7 +60,7 @@ function ResetDemoMenuButton() {
       <div className="mx-2 my-2 border-t border-line-light" />
       {state === 'confirm' ? (
         <div className="flex items-center gap-2 py-1.5 pr-2 pl-[52px]">
-          <span className="flex-1 text-sm text-body">Start over for everyone?</span>
+          <span className="flex-1 text-sm whitespace-nowrap text-body">Reset demo?</span>
           <button type="button" role="menuitem" className="h-8 rounded-pill bg-ink px-3 text-caption font-medium text-white" onClick={() => {
             void reset();
             setState('done');
