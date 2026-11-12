@@ -89,8 +89,8 @@ export function CarLine({ car }: { car: InspectionCar }) {
 }
 
 /** Tapping "Take photo" adds a tile, as a camera would: a real defect photo where the demo has one, else a placeholder. */
-export function PhotoStrip({ count, label, onAdd, required }: { count: number; label: string; onAdd: () => void; required?: boolean }) {
-  const src = photoFor(label);
+export function PhotoStrip({ count, label, finding, onAdd, required }: { count: number; label: string; finding?: string; onAdd: () => void; required?: boolean }) {
+  const src = photoFor(finding ? `${label}: ${finding}` : label);
   return (
     <div>
       <div className="flex flex-wrap gap-2">

@@ -149,6 +149,20 @@ function TodayPickups({ board }: { board: DealerBoard }) {
   );
 }
 
+/** Where the run's inspector is for this stop: not there yet (before the window, nothing handled), on site, or done. */
+function inspectorWhere(board: DealerBoard, window: string | undefined, cars: OpsCar[]) {
+  const open = cars.some((c) => c.status === 'awaiting_pickup' || c.status === 'reprice_pending' || c.status === 'confirmed');
+  if (!open) return 'done here';
+  const start = window?.split('–')[0]?.trim();
+  const handled = cars.some((c) => c.status !== 'awaiting_pickup');
+  if (start && !handled) {
+    const [h, m] = start.split(':').map(Number);
+    const hhmm = `${h < 7 ? h + 12 : h}:${String(m || 0).padStart(2, '0')}`;
+    if (board.minutesTo(hhmm) > 0) return `due at ${start}`;
+  }
+  return 'on site';
+}
+
 function TodayRow({ board, dealerId, dayId }: { board: DealerBoard; dealerId: string; dayId: string }) {
   const dl = board.dealers.find((d) => d.id === dealerId)!;
   const cars = board.carsAt(dealerId, dayId);
@@ -169,7 +183,7 @@ function TodayRow({ board, dealerId, dayId }: { board: DealerBoard; dealerId: st
       <div className="min-w-0">
         <p className="text-base font-medium text-ink">{dl.name}</p>
         <p className="text-sm text-muted">
-          {inspector ? `${inspector} ${cars.some((c) => c.status === 'awaiting_pickup' || c.status === 'reprice_pending' || c.status === 'confirmed') ? 'on site' : 'done here'}` : 'No inspector yet'} · {cars.length} {cars.length === 1 ? 'car' : 'cars'}
+          {inspector ? `${inspector} ${inspectorWhere(board, dl.window, cars)}` : 'No inspector yet'} · {cars.length} {cars.length === 1 ? 'car' : 'cars'}
         </p>
       </div>
       <div className="min-w-0 lg:col-span-6">
@@ -179,9 +193,9 @@ function TodayRow({ board, dealerId, dayId }: { board: DealerBoard; dealerId: st
           return (
             <div key={l.car.id} className="mt-1.5">
               <p className="text-sm text-ink">
-                <span className="font-medium">{l.car.car}</span> re-priced {money(l.car.offer)} → {money(l.car.newPrice!)}, waiting on {the(l.director)} ·{' '}
-                {board.waitedMin(l.waitingSince)} min · {l.inspector} leaves ~{l.leaves}
-                {left > 0 ? ` (${left} min)` : ''}
+                <span className="font-medium">{l.car.car}</span> re-priced {money(l.car.offer)} → {money(l.car.newPrice!)}, waiting on {the(l.director)}{' '}
+                {board.waitedMin(l.waitingSince) < 1 ? 'since just now' : `for ${board.waitedMin(l.waitingSince)} min`} · {l.inspector} leaves at {l.leaves}
+                {left > 0 ? `, in ${left} min` : ''}
                 {l.escalated ? ' · in Needs you' : ''}
               </p>
             </div>
@@ -261,7 +275,7 @@ function DealerRowView({ board, row, open, onToggle }: { board: DealerBoard; row
           <div className="text-right lg:text-left">
             <p className="text-sm font-medium text-ink">{nextRun ? (nextRun.state === 'today' ? 'Today' : nextRun.label) : '—'}</p>
             <p className="text-caption text-muted">
-              {row.nextRunCars} {row.nextRunCars === 1 ? 'car' : 'cars'} · {dl.runDay === 'Thu' ? 'Thursdays' : 'Tuesdays'}
+              {row.nextRunCars} {row.nextRunCars === 1 ? 'car' : 'cars'}{nextRun?.state === 'today' ? ' left' : ''} · {dl.runDay === 'Thu' ? 'Thursdays' : 'Tuesdays'}
             </p>
           </div>
           <Chevron open={open} className="mt-1 lg:hidden" />

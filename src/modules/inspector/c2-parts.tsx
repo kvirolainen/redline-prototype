@@ -394,7 +394,7 @@ export function CompactItem({
 }) {
   const diff = answer?.result === 'different' ? answer : undefined;
   const same = answer?.result === 'match';
-  const src = photoFor(item.question);
+  const src = diff ? photoFor(`${item.question}: ${item.findings[diff.finding]?.label ?? ''}`) : null;
   return (
     <div className={`px-3.5 py-2.5 ${diff ? 'bg-nudge' : ''}`}>
       <div className="flex items-center gap-3">

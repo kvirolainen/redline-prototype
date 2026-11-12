@@ -8,7 +8,7 @@ Reset first, so you start from the same story as everyone else. It starts on Thu
 
 1. **Trade-in.** Demo cars → **2020 Honda HR-V**. Answer the questions in any order, or **Fill in demo answers**; the price appears once all are in. **Accept offer**: it joins the Nov 19 pickup.
 2. **Back office** (Open Back office on the confirmation; it opens on **Pickups**). The HR-V is on the Nov 19 pickup → **Mark ready** → tick on the lot, both keys, ownership papers.
-3. **Clutch inspector.** Open the **Civic**: one area per screen, each a checklist. Take the VIN and odometer photos → **Same** on both → **Next** → on **Exterior & glass**, **Different** on Bodywork → pick a finding and take a photo → **Same** on the rest → **Next** through the other areas → **Send re-price** (it goes to Dave).
+3. **Clutch inspector.** Open the **Civic**: one area per screen, each a checklist. Take the VIN and odometer photos → **Same** on both → **Next** → on **Exterior & glass**, **Different** on Bodywork → keep **Repainted panel** (its note is filled in) and take a photo → **Same** on the rest → **Next** through the other areas → **Review** → **Send re-price** (it goes to Dave).
 4. **Back office.** The Civic's row is marked on **Pickups**; on the **Overview** tab the re-price leads **Needs you** → **Accept**.
 5. **Clutch inspector.** The Civic → **Loaded on the truck**. Its timeline in Back office shows the payment going out within 2 business days.
 6. **Follow the HR-V.** Persona menu → **Skip to next pickup, Thu Nov 19**: the week plays out (picked-up cars get paid, old offers expire) and the HR-V Maria sold in step 1 is on Sam's run. **Reset demo** in the same menu brings everything back.

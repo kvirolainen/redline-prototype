@@ -17,7 +17,7 @@ const toDay = ({ date, state }: RunDay): Day => ({
   state,
 });
 
-const toDealer = (d: LiveDealer): Dealer => ({ id: d.key, name: d.name, area: d.area, runDay: d.runDay, contact: d.contact, director: d.director });
+const toDealer = (d: LiveDealer): Dealer => ({ id: d.key, name: d.name, area: d.area, runDay: d.runDay, contact: d.contact, director: d.director, window: d.window });
 
 /** "Windshield: declared clean, found cracked. Rear bumper: …" */
 const reasonOf = (items: NonNullable<LiveCar['reprice']>['items']) =>
@@ -45,7 +45,8 @@ function toOpsCar(c: LiveCar, dealer: LiveDealer, today: string): OpsCar | null 
     waiting: since && `since ${since}`,
     // The live band only shows a re-price raised today, while the inspector is still on the lot.
     waitingSince: r && rDay === today ? since : undefined,
-    inspectorLeaves: r ? clock(r.inspectorLeaves) : undefined,
+    // The truck leaves at the end of the dealer's pickup window, the same time the inspector's phone shows.
+    inspectorLeaves: r ? (dealer.window ? (dealer.window.split('–')[1]?.trim() ?? clock(r.inspectorLeaves)) : clock(r.inspectorLeaves)) : undefined,
     rolledFrom: c.rolledFrom,
     note: c.note,
     expires: c.status === 'offered' && c.expiresOn ? dayLabel(c.expiresOn, today) : undefined,

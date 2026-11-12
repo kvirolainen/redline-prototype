@@ -56,6 +56,12 @@ function MenuLine({ view, active }: { view: View; active?: boolean }) {
 
 function ViewSwitcher({ view, onChange }: { view: View; onChange: (v: View) => void }) {
   const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
   const pick = (v: View) => {
     onChange(v);
     setOpen(false);
@@ -93,7 +99,7 @@ function ViewSwitcher({ view, onChange }: { view: View; onChange: (v: View) => v
             {PERSONAS.map((p) => item(p.id))}
             <div className="mx-2 my-2 border-t border-line-light" />
             {item('behind')}
-            <ResetDemoMenuItem />
+            <ResetDemoMenuItem onSkip={() => setOpen(false)} />
           </div>
         </>
       )}

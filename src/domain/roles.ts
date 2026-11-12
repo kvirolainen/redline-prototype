@@ -5,3 +5,10 @@
 export const the = (role: string) => `the ${role.toLowerCase()}`;
 /** "Sales Director" → "The sales director", to start a sentence. */
 export const The = (role: string) => `The ${role.toLowerCase()}`;
+/** A role as a byline, in sentence case like the rest of the screens: "Sales Director" → "Sales director",
+ *  "Inspector" → "Clutch inspector". Names like "Redline" or "Clutch" stay as they are. */
+export const byline = (who: string) => {
+  if (who === 'Inspector') return 'Clutch inspector';
+  if (!/\s/.test(who)) return who;
+  return who.charAt(0) + who.slice(1).toLowerCase();
+};

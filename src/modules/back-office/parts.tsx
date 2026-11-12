@@ -8,6 +8,7 @@ import type { BackOfficeCar, CarEvent, EventKind } from './fixtures';
 import { km } from './format';
 import { AUCTION_DAYS_TO_CASH, useBackOfficeEnv, type BackOffice, type Stats } from './useBackOffice';
 import { photoFor } from '../../domain/photos';
+import { byline } from '../../domain/roles';
 
 
 // ───────────────────────── Header ─────────────────────────
@@ -70,7 +71,7 @@ export function Timeline({ events }: { events: CarEvent[] }) {
           <div className="min-w-0">
             <p className="text-sm text-ink">{e.text}</p>
             <p className="mt-0.5 text-caption text-muted">
-              {e.at} · {e.who}
+              {e.at} · {byline(e.who)}
             </p>
           </div>
         </li>
@@ -221,7 +222,9 @@ export function DecidedNote({ car }: { car: BackOfficeCar }) {
   const { dealer: DEALER } = useBackOfficeEnv();
   const text =
     car.status === 'confirmed' || car.status === 'picked_up'
-      ? `Accepted at ${money(car.offer)}. Loaded on today’s truck; payment within 2 business days.`
+      ? car.status === 'confirmed'
+        ? `Accepted at ${money(car.offer)}. The Clutch inspector loads it on today’s truck; payment within 2 business days.`
+        : `Accepted at ${money(car.offer)}. On today’s truck; payment within 2 business days.`
       : car.status === 'paid'
         ? `Paid ${money(car.offer)} to ${DEALER}.`
         : car.status === 'declined'

@@ -272,6 +272,11 @@ function Pickups({ office, onOpen }: { office: BackOffice; onOpen: (vin: string)
         {left.map((g) => (
           <GroupPanel key={g.title} g={g} office={office} onOpen={onOpen} />
         ))}
+        {left.every((g) => !g.cars.length) && (
+          <Panel title={`Next pickup · ${NEXT_PICKUP}`}>
+            <p className="border-t border-line-light px-6 py-5 text-base text-muted">No cars on this pickup yet. A trade-in accepted at the desk joins it.</p>
+          </Panel>
+        )}
       </div>
       <div className="space-y-4">
         {right.map((g) => (

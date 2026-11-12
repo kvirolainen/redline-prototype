@@ -57,7 +57,12 @@ export function InspectorLive({ children }: { children: ReactNode }) {
   const stopKeys = [...new Set(routes.flatMap((r) => r.stops))];
   const dealers = stopKeys.flatMap((k) => world.dealers.filter((d) => d.key === k));
 
-  const stops: Stop[] = dealers.map((d) => ({
+  const live = world.cars.filter(
+    (c) => stopKeys.includes(c.dealer) && ON_RUN.includes(c.status) && (c.runDate === today || c.rolledFrom === today),
+  );
+
+  // A dealer with no cars on this week's run isn't a stop: the truck skips it.
+  const stops: Stop[] = dealers.filter((d) => live.some((c) => c.dealer === d.key)).map((d) => ({
     id: d.key,
     dealer: d.name,
     address: d.address,
@@ -65,10 +70,6 @@ export function InspectorLive({ children }: { children: ReactNode }) {
     window: d.window,
     director: d.director,
   }));
-
-  const live = world.cars.filter(
-    (c) => stopKeys.includes(c.dealer) && ON_RUN.includes(c.status) && (c.runDate === today || c.rolledFrom === today),
-  );
 
   const nextRunOf = (c: LiveCar) => {
     const d = dealers.find((x) => x.key === c.dealer)!;
@@ -119,7 +120,7 @@ export function InspectorLive({ children }: { children: ReactNode }) {
           found: d.note ? `${d.finding}. ${d.note}` : d.finding,
           amount: d.adjustment,
         })),
-        photos: diffs.flatMap((d) => Array.from({ length: d.photos }, (_, i) => `${d.item.question}, photo ${i + 1}`)),
+        photos: diffs.flatMap((d) => Array.from({ length: d.photos }, (_, i) => `${d.item.question}: ${d.finding.toLowerCase()}, photo ${i + 1}`)),
       }),
     notReady: (key, reason) => void m.markNotReady({ key, who: WHO, reason }),
     reopen: (key) => void m.reopenInspection({ key, who: WHO }),

@@ -42,7 +42,7 @@ export function DifferenceEditor({
       </label>
       <div>
         <p className="mb-2 text-sm font-medium text-ink">Photo</p>
-        <PhotoStrip count={answer.photos} label={item.question} required onAdd={() => onChange({ photos: answer.photos + 1 })} />
+        <PhotoStrip count={answer.photos} label={item.question} finding={item.findings[answer.finding]?.label} required onAdd={() => onChange({ photos: answer.photos + 1 })} />
       </div>
     </div>
   );

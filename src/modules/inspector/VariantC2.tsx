@@ -186,16 +186,18 @@ function RunScreen({
       title={
         current
           ? `Leave ${shortDealer(current)} by ${leaveLabel(current)}`
-          : `${info.day} run done`
+          : stops.length === 0
+            ? "No pickups today"
+            : `${info.day} run done`
       }
-      subtitle={`${info.day} run · ${info.truck} · ${info.date.replace("Today, ", "")}`}
+      subtitle={stops.length === 0 ? info.date.replace("Today, ", "") : `${info.day} run · ${info.truck} · ${info.date.replace("Today, ", "")}`}
       footer={
         strips.length ? <div className="space-y-2">{strips}</div> : undefined
       }
     >
       {stops.length === 0 ? (
         <p className="rounded-panel border border-line bg-white p-5 text-base text-body">
-          No pickup run for you today. Your next run shows here on the day.
+          No dealer has a car on your run today. The next run shows here on its day.
         </p>
       ) : (
         <>

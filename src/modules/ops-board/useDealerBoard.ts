@@ -68,9 +68,10 @@ export interface DealerRow {
 
 // ---- dates and times ------------------------------------------------------
 
+/** "10:42" → 642. Pickup windows write afternoon hours without pm ("1:00"), and nothing runs before 7 am, so 1–6 is pm. */
 const toMin = (t: string) => {
   const [h, m] = t.split(':').map(Number);
-  return h * 60 + m;
+  return (h < 7 ? h + 12 : h) * 60 + (m || 0);
 };
 export const clock = (min: number) => `${Math.floor(min / 60)}:${String(min % 60).padStart(2, '0')}`;
 

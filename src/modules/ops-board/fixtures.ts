@@ -42,6 +42,8 @@ export interface Dealer {
   runDay: 'Tue' | 'Thu';
   contact: string;
   director: string;
+  /** Pickup window on run day, "12:15 – 1:00" (afternoon hours written without pm). */
+  window?: string;
 }
 
 export const DEALERS: Dealer[] = [

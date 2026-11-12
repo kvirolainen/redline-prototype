@@ -8,25 +8,27 @@ import { LIVE_DEMO_CARS, TradeInEnvContext, type TradeInEnv, type TradeInSubmiss
 import { FULL_QUESTIONS, type QuestionId } from '../modules/trade-in/pricing';
 import { DEMO_DEALER, useLiveWorld } from './world';
 
-/** Desk answers → what the inspector checks the car against on pickup day. */
-const DECLARED_FROM: Record<string, QuestionId[]> = {
-  body: ['exterior', 'accidents'],
-  rust: ['rust'],
-  interior: ['interior'],
-  lights: ['mechanical'],
-  drive: ['driveable', 'mechanical'],
-  tires: ['tireType', 'tires'],
-};
-
+/** Desk answers → what the inspector checks the car against on pickup day. Only answers that differ from a clean
+ *  car are stored: a missing check falls back to the inspector's clean wording ("No rust"), so a clean car reads the
+ *  same whether it came from the seed or from the desk. */
 function declared(s: TradeInSubmission) {
+  const has = (id: QuestionId, v: string) => (s.answers[id] ?? []).includes(v);
+  const title = (id: QuestionId, v: string) => FULL_QUESTIONS.find((q) => q.id === id)?.options.find((o) => o.value === v)?.title ?? v;
   const out: Record<string, string> = {};
-  for (const [check, ids] of Object.entries(DECLARED_FROM)) {
-    const words = ids.flatMap((id) => {
-      const q = FULL_QUESTIONS.find((x) => x.id === id);
-      return (s.answers[id] ?? []).map((v) => q?.options.find((o) => o.value === v)?.title).filter(Boolean) as string[];
-    });
-    if (words.length) out[check] = words.join(' · ');
-  }
+  const body = [
+    ...(s.answers.exterior ?? []).filter((v) => v !== 'none' && v !== 'glass').map((v) => title('exterior', v)),
+    ...(has('accidents', 'yes') ? [title('accidents', 'yes')] : []),
+  ];
+  if (body.length) out.body = body.join(' · ');
+  if (has('exterior', 'glass')) out.glass = 'Chipped or cracked glass';
+  if (has('rust', 'yes')) out.rust = 'Some rust';
+  const interior = (s.answers.interior ?? []).filter((v) => v !== 'none').map((v) => title('interior', v));
+  if (interior.length) out.interior = interior.join(' · ');
+  if (has('mechanical', 'yes')) out.lights = 'A mechanical issue or warning light';
+  const drive = [...(has('driveable', 'no') ? ['Not driveable'] : []), ...(has('mechanical', 'yes') ? ['has a mechanical issue'] : [])];
+  if (drive.length) out.drive = drive.join(', ');
+  const tires = [...(has('tireType', 'winter') ? ['Winter tires on'] : []), ...(has('tires', 'old') ? ['all-seasons replaced over a year ago'] : [])];
+  if (tires.length) out.tires = tires.join(', ').replace(/^./, (c) => c.toUpperCase());
   return out;
 }
 

@@ -49,11 +49,11 @@ function ResetDemoButton() {
 
 /** The same reset at the foot of the persona menu, so a presenter can start over from any screen. Two taps:
  *  the first asks, the second resets for everyone. */
-export function ResetDemoMenuItem() {
-  return useHasBackend() ? <ResetDemoMenuButton /> : null;
+export function ResetDemoMenuItem({ onSkip }: { onSkip?: () => void }) {
+  return useHasBackend() ? <ResetDemoMenuButton onSkip={onSkip} /> : null;
 }
 
-function ResetDemoMenuButton() {
+function ResetDemoMenuButton({ onSkip }: { onSkip?: () => void }) {
   const reset = useMutation(api.demo.reset);
   const [state, setState] = useState<'idle' | 'confirm' | 'done'>('idle');
   return (
@@ -83,20 +83,23 @@ function ResetDemoMenuButton() {
           {state === 'done' ? '✓ Back to the starting story' : 'Reset demo'}
         </button>
       )}
-      <SkipWeekMenuButton />
+      <SkipWeekMenuButton onDone={onSkip} />
     </>
   );
 }
 
 /** Jumps the demo to Yorkdale's next pickup day, a week on, so the car Maria just sold shows up on Sam's run.
  *  The week plays out on the way (picked-up cars get paid, old offers expire); Reset demo brings it all back. */
-function SkipWeekMenuButton() {
+function SkipWeekMenuButton({ onDone }: { onDone?: () => void }) {
   const data = useQuery(api.world.get);
   const skip = useMutation(api.demo.skipToPickup);
   if (!data?.meta) return null;
   const next = shortDate(nextWeekday(data.meta.today, 'Thu', true));
   return (
-    <button type="button" role="menuitem" onClick={() => void skip()} className="flex w-full items-center gap-3 rounded-card px-2 py-1.5 text-left text-sm font-medium text-muted hover:bg-canvas hover:text-ink">
+    <button type="button" role="menuitem" onClick={() => {
+      void skip();
+      onDone?.(); // close the menu so the week that just played out is in view
+    }} className="flex w-full items-center gap-3 rounded-card px-2 py-1.5 text-left text-sm font-medium text-muted hover:bg-canvas hover:text-ink">
       <span className="grid size-8 shrink-0 place-items-center" aria-hidden>
         <svg viewBox="0 0 16 16" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M3 4l4 4-4 4M8.5 4l4 4-4 4" />
