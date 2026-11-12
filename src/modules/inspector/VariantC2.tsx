@@ -506,7 +506,7 @@ function CarScreen({
         <BigButton onClick={() => run.confirm(car.id)}>Confirm at {money(car.offer)}</BigButton>
       ) : (
         <BigButton disabled={missingPhoto} onClick={() => run.sendReprice(car.id)}>
-          {missingPhoto ? "Add a photo to every difference" : `Send re-price to ${env.directorOf(car)}`}
+          {missingPhoto ? "Add a photo to every difference" : "Send re-price"}
         </BigButton>
       )}
     </div>
