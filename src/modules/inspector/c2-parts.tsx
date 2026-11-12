@@ -3,7 +3,7 @@ import { OptionCard } from '../../components/ui/OptionCard';
 import { money } from '../../domain/format';
 import { useC2Demo } from './c2-demo';
 import { DifferenceEditor } from './DifferenceEditor';
-import { photoFor } from '../../domain/photos';
+import { IDENTITY_PHOTOS, photoFor } from '../../domain/photos';
 import { useInspectorEnv } from './env';
 import { declaredFor, type CheckItem, type InspectionCar } from './fixtures';
 import { BigButton, DifferenceList, Icon, PriceChange, Sheet } from './parts';
@@ -119,8 +119,12 @@ export function IdentityPhotos({ odometer, vin, onTake }: { odometer: boolean; v
       }`}
     >
       {taken ? (
-        <span className="grid size-6 shrink-0 place-items-center rounded-full bg-success text-white">
-          <Icon name="check" className="size-4" />
+        // The photo itself, as a camera roll would show it, with the tick on its corner.
+        <span className="relative shrink-0">
+          <img src={IDENTITY_PHOTOS[which]} alt={`${label} photo`} className="h-11 w-14 rounded-card border border-line object-cover" />
+          <span className="absolute -top-1.5 -right-1.5 grid size-5 place-items-center rounded-full bg-success text-white ring-2 ring-white">
+            <Icon name="check" className="size-3" />
+          </span>
         </span>
       ) : (
         <Icon name="camera" className="size-6 shrink-0" />
