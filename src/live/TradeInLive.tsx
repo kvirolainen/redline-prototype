@@ -49,7 +49,7 @@ export function TradeInLive({ children }: { children: ReactNode }) {
       try {
         await submitTradeIn({
           dealer: DEMO_DEALER,
-          who: 'Maria',
+          who: 'Sales Manager',
           vin: s.car.vin,
           car: carName(s.car),
           trim: `${s.car.body} · ${s.car.transmission}`,

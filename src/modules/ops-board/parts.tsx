@@ -8,6 +8,7 @@ import { STATUS, type StatusTone } from '../../domain/statuses';
 import { DAYS, INSPECTORS, type OpsCar, type Route } from './fixtures';
 import { useOpsEnv } from './env';
 import { day, dealer, futureDays, inspectorName, type OpsBoard, type OpsException } from './useOpsBoard';
+import { the } from '../../domain/roles';
 
 // Parts shared by the three ops board variants.
 
@@ -202,11 +203,11 @@ export function ExceptionCard({ board, e, compact }: { board: OpsBoard; e: OpsEx
         {(e.kind === 'reprice' || e.kind === 'expiring') &&
           (e.nudged ? (
             <span className="inline-flex h-8 items-center gap-1.5 text-caption font-medium text-body">
-              <Check /> Reminder sent, waiting on {e.kind === 'reprice' ? dl.director : dl.contact.split(',')[0]}
+              <Check /> Reminder sent, waiting on {the(e.kind === 'reprice' ? dl.director : dl.contact)}
             </span>
           ) : (
             <Button variant="dark-small" onClick={() => board.nudge(e)}>
-              Remind {e.kind === 'reprice' ? dl.director : dl.contact.split(',')[0]}
+              Remind {the(e.kind === 'reprice' ? dl.director : dl.contact)}
             </Button>
           ))}
         {e.kind === 'unassigned' && route && <InspectorMenu board={board} route={route} />}

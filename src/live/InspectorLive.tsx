@@ -9,7 +9,8 @@ import type { Outcome } from '../modules/inspector/useRun';
 import { useLiveWorld, type LiveCar } from './world';
 
 const INSPECTOR = 'sam';
-const WHO = 'Sam';
+// Who the timeline shows for the inspector's actions: a role, never a name.
+const WHO = 'Inspector';
 /** Statuses a car can have once it's on a pickup run. */
 const ON_RUN: CarStatus[] = ['awaiting_pickup', 'not_ready', 'reprice_pending', 'confirmed', 'picked_up', 'paid', 'declined'];
 

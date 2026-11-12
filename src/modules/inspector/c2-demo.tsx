@@ -13,8 +13,8 @@ import type { Difference, Outcome, SentItem } from './useRun';
 const START_MIN = 10 * 60 + 40;
 
 const STOPS: Stop[] = [
-  { id: 'yorkdale', dealer: 'Yorkdale Honda', address: '3401 Dufferin St, Toronto', contact: 'Maria, Sales Manager', window: '10:15 – 11:45', director: 'Dave' },
-  { id: 'vaughan', dealer: 'Vaughan Ford', address: '8111 Jane St, Vaughan', contact: 'Kevin, Used Car Manager', window: '12:15 – 1:00', director: 'Lisa' },
+  { id: 'yorkdale', dealer: 'Yorkdale Honda', address: '3401 Dufferin St, Toronto', contact: 'Sales Manager', window: '10:15 – 11:45', director: 'Sales Director' },
+  { id: 'vaughan', dealer: 'Vaughan Ford', address: '8111 Jane St, Vaughan', contact: 'Used Car Manager', window: '12:15 – 1:00', director: 'Sales Director' },
 ];
 
 const civicScript = SCRIPTED.find((c) => c.id === 'civic')?.script;
@@ -149,7 +149,7 @@ export function C2DemoWorld({ children }: { children: ReactNode }) {
   };
 
   const env: InspectorEnv = {
-    run: { day: 'Thursday', date: 'Today, Thu Nov 12', nextRun: NEXT_RUN, truck: 'Truck 3', inspector: 'Sam' },
+    run: { day: 'Thursday', date: 'Today, Thu Nov 12', nextRun: NEXT_RUN, truck: 'Truck 3', inspector: 'Inspector' },
     stops: STOPS,
     cars: CARS.map((c) => ({ ...c, offer: cars[c.id].offer, nextRun: NEXT_RUN })),
     live,

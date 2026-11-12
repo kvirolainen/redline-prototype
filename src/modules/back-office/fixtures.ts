@@ -94,7 +94,7 @@ export const BACK_OFFICE_CARS: BackOfficeCar[] = [
     reprice: {
       from: 17850,
       to: 16950,
-      by: 'Sam, Clutch inspector',
+      by: 'Clutch inspector',
       at: 'Today, 10:42',
       waiting: 'Waiting 2 h',
       auctionAsFound: 15600,
@@ -105,11 +105,11 @@ export const BACK_OFFICE_CARS: BackOfficeCar[] = [
       photos: ['Windshield, driver side', 'Rear wheel arch, left side'],
     },
     events: [
-      { at: 'Mon Nov 9, 11:05', who: 'Maria', text: 'Offer made: $17,850, beats auction by $1,450', kind: 'offer' },
-      { at: 'Mon Nov 9, 11:07', who: 'Maria', text: 'Accepted. Joined Thursday’s pickup, Thu Nov 12', kind: 'accept' },
-      { at: 'Today, 10:15', who: 'Sam', text: 'Arrived for pickup. Inspection started', kind: 'pickup' },
-      { at: 'Today, 10:42', who: 'Sam', text: 'Two differences from what was declared. Re-priced to $16,950', kind: 'reprice' },
-      { at: 'Today, 10:42', who: 'Redline', text: 'Sent to Dave for a decision. Car stays on the lot until then', kind: 'alert' },
+      { at: 'Mon Nov 9, 11:05', who: 'Sales Manager', text: 'Offer made: $17,850, beats auction by $1,450', kind: 'offer' },
+      { at: 'Mon Nov 9, 11:07', who: 'Sales Manager', text: 'Accepted. Joined Thursday’s pickup, Thu Nov 12', kind: 'accept' },
+      { at: 'Today, 10:15', who: 'Inspector', text: 'Arrived for pickup. Inspection started', kind: 'pickup' },
+      { at: 'Today, 10:42', who: 'Inspector', text: 'Two differences from what was declared. Re-priced to $16,950', kind: 'reprice' },
+      { at: 'Today, 10:42', who: 'Redline', text: 'Sent to the sales director for a decision. Car stays on the lot until then', kind: 'alert' },
     ],
   },
   {
@@ -125,7 +125,7 @@ export const BACK_OFFICE_CARS: BackOfficeCar[] = [
     inspected: false,
     repriced: false,
     events: [
-      { at: 'Fri Nov 6, 15:20', who: 'Maria', text: 'Offer made: $10,400, beats auction by $1,100', kind: 'offer' },
+      { at: 'Fri Nov 6, 15:20', who: 'Sales Manager', text: 'Offer made: $10,400, beats auction by $1,100', kind: 'offer' },
       { at: 'Fri Nov 6, 15:20', who: 'Redline', text: 'Offer holds 7 days, until Fri Nov 13', kind: 'alert' },
     ],
   },
@@ -140,10 +140,10 @@ export const BACK_OFFICE_CARS: BackOfficeCar[] = [
     inspected: true,
     repriced: false,
     events: [
-      { at: 'Tue Nov 10, 09:40', who: 'Maria', text: 'Offer made: $24,300, beats auction by $1,400', kind: 'offer' },
-      { at: 'Tue Nov 10, 09:44', who: 'Maria', text: 'Accepted. Joined Thursday’s pickup, Thu Nov 12', kind: 'accept' },
-      { at: 'Today, 09:58', who: 'Sam', text: 'Inspected. Matches what was declared', kind: 'inspect' },
-      { at: 'Today, 10:10', who: 'Sam', text: 'Picked up. Payment of $24,300 goes out by Mon Nov 16', kind: 'pickup' },
+      { at: 'Tue Nov 10, 09:40', who: 'Sales Manager', text: 'Offer made: $24,300, beats auction by $1,400', kind: 'offer' },
+      { at: 'Tue Nov 10, 09:44', who: 'Sales Manager', text: 'Accepted. Joined Thursday’s pickup, Thu Nov 12', kind: 'accept' },
+      { at: 'Today, 09:58', who: 'Inspector', text: 'Inspected. Matches what was declared', kind: 'inspect' },
+      { at: 'Today, 10:10', who: 'Inspector', text: 'Picked up. Payment of $24,300 goes out by Mon Nov 16', kind: 'pickup' },
     ],
   },
   {
@@ -157,10 +157,10 @@ export const BACK_OFFICE_CARS: BackOfficeCar[] = [
     inspected: true,
     repriced: false,
     events: [
-      { at: 'Sat Nov 7, 14:12', who: 'Maria', text: 'Offer made: $22,450, beats auction by $1,350', kind: 'offer' },
-      { at: 'Sat Nov 7, 14:15', who: 'Maria', text: 'Accepted. Joined Thursday’s pickup, Thu Nov 12', kind: 'accept' },
-      { at: 'Today, 09:30', who: 'Sam', text: 'Inspected. Matches what was declared', kind: 'inspect' },
-      { at: 'Today, 09:45', who: 'Sam', text: 'Picked up. Payment of $22,450 goes out by Mon Nov 16', kind: 'pickup' },
+      { at: 'Sat Nov 7, 14:12', who: 'Sales Manager', text: 'Offer made: $22,450, beats auction by $1,350', kind: 'offer' },
+      { at: 'Sat Nov 7, 14:15', who: 'Sales Manager', text: 'Accepted. Joined Thursday’s pickup, Thu Nov 12', kind: 'accept' },
+      { at: 'Today, 09:30', who: 'Inspector', text: 'Inspected. Matches what was declared', kind: 'inspect' },
+      { at: 'Today, 09:45', who: 'Inspector', text: 'Picked up. Payment of $22,450 goes out by Mon Nov 16', kind: 'pickup' },
     ],
   },
   {
@@ -177,9 +177,9 @@ export const BACK_OFFICE_CARS: BackOfficeCar[] = [
     ready: false,
     readyChecks: ['lot', 'papers'],
     events: [
-      { at: 'Tue Nov 10, 16:02', who: 'Maria', text: 'Offer made: $13,900, beats auction by $1,200', kind: 'offer' },
-      { at: 'Tue Nov 10, 16:05', who: 'Maria', text: 'Accepted. Joined Thursday’s pickup, Thu Nov 12', kind: 'accept' },
-      { at: 'Today, 10:50', who: 'Sam', text: 'Not ready: second key missing. Moved to the next pickup, Thu Nov 19', kind: 'alert' },
+      { at: 'Tue Nov 10, 16:02', who: 'Sales Manager', text: 'Offer made: $13,900, beats auction by $1,200', kind: 'offer' },
+      { at: 'Tue Nov 10, 16:05', who: 'Sales Manager', text: 'Accepted. Joined Thursday’s pickup, Thu Nov 12', kind: 'accept' },
+      { at: 'Today, 10:50', who: 'Inspector', text: 'Not ready: second key missing. Moved to the next pickup, Thu Nov 19', kind: 'alert' },
     ],
   },
   {
@@ -194,8 +194,8 @@ export const BACK_OFFICE_CARS: BackOfficeCar[] = [
     inspected: false,
     repriced: false,
     events: [
-      { at: 'Today, 11:20', who: 'Maria', text: 'Offer made: $18,200, beats auction by $1,250', kind: 'offer' },
-      { at: 'Today, 11:24', who: 'Maria', text: 'Accepted. Joined the next pickup, Thu Nov 19', kind: 'accept' },
+      { at: 'Today, 11:20', who: 'Sales Manager', text: 'Offer made: $18,200, beats auction by $1,250', kind: 'offer' },
+      { at: 'Today, 11:24', who: 'Sales Manager', text: 'Accepted. Joined the next pickup, Thu Nov 19', kind: 'accept' },
     ],
   },
   {
@@ -211,8 +211,8 @@ export const BACK_OFFICE_CARS: BackOfficeCar[] = [
     inspected: false,
     repriced: false,
     events: [
-      { at: 'Today, 12:05', who: 'Dave', text: 'Offer made: $14,100, beats auction by $1,050', kind: 'offer' },
-      { at: 'Today, 12:06', who: 'Dave', text: 'Accepted. Joined the next pickup, Thu Nov 19', kind: 'accept' },
+      { at: 'Today, 12:05', who: 'Sales Director', text: 'Offer made: $14,100, beats auction by $1,050', kind: 'offer' },
+      { at: 'Today, 12:06', who: 'Sales Director', text: 'Accepted. Joined the next pickup, Thu Nov 19', kind: 'accept' },
     ],
   },
   {
@@ -228,7 +228,7 @@ export const BACK_OFFICE_CARS: BackOfficeCar[] = [
     inspected: false,
     repriced: false,
     events: [
-      { at: 'Today, 10:30', who: 'Maria', text: 'Sent to Clutch: over 200,000 km, priced by an appraiser', kind: 'alert' },
+      { at: 'Today, 10:30', who: 'Sales Manager', text: 'Sent to Clutch: over 200,000 km, priced by an appraiser', kind: 'alert' },
       { at: 'Today, 13:40', who: 'Clutch', text: 'Offer ready: $5,600, beats auction by $700. Holds 7 days', kind: 'offer' },
     ],
   },
@@ -243,7 +243,7 @@ export const BACK_OFFICE_CARS: BackOfficeCar[] = [
     expires: 'Tue Nov 17',
     inspected: false,
     repriced: false,
-    events: [{ at: 'Tue Nov 10, 13:30', who: 'Maria', text: 'Offer made: $15,700, beats auction by $1,050', kind: 'offer' }],
+    events: [{ at: 'Tue Nov 10, 13:30', who: 'Sales Manager', text: 'Offer made: $15,700, beats auction by $1,050', kind: 'offer' }],
   },
   {
     vin: '1FMCU9GD4JUA44312',
@@ -257,9 +257,9 @@ export const BACK_OFFICE_CARS: BackOfficeCar[] = [
     repriced: false,
     daysToCash: 2,
     events: [
-      { at: 'Mon Nov 2, 10:10', who: 'Maria', text: 'Offer made: $12,600, beats auction by $1,100', kind: 'offer' },
-      { at: 'Mon Nov 2, 10:12', who: 'Maria', text: 'Accepted. Joined Thursday’s pickup, Thu Nov 5', kind: 'accept' },
-      { at: 'Thu Nov 5, 10:30', who: 'Sam', text: 'Inspected. Matches what was declared. Picked up', kind: 'inspect' },
+      { at: 'Mon Nov 2, 10:10', who: 'Sales Manager', text: 'Offer made: $12,600, beats auction by $1,100', kind: 'offer' },
+      { at: 'Mon Nov 2, 10:12', who: 'Sales Manager', text: 'Accepted. Joined Thursday’s pickup, Thu Nov 5', kind: 'accept' },
+      { at: 'Thu Nov 5, 10:30', who: 'Inspector', text: 'Inspected. Matches what was declared. Picked up', kind: 'inspect' },
       { at: 'Mon Nov 9, 09:00', who: 'Clutch', text: 'Paid $12,600 to Yorkdale Honda', kind: 'money' },
     ],
   },
@@ -275,9 +275,9 @@ export const BACK_OFFICE_CARS: BackOfficeCar[] = [
     repriced: false,
     daysToCash: 1,
     events: [
-      { at: 'Mon Oct 26, 15:40', who: 'Maria', text: 'Offer made: $7,900, beats auction by $900', kind: 'offer' },
-      { at: 'Mon Oct 26, 15:41', who: 'Maria', text: 'Accepted. Joined Thursday’s pickup, Thu Oct 29', kind: 'accept' },
-      { at: 'Thu Oct 29, 11:15', who: 'Sam', text: 'Inspected. Matches what was declared. Picked up', kind: 'inspect' },
+      { at: 'Mon Oct 26, 15:40', who: 'Sales Manager', text: 'Offer made: $7,900, beats auction by $900', kind: 'offer' },
+      { at: 'Mon Oct 26, 15:41', who: 'Sales Manager', text: 'Accepted. Joined Thursday’s pickup, Thu Oct 29', kind: 'accept' },
+      { at: 'Thu Oct 29, 11:15', who: 'Inspector', text: 'Inspected. Matches what was declared. Picked up', kind: 'inspect' },
       { at: 'Fri Oct 30, 09:00', who: 'Clutch', text: 'Paid $7,900 to Yorkdale Honda', kind: 'money' },
     ],
   },
@@ -293,9 +293,9 @@ export const BACK_OFFICE_CARS: BackOfficeCar[] = [
     repriced: false,
     daysToCash: 1,
     events: [
-      { at: 'Fri Oct 16, 12:00', who: 'Maria', text: 'Offer made: $17,300, beats auction by $1,250', kind: 'offer' },
-      { at: 'Fri Oct 16, 12:02', who: 'Maria', text: 'Accepted. Joined Thursday’s pickup, Thu Oct 22', kind: 'accept' },
-      { at: 'Thu Oct 22, 10:05', who: 'Sam', text: 'Inspected. Matches what was declared. Picked up', kind: 'inspect' },
+      { at: 'Fri Oct 16, 12:00', who: 'Sales Manager', text: 'Offer made: $17,300, beats auction by $1,250', kind: 'offer' },
+      { at: 'Fri Oct 16, 12:02', who: 'Sales Manager', text: 'Accepted. Joined Thursday’s pickup, Thu Oct 22', kind: 'accept' },
+      { at: 'Thu Oct 22, 10:05', who: 'Inspector', text: 'Inspected. Matches what was declared. Picked up', kind: 'inspect' },
       { at: 'Fri Oct 23, 09:00', who: 'Clutch', text: 'Paid $17,300 to Yorkdale Honda', kind: 'money' },
     ],
   },
@@ -311,10 +311,10 @@ export const BACK_OFFICE_CARS: BackOfficeCar[] = [
     repriced: true,
     note: 'Re-price declined. Went to auction',
     events: [
-      { at: 'Mon Oct 19, 14:25', who: 'Maria', text: 'Offer made: $11,800, beats auction by $900', kind: 'offer' },
-      { at: 'Mon Oct 19, 14:30', who: 'Maria', text: 'Accepted. Joined Thursday’s pickup, Thu Oct 22', kind: 'accept' },
-      { at: 'Thu Oct 22, 10:40', who: 'Sam', text: 'Transmission slipping, not declared. Re-priced to $10,300', kind: 'reprice' },
-      { at: 'Thu Oct 22, 13:10', who: 'Dave', text: 'Declined the re-price. Car stays with Yorkdale Honda', kind: 'decision' },
+      { at: 'Mon Oct 19, 14:25', who: 'Sales Manager', text: 'Offer made: $11,800, beats auction by $900', kind: 'offer' },
+      { at: 'Mon Oct 19, 14:30', who: 'Sales Manager', text: 'Accepted. Joined Thursday’s pickup, Thu Oct 22', kind: 'accept' },
+      { at: 'Thu Oct 22, 10:40', who: 'Inspector', text: 'Transmission slipping, not declared. Re-priced to $10,300', kind: 'reprice' },
+      { at: 'Thu Oct 22, 13:10', who: 'Sales Director', text: 'Declined the re-price. Car stays with Yorkdale Honda', kind: 'decision' },
     ],
   },
 ];

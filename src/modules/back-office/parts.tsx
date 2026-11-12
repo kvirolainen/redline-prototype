@@ -163,7 +163,7 @@ export function RepriceDecision({
       {confirmDecline ? (
         <div className="mt-4 rounded-card border border-line bg-canvas p-4">
           <p className="text-sm font-medium text-ink">Decline {money(r.to)}?</p>
-          <p className="mt-1 text-sm text-body">The car stays with {DEALER}. Sam leaves it on the lot and you can take it to auction.</p>
+          <p className="mt-1 text-sm text-body">The car stays with {DEALER}. The inspector leaves it on the lot and you can take it to auction.</p>
           <div className="mt-3 flex flex-wrap gap-2">
             <Button onClick={onDecline}>Decline, keep the car</Button>
             <Button variant="ghost" onClick={() => setConfirmDecline(false)}>
@@ -221,7 +221,7 @@ export function DecidedNote({ car }: { car: BackOfficeCar }) {
   const { dealer: DEALER } = useBackOfficeEnv();
   const text =
     car.status === 'confirmed' || car.status === 'picked_up'
-      ? `Accepted at ${money(car.offer)}. Sam loads it today; payment within 2 business days.`
+      ? `Accepted at ${money(car.offer)}. Loaded on today’s truck; payment within 2 business days.`
       : car.status === 'paid'
         ? `Paid ${money(car.offer)} to ${DEALER}.`
         : car.status === 'declined'

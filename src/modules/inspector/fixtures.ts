@@ -6,7 +6,7 @@ export const RUN = {
   date: 'Today, Thu Nov 12',
   nextRun: 'Thu Nov 19',
   truck: 'Truck 3',
-  inspector: 'Sam',
+  inspector: 'Inspector',
 };
 
 export interface Stop {
@@ -20,9 +20,9 @@ export interface Stop {
 }
 
 export const STOPS: Stop[] = [
-  { id: 'yorkdale', dealer: 'Yorkdale Honda', address: '3401 Dufferin St, Toronto', contact: 'Maria, Sales Manager', window: '10:15 – 11:45', director: 'Dave' },
-  { id: 'downtown', dealer: 'Downtown Toyota', address: '677 Queen St E, Toronto', contact: 'Priya, Used Car Manager', window: '12:30 – 1:30' },
-  { id: 'mississauga', dealer: 'Mississauga Mazda', address: '2400 Dundas St W, Mississauga', contact: 'Tom, Sales Manager', window: '2:15 – 3:00' },
+  { id: 'yorkdale', dealer: 'Yorkdale Honda', address: '3401 Dufferin St, Toronto', contact: 'Sales Manager', window: '10:15 – 11:45', director: 'Sales Director' },
+  { id: 'downtown', dealer: 'Downtown Toyota', address: '677 Queen St E, Toronto', contact: 'Used Car Manager', window: '12:30 – 1:30' },
+  { id: 'mississauga', dealer: 'Mississauga Mazda', address: '2400 Dundas St W, Mississauga', contact: 'Sales Manager', window: '2:15 – 3:00' },
 ];
 
 export type AreaId = 'identity' | 'exterior' | 'interior' | 'mechanical' | 'tires';

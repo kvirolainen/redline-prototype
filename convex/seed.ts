@@ -12,12 +12,12 @@ type CarSeed = Omit<Doc<'cars'>, '_id' | '_creationTime'>;
 type EventSeed = Omit<Doc<'events'>, '_id' | '_creationTime'>;
 
 export const DEALERS: DealerSeed[] = [
-  { key: 'yorkdale', name: 'Yorkdale Honda', area: 'North York', address: '3401 Dufferin St, Toronto', runDay: 'Thu', window: '10:15 – 11:45', contact: 'Maria, Sales Manager', director: 'Dave', repriceRate: 11, acceptRate: 74, daysToCash: 2.4, inspected: 38 },
-  { key: 'vaughan', name: 'Vaughan Ford', area: 'Vaughan', address: '8111 Jane St, Vaughan', runDay: 'Thu', window: '12:15 – 1:00', contact: 'Kevin, Used Car Manager', director: 'Lisa', repriceRate: 9, acceptRate: 68, daysToCash: 3.1, inspected: 22 },
-  { key: 'mississauga', name: 'Mississauga Mazda', area: 'Mississauga', address: '2400 Dundas St W, Mississauga', runDay: 'Thu', window: '9:30 – 10:30', contact: 'Arjun, Sales Manager', director: 'Tom', repriceRate: 8, acceptRate: 81, daysToCash: 1.9, inspected: 31 },
-  { key: 'scarborough', name: 'Scarborough Hyundai', area: 'Scarborough', address: '1588 Kingston Rd, Toronto', runDay: 'Thu', window: '1:30 – 2:30', contact: 'Grace, Sales Manager', director: 'Wei', repriceRate: 31, acceptRate: 57, daysToCash: 4.6, inspected: 16 },
-  { key: 'downtown', name: 'Downtown Toyota', area: 'Downtown Toronto', address: '677 Queen St E, Toronto', runDay: 'Tue', window: '9:00 – 10:00', contact: 'Daniel, Pre-owned Manager', director: 'Nadia', repriceRate: 12, acceptRate: 63, daysToCash: 5.8, inspected: 27 },
-  { key: 'oakville', name: 'Oakville Kia', area: 'Oakville', address: '2501 Speers Rd, Oakville', runDay: 'Tue', window: '10:45 – 11:30', contact: 'Sofia, Sales Manager', director: 'Mark', repriceRate: 10, acceptRate: 70, daysToCash: 2.8, inspected: 19 },
+  { key: 'yorkdale', name: 'Yorkdale Honda', area: 'North York', address: '3401 Dufferin St, Toronto', runDay: 'Thu', window: '10:15 – 11:45', contact: 'Sales Manager', director: 'Sales Director', repriceRate: 11, acceptRate: 74, daysToCash: 2.4, inspected: 38 },
+  { key: 'vaughan', name: 'Vaughan Ford', area: 'Vaughan', address: '8111 Jane St, Vaughan', runDay: 'Thu', window: '12:15 – 1:00', contact: 'Used Car Manager', director: 'Sales Director', repriceRate: 9, acceptRate: 68, daysToCash: 3.1, inspected: 22 },
+  { key: 'mississauga', name: 'Mississauga Mazda', area: 'Mississauga', address: '2400 Dundas St W, Mississauga', runDay: 'Thu', window: '9:30 – 10:30', contact: 'Sales Manager', director: 'Sales Director', repriceRate: 8, acceptRate: 81, daysToCash: 1.9, inspected: 31 },
+  { key: 'scarborough', name: 'Scarborough Hyundai', area: 'Scarborough', address: '1588 Kingston Rd, Toronto', runDay: 'Thu', window: '1:30 – 2:30', contact: 'Sales Manager', director: 'Sales Director', repriceRate: 31, acceptRate: 57, daysToCash: 4.6, inspected: 16 },
+  { key: 'downtown', name: 'Downtown Toyota', area: 'Downtown Toronto', address: '677 Queen St E, Toronto', runDay: 'Tue', window: '9:00 – 10:00', contact: 'Pre-owned Manager', director: 'Sales Director', repriceRate: 12, acceptRate: 63, daysToCash: 5.8, inspected: 27 },
+  { key: 'oakville', name: 'Oakville Kia', area: 'Oakville', address: '2501 Speers Rd, Oakville', runDay: 'Tue', window: '10:45 – 11:30', contact: 'Sales Manager', director: 'Sales Director', repriceRate: 10, acceptRate: 70, daysToCash: 2.8, inspected: 19 },
 ];
 
 const TODAY = SEED_TODAY;
@@ -90,7 +90,8 @@ const at = (day: string, t: string) => `${day}T${t.padStart(5, '0')}`;
 export function seedEvents(dealerName: (key: string) => string): EventSeed[] {
   const out: EventSeed[] = [];
   const add = (c: CarSeed, e: Omit<EventSeed, 'car' | 'dealer'>) => out.push({ car: c.key, dealer: c.dealer, ...e });
-  const who = (c: CarSeed) => (c.dealer === 'yorkdale' ? (c.key === 'equinox' ? 'Dave' : 'Maria') : c.dealer === 'vaughan' ? 'Kevin' : 'Sales');
+  // Timeline authors are roles, never names.
+  const who = (c: CarSeed) => (c.key === 'equinox' ? 'Sales Director' : c.dealer === 'vaughan' ? 'Used Car Manager' : 'Sales Manager');
 
   for (const c of CARS) {
     // Offers on accepted cars were made 2-5 days before their pickup; open offers 7 days before they expire.
@@ -107,7 +108,7 @@ export function seedEvents(dealerName: (key: string) => string): EventSeed[] {
     if (!c.runDate || c.runDate > TODAY) continue;
     const day = c.runDate;
     if (c.status === 'picked_up' || c.status === 'confirmed' || c.status === 'paid') {
-      const inspector = ['downtown', 'oakville', 'mississauga'].includes(c.dealer) ? 'Priya' : 'Sam';
+      const inspector = 'Inspector';
       const time = c.key === 'rav4' ? '10:18' : c.key === 'crv' ? '10:31' : '10:05';
       add(c, { at: at(day, time), who: inspector, text: 'Inspected. Matches what was declared', kind: 'inspect' });
       if (c.status !== 'confirmed') add(c, { at: at(day, clock(toMin(time) + 8)), who: inspector, text: 'Picked up', kind: 'pickup' });
@@ -115,8 +116,8 @@ export function seedEvents(dealerName: (key: string) => string): EventSeed[] {
     }
     if (c.status === 'declined') {
       const to = Math.round((c.offer * 0.87) / 50) * 50;
-      add(c, { at: at(day, '10:40'), who: c.dealer === 'yorkdale' ? 'Sam' : 'Priya', text: `Found a difference from what was declared. Re-priced to ${money(to)}`, kind: 'reprice' });
-      add(c, { at: at(day, '13:10'), who: c.dealer === 'yorkdale' ? 'Dave' : 'Director', text: `Declined the re-price. Car stays with ${dealerName(c.dealer)}`, kind: 'decision' });
+      add(c, { at: at(day, '10:40'), who: 'Inspector', text: `Found a difference from what was declared. Re-priced to ${money(to)}`, kind: 'reprice' });
+      add(c, { at: at(day, '13:10'), who: 'Sales Director', text: `Declined the re-price. Car stays with ${dealerName(c.dealer)}`, kind: 'decision' });
     }
   }
   return out;

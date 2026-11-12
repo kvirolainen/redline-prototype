@@ -9,6 +9,7 @@ import { declaredFor, type CheckItem, type InspectionCar } from './fixtures';
 import { BigButton, DifferenceList, Icon, PriceChange, Sheet } from './parts';
 import type { Answer, Difference, Outcome } from './useRun';
 import { isAccepted, leaveLabel, leaveMin, minutesLabel, shortCar, shortDealer } from './c2-model';
+import { the, The } from '../../domain/roles';
 
 /** The slim line about a car that's out of Sam's hands: waiting on Dave, or Dave just answered. */
 export function WaitStrip({
@@ -37,7 +38,7 @@ export function WaitStrip({
     icon = 'truck';
     text = (
       <>
-        {director} accepted {money(outcome.accepted.to)} · <span className="font-bold">load the {name}</span>
+        {The(director)} accepted {money(outcome.accepted.to)} · <span className="font-bold">load the {name}</span>
       </>
     );
   } else if (outcome.kind === 'reprice' && outcome.declined) {
@@ -45,7 +46,7 @@ export function WaitStrip({
     icon = 'alert';
     text = (
       <>
-        {director} declined · <span className="font-bold">leave the {name} at {shortDealer(stop)}</span>
+        {The(director)} declined · <span className="font-bold">leave the {name} at {shortDealer(stop)}</span>
       </>
     );
   } else if (pastLeave) {
@@ -53,13 +54,13 @@ export function WaitStrip({
     icon = 'alert';
     text = (
       <>
-        {name} · no answer from {director} · <span className="font-bold">leave without it</span>
+        {name} · no answer from {the(director)} · <span className="font-bold">leave without it</span>
       </>
     );
   } else {
     text = (
       <>
-        <span className="font-bold">{name}</span> · waiting on {director}
+        <span className="font-bold">{name}</span> · waiting on {the(director)}
         {waited !== undefined && <> · {minutesLabel(waited)}</>} · truck leaves {leaveLabel(stop)}
       </>
     );
@@ -80,7 +81,7 @@ export function WaitStrip({
   );
 }
 
-/** Quiet links that stand in for Dave and the clock in Storybook. Hidden in the app. */
+/** Quiet links that stand in for the sales director and the clock in Storybook. Hidden in the app. */
 export function DemoDave({ carId, leaveAt }: { carId: string; leaveAt: number }) {
   const demo = useC2Demo();
   if (!demo) return null;
@@ -90,10 +91,10 @@ export function DemoDave({ carId, leaveAt }: { carId: string; leaveAt: number })
       <p className="text-caption text-subtle">Demo only: play what happens next</p>
       <div className="mt-1 flex flex-wrap justify-center gap-x-4 gap-y-1">
         <button type="button" className={link} onClick={() => demo.answer(carId, true)}>
-          Dave accepts
+          Director accepts
         </button>
         <button type="button" className={link} onClick={() => demo.answer(carId, false)}>
-          Dave declines
+          Director declines
         </button>
         <button type="button" className={link} onClick={() => demo.pass(5)}>
           5 min pass
@@ -206,7 +207,7 @@ export function NotReadyC2({ car, onPick, onClose }: { car: InspectionCar; onPic
   return (
     <Sheet title={`${shortCar(car)} not ready?`} onClose={onClose}>
       <p className="-mt-2 mb-4 text-sm text-muted">
-        It moves to {env.stopOf(car).dealer}'s next pickup, {next}. {env.stopOf(car).contact.split(',')[0]} is told right away.
+        It moves to {env.stopOf(car).dealer}'s next pickup, {next}. {The(env.stopOf(car).contact)} is told right away.
       </p>
       <div className="space-y-2">
         {REASONS.map((r) => (
@@ -259,7 +260,7 @@ export function OutcomeC2({
 
   if (outcome.kind === 'confirmed' && outcome.accepted && !outcome.loaded) {
     mark = <Mark tone="done" icon="check" />;
-    title = `${director} accepted ${money(outcome.accepted.to)}`;
+    title = `${The(director)} accepted ${money(outcome.accepted.to)}`;
     lead = `Load the ${name} on ${truck}`;
     body = (
       <p>
@@ -304,12 +305,12 @@ export function OutcomeC2({
     );
     if (outcome.declined) {
       mark = <Mark tone="attention" icon="alert" />;
-      title = `${director} declined`;
+      title = `${The(director)} declined`;
       lead = `Leave the ${name} at ${shortDealer(stop)}`;
       body = <p>The car stays with {dealer}. Nothing to load.</p>;
     } else if (pastLeave) {
       mark = <Mark tone="attention" icon="alert" />;
-      title = `No answer from ${director}`;
+      title = `No answer from ${the(director)}`;
       lead = 'Leave without it';
       body = (
         <>
@@ -322,12 +323,12 @@ export function OutcomeC2({
       action = <BigButton onClick={onLeave}>Leave without it</BigButton>;
     } else {
       mark = <Mark tone="attention" icon="clock" />;
-      title = `Waiting on ${director}`;
+      title = `Waiting on ${the(director)}`;
       lead = waited !== undefined ? `Sent ${waited < 1 ? 'just now' : `${waited} min ago`}` : 'Re-price sent';
       body = (
         <>
           <p>
-            {director} accepts or declines on their screen. Leave the {name} parked and do the next car. The truck leaves at {leaveLabel(stop)}.
+            {The(director)} accepts or declines on their screen. Leave the {name} parked and do the next car. The truck leaves at {leaveLabel(stop)}.
           </p>
           {summary}
         </>

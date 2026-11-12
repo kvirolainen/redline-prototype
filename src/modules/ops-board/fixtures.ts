@@ -45,12 +45,12 @@ export interface Dealer {
 }
 
 export const DEALERS: Dealer[] = [
-  { id: 'yorkdale', name: 'Yorkdale Honda', area: 'North York', runDay: 'Thu', contact: 'Maria, Sales Manager', director: 'Dave' },
-  { id: 'vaughan', name: 'Vaughan Ford', area: 'Vaughan', runDay: 'Thu', contact: 'Kevin, Used Car Manager', director: 'Lisa' },
-  { id: 'mississauga', name: 'Mississauga Mazda', area: 'Mississauga', runDay: 'Thu', contact: 'Arjun, Sales Manager', director: 'Tom' },
-  { id: 'scarborough', name: 'Scarborough Hyundai', area: 'Scarborough', runDay: 'Thu', contact: 'Grace, Sales Manager', director: 'Wei' },
-  { id: 'downtown', name: 'Downtown Toyota', area: 'Downtown Toronto', runDay: 'Tue', contact: 'Daniel, Pre-owned Manager', director: 'Nadia' },
-  { id: 'oakville', name: 'Oakville Kia', area: 'Oakville', runDay: 'Tue', contact: 'Sofia, Sales Manager', director: 'Mark' },
+  { id: 'yorkdale', name: 'Yorkdale Honda', area: 'North York', runDay: 'Thu', contact: 'Sales Manager', director: 'Sales Director' },
+  { id: 'vaughan', name: 'Vaughan Ford', area: 'Vaughan', runDay: 'Thu', contact: 'Used Car Manager', director: 'Sales Director' },
+  { id: 'mississauga', name: 'Mississauga Mazda', area: 'Mississauga', runDay: 'Thu', contact: 'Sales Manager', director: 'Sales Director' },
+  { id: 'scarborough', name: 'Scarborough Hyundai', area: 'Scarborough', runDay: 'Thu', contact: 'Sales Manager', director: 'Sales Director' },
+  { id: 'downtown', name: 'Downtown Toyota', area: 'Downtown Toronto', runDay: 'Tue', contact: 'Pre-owned Manager', director: 'Sales Director' },
+  { id: 'oakville', name: 'Oakville Kia', area: 'Oakville', runDay: 'Tue', contact: 'Sales Manager', director: 'Sales Director' },
 ];
 
 /** Track record per dealer, last 90 days. */
@@ -80,8 +80,8 @@ export interface Inspector {
 }
 
 export const INSPECTORS: Inspector[] = [
-  { id: 'sam', name: 'Sam' },
-  { id: 'priya', name: 'Priya' },
+  { id: 'sam', name: 'Inspector 1' },
+  { id: 'priya', name: 'Inspector 2' },
   { id: 'marcus', name: 'Marcus' },
 ];
 

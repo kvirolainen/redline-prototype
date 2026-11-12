@@ -43,6 +43,6 @@ export function useInspectorEnv() {
     /** The dealer's next pickup day, where a not-ready car goes. */
     nextRunOf: (car: InspectionCar) => car.nextRun ?? env.run.nextRun,
     /** Who decides on a re-price at this car's dealer. */
-    directorOf: (car: InspectionCar) => env.stops.find((s) => s.id === car.stopId)?.director ?? 'Dave',
+    directorOf: (car: InspectionCar) => env.stops.find((s) => s.id === car.stopId)?.director ?? 'Sales Director',
   };
 }

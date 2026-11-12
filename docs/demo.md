@@ -18,7 +18,7 @@ Reset first, so you start from the same story as everyone else. It starts on Thu
 - **Trade-in:** the **2013 F-150** (over 200,000 km) goes to a Clutch appraiser; its offer lands in Back office about 45 seconds later.
 - **Back office:** read **Results** on Overview; on Pickups, finish the **Equinox**'s check (second key missing), accept the appraiser-priced **2012 Camry**, refresh the **Rogue**'s expiring offer.
 - **Clutch inspector:** mark the **CX-5** **Not ready**; confirm Vaughan Ford's **F-150** with **Same** on every item; in step 4, **Decline** instead and the car stays with the dealer.
-- **Clutch ops** (the thinking more than the flow, so it's last): **Needs you** holds only alerts, like Scarborough's re-price record or Downtown Toyota's slow payments. After step 3, **Today's pickups** shows the Civic waiting on Dave; after 20 minutes without an answer it moves to Needs you as **Call Dave** ([that state in Storybook](https://redline-storybook.vercel.app/?path=/story/screens-clutch-ops--dealers)). Then **Planning**.
+- **Clutch ops** (the thinking more than the flow, so it's last): **Needs you** holds only alerts, like Scarborough's re-price record or Downtown Toyota's slow payments. After step 3, **Today's pickups** shows the Civic waiting on the sales director; after 20 minutes without an answer it moves to Needs you as **On the lot now** ([that state in Storybook](https://redline-storybook.vercel.app/?path=/story/screens-clutch-ops--dealers)). Then **Planning**.
 - **The other directions each screen explored:** [Storybook](https://redline-storybook.vercel.app).
 
 **Reset demo** at the top of this page puts everything back.

@@ -8,6 +8,7 @@ import { STATUS } from '../../domain/statuses';
 import type { OpsCar } from './fixtures';
 import { useDealerBoard, type DealerBoard, type DealerFlag, type DealerRow, type Need, type Readiness } from './useDealerBoard';
 import { ModuleHeader } from './parts';
+import { the } from '../../domain/roles';
 
 // D · Dealers: the dealer relationship and the pickups, for Clutch's coordinator of the dealer channel.
 // Needs you holds only what a person has to settle, as alerts. Today's pickups and the dealer rows are read-only.
@@ -178,7 +179,7 @@ function TodayRow({ board, dealerId, dayId }: { board: DealerBoard; dealerId: st
           return (
             <div key={l.car.id} className="mt-1.5">
               <p className="text-sm text-ink">
-                <span className="font-medium">{l.car.car}</span> re-priced {money(l.car.offer)} → {money(l.car.newPrice!)}, waiting on {l.director} ·{' '}
+                <span className="font-medium">{l.car.car}</span> re-priced {money(l.car.offer)} → {money(l.car.newPrice!)}, waiting on {the(l.director)} ·{' '}
                 {board.waitedMin(l.waitingSince)} min · {l.inspector} leaves ~{l.leaves}
                 {left > 0 ? ` (${left} min)` : ''}
                 {l.escalated ? ' · in Needs you' : ''}
@@ -254,8 +255,7 @@ function DealerRowView({ board, row, open, onToggle }: { board: DealerBoard; row
       >
         <div className="min-w-0">
           <p className="text-base font-medium text-ink">{dl.name}</p>
-          <p className="text-sm text-muted">{dl.contact}</p>
-          <p className="text-sm text-muted">{dl.director}, Sales Director</p>
+          <p className="text-sm text-muted">{dl.area}</p>
         </div>
         <div className="col-start-2 row-start-1 flex items-start gap-3 lg:col-start-auto lg:row-start-auto lg:block">
           <div className="text-right lg:text-left">

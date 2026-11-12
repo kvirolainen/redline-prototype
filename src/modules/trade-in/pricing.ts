@@ -262,7 +262,7 @@ export function quote(car: DecodedCar, km: number, answers: Answers, scope: Ques
 /** Honesty nudge shown under an answer, after Clutch's own sell flow. */
 export function nudgeFor(car: DecodedCar, id: QuestionId, picked: string[]) {
   if (id === 'exterior' && picked.includes('none'))
-    return `Only about 1 in 10 cars from ${car.year} has no exterior damage. Sam checks this on pickup day, and a difference means a new price for your director to approve.`;
+    return `Only about 1 in 10 cars from ${car.year} has no exterior damage. It's checked on pickup day, and a difference means a new price for your director to approve.`;
   if (id === 'accidents' && picked.includes('none'))
     return 'Pickup-day inspection checks paint depth and panel gaps. Declaring a past repair now keeps the price you accept.';
   return null;

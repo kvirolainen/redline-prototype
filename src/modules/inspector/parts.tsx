@@ -6,6 +6,7 @@ import { useInspectorEnv } from './env';
 import { NOT_READY_REASONS, type InspectionCar } from './fixtures';
 import type { Difference, Outcome } from './useRun';
 import { photoFor } from '../../domain/photos';
+import { the, The } from '../../domain/roles';
 
 /** A difference as the summary shows it: from the phone's own answers, or from the re-price as it was sent. */
 type DifferenceRow = Pick<Difference, 'declared' | 'finding' | 'note' | 'adjustment' | 'photos'> & { item: { id: string } };
@@ -234,7 +235,7 @@ export function OutcomeView({
   if (outcome.kind === 'confirmed') {
     mark = <Mark tone="done" icon="check" />;
     if (!outcome.loaded && outcome.accepted) {
-      title = `${director} accepted ${money(outcome.accepted.to)}`;
+      title = `${The(director)} accepted ${money(outcome.accepted.to)}`;
       body = (
         <>
           <p className="text-h4 font-bold text-ink">Load it on {truck}</p>
@@ -280,7 +281,7 @@ export function OutcomeView({
     );
     if (outcome.declined) {
       mark = <Mark tone="attention" icon="alert" />;
-      title = `${director} declined the re-price`;
+      title = `${The(director)} declined the re-price`;
       body = (
         <>
           <p>The car stays with {dealer}. Leave it parked and move on.</p>
@@ -289,11 +290,11 @@ export function OutcomeView({
       );
     } else {
       mark = <Mark tone="attention" icon="clock" />;
-      title = `Re-price sent to ${director}`;
+      title = `Re-price sent to ${the(director)}`;
       body = (
         <>
           <p>
-            {director}, Sales Director at {dealer}, accepts or declines on their screen. If they decline, the car stays with the dealer.
+            {The(director)} at {dealer} accepts or declines on their screen. If they decline, the car stays with the dealer.
             Leave it parked until they answer.
           </p>
           {summary}

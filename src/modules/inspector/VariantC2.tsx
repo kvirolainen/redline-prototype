@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { StatusChip } from "../../components/ui/StatusChip";
 import { money } from "../../domain/format";
 import { C2DemoWorld, useC2Time } from "./c2-demo";
+import { the } from "../../domain/roles";
 import {
   isAccepted,
   isSettled,
@@ -251,7 +252,7 @@ function RunScreen({
                       </span>
                       {isCurrent && (
                         <span className="block text-sm text-muted">
-                          Ask for {s.contact}
+                          Ask for {the(s.contact)}
                         </span>
                       )}
                       {!isCurrent && !done && (
@@ -435,7 +436,7 @@ function CarScreen({
           onLeave={() =>
             run.notReady(
               car.id,
-              `No answer from ${env.directorOf(car)} by ${leaveLabel(stop)}`,
+              `No answer from ${the(env.directorOf(car))} by ${leaveLabel(stop)}`,
             )
           }
           onUndo={onUndo}

@@ -73,8 +73,8 @@ function useLocalBackOffice(initial: BackOfficeCar[] = BACK_OFFICE_CARS) {
       auction: c.reprice ? c.reprice.auctionAsFound : c.auction,
       events: [
         ...c.events,
-        { at: 'Today, just now', who: 'Dave', text: `Accepted the re-price: ${money(c.reprice?.to ?? c.offer)}`, kind: 'decision' },
-        { at: 'Today, just now', who: 'Redline', text: 'Confirmed. Sam loads it on today’s truck; payment within 2 business days', kind: 'pickup' },
+        { at: 'Today, just now', who: 'Sales Director', text: `Accepted the re-price: ${money(c.reprice?.to ?? c.offer)}`, kind: 'decision' },
+        { at: 'Today, just now', who: 'Redline', text: 'Confirmed. Loaded on today’s truck; payment within 2 business days', kind: 'pickup' },
       ],
     }));
 
@@ -85,7 +85,7 @@ function useLocalBackOffice(initial: BackOfficeCar[] = BACK_OFFICE_CARS) {
       note: 'Re-price declined. Stays with the dealer',
       events: [
         ...c.events,
-        { at: 'Today, just now', who: 'Dave', text: `Declined the re-price. Car stays with ${DEALER}`, kind: 'decision' },
+        { at: 'Today, just now', who: 'Sales Director', text: `Declined the re-price. Car stays with ${DEALER}`, kind: 'decision' },
       ],
     }));
 
@@ -96,7 +96,7 @@ function useLocalBackOffice(initial: BackOfficeCar[] = BACK_OFFICE_CARS) {
       expiresSoon: false,
       events: [
         ...c.events,
-        { at: 'Today, just now', who: 'Maria', text: `Offer refreshed: ${money(c.offer)} holds until ${NEXT_PICKUP}`, kind: 'offer' },
+        { at: 'Today, just now', who: 'Sales Manager', text: `Offer refreshed: ${money(c.offer)} holds until ${NEXT_PICKUP}`, kind: 'offer' },
       ],
     }));
 
@@ -105,7 +105,7 @@ function useLocalBackOffice(initial: BackOfficeCar[] = BACK_OFFICE_CARS) {
       ...c,
       status: 'kept',
       note: 'Kept for your lot',
-      events: [...c.events, { at: 'Today, just now', who: 'Dave', text: `Kept for the lot. Off the ${c.pickup} pickup`, kind: 'decision' }],
+      events: [...c.events, { at: 'Today, just now', who: 'Sales Director', text: `Kept for the lot. Off the ${c.pickup} pickup`, kind: 'decision' }],
     }));
 
   const undoKeep = (vin: string) =>
@@ -113,7 +113,7 @@ function useLocalBackOffice(initial: BackOfficeCar[] = BACK_OFFICE_CARS) {
       ...c,
       status: 'awaiting_pickup',
       note: undefined,
-      events: [...c.events, { at: 'Today, just now', who: 'Dave', text: `Back on the ${c.pickup} pickup`, kind: 'decision' }],
+      events: [...c.events, { at: 'Today, just now', who: 'Sales Director', text: `Back on the ${c.pickup} pickup`, kind: 'decision' }],
     }));
 
   const setReady = (vin: string, checks: ReadyCheck[]) =>
@@ -130,7 +130,7 @@ function useLocalBackOffice(initial: BackOfficeCar[] = BACK_OFFICE_CARS) {
           ...c.events,
           {
             at: 'Today, just now',
-            who: 'Maria',
+            who: 'Sales Manager',
             text: ready ? 'Marked ready: on the lot, both keys, ownership papers' : `Not ready yet: missing ${missing.map((m) => m.label.toLowerCase()).join(', ')}`,
             kind: 'pickup',
           },
@@ -146,7 +146,7 @@ function useLocalBackOffice(initial: BackOfficeCar[] = BACK_OFFICE_CARS) {
       expires: undefined,
       expiresSoon: false,
       ready: false,
-      events: [...c.events, { at: 'Today, just now', who: 'Maria', text: `Accepted. Joined the next pickup, ${NEXT_PICKUP}`, kind: 'accept' }],
+      events: [...c.events, { at: 'Today, just now', who: 'Sales Manager', text: `Accepted. Joined the next pickup, ${NEXT_PICKUP}`, kind: 'accept' }],
     }));
 
   const { stats, nextRun, needsYou } = useMemo(() => summarize(cars, NEXT_PICKUP), [cars]);

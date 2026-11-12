@@ -77,13 +77,13 @@ export function BackOfficeLive({ children }: { children: ReactNode }) {
   const live: BackOffice = {
     cars,
     ...summarize(cars, next),
-    acceptReprice: (vin) => void m.acceptReprice({ key: keyOf(vin), who: 'Dave' }),
-    declineReprice: (vin) => void m.declineReprice({ key: keyOf(vin), who: 'Dave' }),
-    refreshOffer: (vin) => void m.refreshOffer({ key: keyOf(vin), who: 'Maria' }),
-    keep: (vin) => void m.keep({ key: keyOf(vin), who: 'Dave' }),
-    undoKeep: (vin) => void m.undoKeep({ key: keyOf(vin), who: 'Dave' }),
-    setReady: (vin, checks) => void m.setReady({ key: keyOf(vin), checks, who: 'Maria' }),
-    acceptOffer: (vin) => void m.acceptOffer({ key: keyOf(vin), who: 'Maria' }),
+    acceptReprice: (vin) => void m.acceptReprice({ key: keyOf(vin), who: 'Sales Director' }),
+    declineReprice: (vin) => void m.declineReprice({ key: keyOf(vin), who: 'Sales Director' }),
+    refreshOffer: (vin) => void m.refreshOffer({ key: keyOf(vin), who: 'Sales Manager' }),
+    keep: (vin) => void m.keep({ key: keyOf(vin), who: 'Sales Director' }),
+    undoKeep: (vin) => void m.undoKeep({ key: keyOf(vin), who: 'Sales Director' }),
+    setReady: (vin, checks) => void m.setReady({ key: keyOf(vin), checks, who: 'Sales Manager' }),
+    acceptOffer: (vin) => void m.acceptOffer({ key: keyOf(vin), who: 'Sales Manager' }),
   };
 
   // The check closes the evening before pickup; from two days out an unchecked car is urgent.

@@ -4,6 +4,7 @@ import type { CarStatus } from '../../domain/statuses';
 import { useOpsEnv, type OpsEnv } from './env';
 import type { Day, Dealer, DealerHealth, OpsCar } from './fixtures';
 import { useOpsBoard } from './useOpsBoard';
+import { the, The } from '../../domain/roles';
 
 // What changes when the seller is a dealer: the dealer is the main object, with its people,
 // its cars on the way and its track record. Trucks, routes and rosters stay in dispatch.
@@ -108,7 +109,6 @@ export function useNow(startTime: string) {
 
 const DONE: CarStatus[] = ['picked_up', 'paid'];
 const CLOSED: CarStatus[] = ['declined', 'expired', 'cancelled'];
-const firstName = (s: string) => s.split(',')[0];
 
 export function readiness(c: OpsCar, env: Pick<OpsEnv, 'dateOf' | 'today'>): Readiness {
   if (DONE.includes(c.status)) return 'done';
@@ -182,7 +182,7 @@ export function useDealerBoard() {
     // Today's run counts as the next pickup only while it still has cars to collect; once it's done, the week after.
     const runs = env.days.filter((d) => d.state !== 'done' && d.weekday === dl.runDay);
     const nextRun = runs.find((d) => d.state !== 'today' || open.some((c) => c.day === d.id)) ?? runs[0] ?? null;
-    const contact = firstName(dl.contact);
+    const contact = the(dl.contact);
     const flags: DealerFlag[] = [];
 
     for (const l of live.filter((x) => x.dealer.id === dl.id)) {
@@ -288,7 +288,7 @@ export function useDealerBoard() {
     needs.push({
       key: `call-${l.car.id}`, kind: 'call', tag: 'On the lot now', dealer: l.dealer, carId: l.car.id,
       title: `${l.car.car} · ${l.dealer.name}`,
-      detail: `${l.director} hasn't answered the re-price, ${money(l.car.offer)} → ${money(l.car.newPrice!)}. ${l.inspector} leaves ~${l.leaves}; without an answer the car waits a week.`,
+      detail: `${The(l.director)} hasn't answered the re-price, ${money(l.car.offer)} → ${money(l.car.newPrice!)}. ${l.inspector} leaves ~${l.leaves}; without an answer the car waits a week.`,
     });
   }
   // One card per dealer whose track record needs a conversation: re-prices, acceptance, payment speed.

@@ -56,7 +56,7 @@ export const decodeVin = (vin: string) =>
   KNOWN_CARS.find((c) => c.vin === vin.trim().toUpperCase()) ?? null;
 
 export const DEALER = { name: 'Yorkdale Honda', city: 'Toronto' };
-export const USER = { name: 'Maria', role: 'Sales Manager' };
+export const USER = { role: 'Sales Manager' };
 
 export const DATES = {
   today: 'Thu Nov 12',

@@ -266,7 +266,7 @@ export function Confirmation({ t, q, onRestart }: { t: TradeIn; q: Quote; onRest
         </div>
         <ol className="space-y-4 px-6 py-5 text-sm text-body">
           {floor && <Next n={1} text={`The firm offer arrives in your back office by ${DATES.firmBy}. It can only be ${money(amount)} or more.`} />}
-          <Next n={floor ? 2 : 1} text={`On ${DATES.pickup}, Sam from Clutch checks the car against what you declared. It takes about 15 minutes.`} />
+          <Next n={floor ? 2 : 1} text={`On ${DATES.pickup}, a Clutch inspector checks the car against what you declared. It takes about 15 minutes.`} />
           <Next n={floor ? 3 : 2} text="If it matches, it’s picked up and you’re paid within 2 business days." />
           <Next n={floor ? 4 : 3} text="If something differs, your director gets a new price with the reason and decides. Declined, the car stays with you." />
         </ol>

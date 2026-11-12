@@ -200,7 +200,7 @@ export const sendReprice = mutation({
       inspected: true,
       repriced: true,
       reprice: {
-        from: car.offer, to, by: `${who}, Clutch inspector`, at, items, photos,
+        from: car.offer, to, by: 'Clutch inspector', at, items, photos,
         auctionAsFound: Math.max(car.auction - Math.round((drop * 0.9) / 50) * 50, 0),
         inspectorLeaves: Math.min(min + 50, 23 * 60 + 59),
         auctionFrom: car.auction,
@@ -208,7 +208,7 @@ export const sendReprice = mutation({
     });
     const n = items.length;
     await log(ctx, car, who, `${n === 1 ? 'One difference' : `${n} differences`} from what was declared. Re-priced to ${money(to)}`, 'reprice');
-    await log(ctx, car, 'Redline', `Sent to ${dealer.director} for a decision. Car stays on the lot until then`, 'alert');
+    await log(ctx, car, 'Redline', `Sent to the ${dealer.director.toLowerCase()} for a decision. Car stays on the lot until then`, 'alert');
   },
 });
 
@@ -264,6 +264,6 @@ export const opsNote = mutation({
   args: { dealer: v.string(), car: v.optional(v.string()), text: v.string() },
   handler: async (ctx, { dealer, car, text }) => {
     const c = car ? await carByKey(ctx, car) : null;
-    await log(ctx, c, 'Jordan', text, 'alert', dealer);
+    await log(ctx, c, 'Clutch ops', text, 'alert', dealer);
   },
 });
